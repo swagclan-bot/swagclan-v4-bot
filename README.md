@@ -18,7 +18,7 @@ If not, you can simply download the repository as an archive file from the code 
 
 ### Configure bot
 Using a text editor, create a `.credentials.js` file with these contents:
-```json
+```js
 export default {
     token: "",
     client_id: "",
@@ -35,15 +35,21 @@ and enter in your credentials for each API that you have access to. Commands tha
 While I try to use as many free and unlimited APIs as possible, some are just not possible and require some manual set-up to do.
 
 `token` is your discord bot user's access token.
+
 `client_id` is the ID of your discord application.
+
 `client_secret` is the secret of your discord application.
+
 `ipinfo` is your API access token for https://ipinfo.io/ (Used for IP Locate commad)
+
 `rapidapi` is your API access token for https://rapidapi.com/ (Used for Urban Dictionary command)
+
 `lichess_id` is the ID of your lichess application created at https://lichess.org/account/oauth/app. (Used for lichess integration)
+
 `lichess_secret` is the secret for your lichess application created at https://lichess.org/account/oauth/app. (Used for lichess integration)
 
 Next, create a `.env` with the following template
-```json
+```
 PORT=5000
 ENVIRONMENT=development
 BASE_WEB=http://localhost:3000
