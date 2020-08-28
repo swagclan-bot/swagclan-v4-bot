@@ -60,3 +60,6 @@ You can then run `npm start` (or `npm run debug` to run the bot in debug mode) t
 
 ### Updating
 You can run `git pull` to update the bot to the latest version. If you have changed any part of the code yourself, there may be merge conflicts which you will have to sort out manually.
+
+## Notes
+This repository is licensed under the GNU General Public License v3.0, which means I am not responsible for anything you do with this bot.
