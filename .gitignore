@@ -1,0 +1,7 @@
+*.env
+*.credentials.js
+private/**/*.json
+node_modules
+tmp
+logs
+logs.txt
