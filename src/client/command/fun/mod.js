@@ -164,7 +164,7 @@ export default new BotModule({
                     name: "text",
                     description: "The message to fake.",
                     emoji: "💬",
-                    types: [ArgumentType.Text]
+                    types: [ArgumentType.Rest]
                 }),
                 new CommandSyntax("as"),
                 new CommandArgument({
@@ -185,7 +185,7 @@ export default new BotModule({
                     name: "text",
                     description: "The message to fake.",
                     emoji: "💬",
-                    types: [ArgumentType.Text]
+                    types: [ArgumentType.Rest]
                 })
             ])
         ],
