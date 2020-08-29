@@ -9,7 +9,7 @@ See https://swagclan.thechimp.store/help for a list of commands and examples of 
 * [Node.js](https://nodejs.org) (v14+)
 * [NPM](https://npmjs.org) (Installed with node.js)
 * [Git](https://git-scm.org) (Optional, for downloading updates)
-* [Deno](https://deno.land) (Optional, for a secure JS environment command)
+* [Deno](https://deno.land) (Optional, for the secure JS environment command)
 * A command prompt of your choice.
 * A text editor of your choice.
 * A discord bot created at https://discord.com/developers/applications (with a bot user)
