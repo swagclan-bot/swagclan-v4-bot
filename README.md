@@ -1,5 +1,5 @@
 # SWAGCLAN
-Swag clan is a modular discord bot written in discord.js. It features lots of features, being fully integrated with lichess and using APIs for many services.
+Swag clan is a modular discord bot written in discord.js. It has a lot of features, being fully integrated with lichess and using APIs for many services.
 
 ## Installation
 
