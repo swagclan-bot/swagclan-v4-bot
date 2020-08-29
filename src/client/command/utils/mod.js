@@ -807,6 +807,7 @@ export default new BotModule({
         name: "Lichess User",
         description: "Get information about a user on lichess.",
         emoji: "<:lichess:730936886557933650>",
+		example: "https://i.imgur.com/P1GEO5b.gif",
         versions: [
             new CommandVersion(["liuser"], [
                 new CommandArgument({
@@ -1081,6 +1082,7 @@ export default new BotModule({
         name: "Hyperscape",
         description: "Get stats for a player on hyperscape.",
         emoji: "<:white_crown:743042449747738664>",
+		example: "https://i.imgur.com/RcunoVk.gif",
         versions: [
             new CommandVersion(["hyperscape", "hsstats", "hs"], [
                 new CommandArgument({
