@@ -686,7 +686,7 @@ export default new BotModule({
                                 return await this.edit("error", "You can not challenge yourself.");
                             }
 
-                            const masked = user => "[@" + user.name + "](" + lichess.Client.BASE_URL + "/@/" + user.id + ")";
+                            const masked = user => "[@" + user.name + "](" + lichess.Client.BASE_URL + "/@/" + user.id + ") (" + user.rating + ")";
 
                             try {
 								const controls = {
@@ -748,7 +748,7 @@ export default new BotModule({
 										reset_reactions();
 									},
 									"declined": async () => {
-										await this.edit("success", masked(challenge.destUser) + " declined the challenge against " + masked(challenge.challenger));
+										await this.edit("success", masked(challenge.destUser) + " declined a challenge against " + masked(challenge.challenger));
 
 										reset_reactions();
 									},
