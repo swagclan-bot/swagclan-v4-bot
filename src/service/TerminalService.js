@@ -364,7 +364,7 @@ export class TerminalService extends Service {
 				process.stdout.write("Error: Missing argument <module>".red + "\n");
 			}
 		} else if (command === "help") {
-			process.stdout.write("See https://github.com/swagclan-bot/swagclan-v4-bot#Commands for help on terminal commands.\n");
+			process.stdout.write("See https://github.com/swagclan-bot/swagclan-v4-bot#Terminal%20commands for help on terminal commands.\n");
 		} else if (command === "exit") {
 			process.exit(0);
 		}

@@ -61,7 +61,7 @@ You can then run `npm start` (or `npm run debug` to run the bot in debug mode) t
 ### Updating
 You can run `git pull` to update the bot to the latest version. If you have changed any part of the code yourself, there may be merge conflicts which you will have to sort out manually.
 
-### Commands
+### Terminal commands
 * `admins` - Get a list of all users and guilds with administrator privileges.
 * `uadmin <userid>` - Give a user administrator privileges. (Only works for cached users)
 * `gadmin <guildid>` - Give a guild administrator privileges for all commands ran inside it.
