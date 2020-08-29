@@ -56,7 +56,7 @@ Enter the directory in your command prompt, by using `cd swagclan-v4-bot`.
 
 Then run `npm install` to install all required packages for the bot, this shouldn't take too long.
 
-You can then run `npm start` (or `npm run debug` to run the bot in debug mode) to log in to the bot account, and to begin listening for messages, this will also enable you to run commands through the bot in the interactive terminal. See below for a list of commands.
+You can then run `npm start` (or `npm run debug` to run the bot in debug mode) to log in to the bot account, and to begin listening for messages, this will also enable you to run commands through the bot in the interactive terminal. [See below for a list of commands](https://github.com/swagclan-bot/swagclan-v4-bot#Terminal-commands).
 
 ### Updating
 You can run `git pull` to update the bot to the latest version. If you have changed any part of the code yourself, there may be merge conflicts which you will have to sort out manually.
