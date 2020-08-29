@@ -78,6 +78,7 @@ You can run `git pull` to update the bot to the latest version. If you have chan
 * `load <module>` - Load a module.
 * `reload <module>` - Reload a module.
 * `unload <module>` - Unload a module.
+* `help` - Display a help message.
 * `exit` - Exit the process.
 
 ## Notes
