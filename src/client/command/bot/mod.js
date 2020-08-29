@@ -164,7 +164,6 @@ export default new BotModule({
             versions: [
                 new CommandVersion(["about"], [])
             ],
-            example: "https://i.imgur.com/lzSHSrm.gif",
             callback: async function GetProcessInformation(message) {
                 await this.reply("success", "Loading information..");
     
