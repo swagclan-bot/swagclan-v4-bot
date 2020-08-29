@@ -3,6 +3,7 @@ import discord from "discord.js"
 import { BotModule, ModuleCommand, MessageMatcher, CommandVersion, CommandArgument, CommandSyntax, ArgumentType } from "../../../service/ModuleService.js"
 
 import fetch from "node-fetch"
+import FormData from "form-data"
 
 import lichess from "../../../class/lichess/index.js"
 

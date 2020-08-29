@@ -28,6 +28,7 @@ export default new BotModule({
 			versions: [
 				new CommandVersion(["source", "src"], [])
 			],
+			example: "https://i.imgur.com/SlyV3yS.gif",
 			callback: async function SourceCode(message) {
 				return await this.reply("success", "The latest version source for the bot is hosted at https://github.com/swagclan-bot/swagclan-v4-bot");
 			}
@@ -51,7 +52,7 @@ export default new BotModule({
                         emoji: "📦",
                         types: [ArgumentType.Text]
                     }), 
-                ]), 
+                ]),
                 new CommandVersion(["help", "commands"], [
                     new CommandArgument({
                         name: "module",
@@ -62,6 +63,7 @@ export default new BotModule({
                 ]),
                 new CommandVersion(["help", "commands"], [])
             ],
+			example: "https://i.imgur.com/LRJr9BQ.gif",
             callback: async function DisplayHelp(message) {
                 /** @type {SwagClan} */
                 const client = message.client;
@@ -223,6 +225,7 @@ export default new BotModule({
             versions: [
                 new CommandVersion(["sweep"], [])
             ],
+			example: "https://i.imgur.com/tCRsoY0.gif",
             callback: async function SweepMessages(message) {
                 const sweeper = message.client.SweeperService.getSweeper(message.channel);
 
@@ -248,6 +251,7 @@ export default new BotModule({
             versions: [
                 new CommandVersion(["invite"], [])
             ],
+			example: "https://i.imgur.com/HLPCUPb.gif",
             callback: async function GenerateInvite(message) {
                 this.reply("success", "`https://discord.com/oauth2/authorize?client_id=" + credentials.client_id + "&scope=bot&permissions=809639952`")
             }
@@ -280,10 +284,6 @@ export default new BotModule({
                 ])
             ],
             callback: async function Modules(message) {
-                const displayModule = async module => {
-
-                }
-
                 /** @type {SwagClan} */
                 const client = this.client;
 
