@@ -21,6 +21,17 @@ export default new BotModule({
     description: "Get bot information and handle core features.",
     emoji: "🤖",
     commands: [
+		new ModuleCommand({
+			name: "Source",
+			description: "Get the source code of the bot.",
+			emoji: "📝",
+			versions: [
+				new CommandVersion(["source", "src"], [])
+			],
+			callback: async function SourceCode(message) {
+				return await this.reply("success", "The latest version source for the bot is hosted at https://github.com/swagclan-bot/swagclan-v4-bot");
+			}
+		}),
         new ModuleCommand({
             name: "Help",
             description: "Get help on modules and command usage.",
