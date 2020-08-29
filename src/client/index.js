@@ -17,8 +17,6 @@ import runtime_id from "../runtime.id.js"
  * @returns {SwagClan}
  */
 export default async function bot() {
-    console.info("Process started" + (runtime_config.debug ? " in debug" : "") + ", runtime ID: " + runtime_id);
-
     const __filename = url.fileURLToPath(import.meta.url);
     const __dirname = path.dirname(__filename);
     
@@ -31,6 +29,10 @@ export default async function bot() {
         settings_path: path.resolve("private/settings"),
         module_path: path.resolve(__dirname, "command")
     });
+	
+    console.info("Process started" + (runtime_config.debug ? " in debug" : "") + " and client initialised, runtime ID: " + runtime_id);
+	
+	client.TerminalService.begin();
 
     await client.login(credentials.token);
     

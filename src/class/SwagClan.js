@@ -11,6 +11,7 @@ import { PrivilegeService } from "../service/PrivilegeService.js"
 import { SessionService } from "../service/SessionService.js"
 import { SettingsService } from "../service/SettingsService.js"
 import { SweeperService } from "../service/SweeperService.js"
+import { TerminalService } from "../service/TerminalService.js"
 import { VoiceService } from "../service/VoiceService.js"
 
 import runtime_id from "../runtime.id.js"
@@ -93,6 +94,12 @@ export class SwagClan extends discord.Client {
          * @type {SweeperService}
          */
         this.SweeperService = new SweeperService(this);
+		
+		/**
+		 * The service dedicated to handling terminal commands.
+		 * @type {TerminalService}
+		 */
+		this.TerminalService = new TerminalService(this);
         
         /**
          * The service dedicated to managing bot voice states.

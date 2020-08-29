@@ -56,10 +56,29 @@ Enter the directory in your command prompt, by using `cd swagclan-v4-bot`.
 
 Then run `npm install` to install all required packages for the bot, this shouldn't take too long.
 
-You can then run `npm start` (or `npm run debug` to run the bot in debug mode) to log in to the bot account, and to begin listening for messages.
+You can then run `npm start` (or `npm run debug` to run the bot in debug mode) to log in to the bot account, and to begin listening for messages, this will also enable you to run commands through the bot in the interactive terminal. See below for a list of commands.
 
 ### Updating
 You can run `git pull` to update the bot to the latest version. If you have changed any part of the code yourself, there may be merge conflicts which you will have to sort out manually.
+
+### Commands
+* `admins` - Get a list of all users and guilds with administrator privileges.
+* `uadmin <userid>` - Give a user administrator privileges. (Only works for cached users)
+* `gadmin <guildid>` - Give a guild administrator privileges for all commands ran inside it.
+* `radmin <id>` - Remove administrator privileges from a user or a guild.
+* `blacklist` - Get a list of all blacklisted users and guilds.
+* `ublacklist <userid>` - Blacklist a user from using the bot. (Only works for cached users)
+* `gblacklist <guildid>` - Blacklist a guild from using the bot.
+* `rblacklist <id>` - Remove a user or guild from the blacklist.
+* `beta` - Get a list of all users and guilds with beta privileges.
+* `ubeta <userid>` - Give a user beta privileges. (Only works for cached users)
+* `gbeta <guildid>` - Give a guild beta privileges for all commands ran inside it.
+* `rbeta <id>` - Remove beta privileges from a user or a guild.
+* `modules` - Get a list of all loaded and available modules.
+* `load <module>` - Load a module.
+* `reload <module>` - Reload a module.
+* `unload <module>` - Unload a module.
+* `exit` - Exit the process.
 
 ## Notes
 This repository is licensed under the GNU General Public License v3.0, which means I am not responsible for anything you do with this bot.
