@@ -44,6 +44,7 @@ export default new BotModule({
                 })
             ])
         ],
+		example: "https://i.imgur.com/iEB12aR.gif",
         callback: async function GetUserInformation(message) {
             let member = this.args.user?.value || message.member;
 
@@ -76,6 +77,7 @@ export default new BotModule({
         versions: [
             new CommandVersion(["serverinfo", "server"], [])
         ],
+		example: "https://i.imgur.com/2FSFkr3.gif",
         callback: async function GetServerInformation(message) {
             await message.guild.fetch();
 
@@ -134,6 +136,7 @@ export default new BotModule({
                 })
             ])
         ],
+		example: "https://i.imgur.com/0NTIIuu.gif",
         callback: async function GetUserAvatar(message) {
             const user = this.args.user?.value?.user || message.author;
 
@@ -161,6 +164,7 @@ export default new BotModule({
                 })
             ])
         ],
+		example: "https://i.imgur.com/lrwVDxW.gif",
         callback: async function GetMinecraftServerInformation(message) {
             await this.reply("success", "Loading information for server with ip `" + this.args.ip.value + "`");
 
@@ -218,6 +222,7 @@ export default new BotModule({
                 })
             ])
         ],
+		example: "https://i.imgur.com/9g9MLpV.gif",
         callback: async function GetMinecraftUserInformation(message) {
             await this.reply("success", "Loading user information for `" + this.escape_c(this.args.username.value) + "`..");
 
@@ -271,6 +276,7 @@ export default new BotModule({
                 })
             ])
         ],
+		example: "https://i.imgur.com/3KWMiIC.gif",
         callback: async function ResolveDomain(message) {
             try {
                 const dnsres = await dnslookup(this.args.domain.value);
@@ -301,6 +307,7 @@ export default new BotModule({
                 })
             ])
         ],
+		example: "https://i.imgur.com/qTWAl4k.gif",
         callback: async function GeolocateIP(message) {
 			if (credentials.ipinfo) {
 				await this.reply("success", "Loading IP location information..");
@@ -374,6 +381,7 @@ export default new BotModule({
                 })
             ])
         ],
+		example: "https://i.imgur.com/K27oU5B.gif",
         callback: async function GetSteamUser(message) {
             await this.reply("success", "Loading steam user information..");
 
@@ -470,6 +478,7 @@ export default new BotModule({
                 })
             ])
         ],
+		example: "https://i.imgur.com/Sf6kXlB.gif",
         callback: async function EnlargeImage(message) {
             await this.reply("success", "Enlarging image..");
 
@@ -526,6 +535,7 @@ export default new BotModule({
                 })
             ])
         ],
+		example: "https://i.imgur.com/ZHfsYfx.gif",
         callback: async function SendFakeDDoS(message) {
             if (ddos[message.guild.id]) {
                 return await this.reply("error", "Please wait for the current attack to finish.");
@@ -807,7 +817,6 @@ export default new BotModule({
         name: "Lichess User",
         description: "Get information about a user on lichess.",
         emoji: "<:lichess:730936886557933650>",
-		example: "https://i.imgur.com/P1GEO5b.gif",
         versions: [
             new CommandVersion(["liuser"], [
                 new CommandArgument({
@@ -828,6 +837,7 @@ export default new BotModule({
                 })
             ])
         ],
+		example: "https://i.imgur.com/P1GEO5b.gif",
         callback: async function GetLichessUser(message) {
 			const service = this.client.AccountService;
 
@@ -916,6 +926,7 @@ export default new BotModule({
                 })
             ])
         ],
+		example: "https://i.imgur.com/IEE5RsU.gif",
         callback: async function DictionaryDefinition(message) {
             const res = await fetch("https://api.dictionaryapi.dev/api/v1/entries/en/" + this.args.word.value);
 
@@ -1016,6 +1027,7 @@ export default new BotModule({
                 })
             ])
         ],
+		example: "https://i.imgur.com/8QYUEFG.gif",
         callback: async function UrbanDictionaryDefinition(message) {
             if (credentials.rapidapi) {
 				const res = await fetch("https://mashape-community-urban-dictionary.p.rapidapi.com/define?term=" + this.args.word.value, {
@@ -1419,6 +1431,7 @@ ${format_compare_stat("fusions_per_match", "Fusions per match", true, true)}
             ])
         ],
         delay: 15000,
+		example: "https://i.imgur.com/mqdubgi.gif",
         callback: async function SecureJavascript(message) {
             try {
                 if (evals[message.guild.id]) {

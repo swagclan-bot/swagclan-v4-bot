@@ -49,6 +49,7 @@ export default new BotModule({
                     })
                 ])
             ],
+			example: "https://i.imgur.com/bA6Sil2.gif",
             callback: async function ModifyServerSettings(message) {
                 /** @type {SettingsService} */
                 const settings_service = message.client.SettingsService;

@@ -37,6 +37,7 @@ export default new BotModule({
                 })
             ])
         ],
+		example: "https://i.imgur.com/Co5v0Un.gif",
         callback: async function WouldYouRather(message) {
             message.delete();
 
@@ -188,6 +189,7 @@ export default new BotModule({
                 })
             ])
         ],
+		example: "https://i.imgur.com/Co5v0Un.gif",
         callback: async function SpoofMessage(message) {
             message.delete();
 
@@ -258,6 +260,7 @@ export default new BotModule({
                 })
             ])
         ],
+		example: "https://i.imgur.com/fPkRkPH.gif",
         callback: async function GetBibleVerse(message) {
             if (this.args.book) {
                 if (this.args.verses) {
@@ -346,6 +349,7 @@ export default new BotModule({
                 })
             ])
         ],
+		example: "https://i.imgur.com/6FAQaIX.gif",
         callback: async function GetXKCDComic(message) {
             if (this.args.search) {
                 this.reply("success", "Searching XKCD for `" + this.args.search.value + "`..");
@@ -457,6 +461,7 @@ export default new BotModule({
                 new CommandSyntax("paste", true)
             ])
         ],
+		example: "https://i.imgur.com/kM6fXlq.gif",
         callback: async function GenerateMinesweeperBoard(message) {
             let width = this.args.width?.value || 8;
             let height = this.args.height?.value || width;
@@ -646,6 +651,7 @@ export default new BotModule({
                 })
             ])
         ],
+		example: "https://i.imgur.com/DUQJIAN.gif",
         callback: async function LichessChallenge(message) {
 			const service = this.client.AccountService;
             const account = await service.getAccount(message.author);
@@ -783,7 +789,7 @@ export default new BotModule({
                                                         await challenge.decline(await user_account.connections.lichess.token());
 
                                                         return await this.edit("success", "Challenge against " + masked(challenge.destUser) + " was cancelled.");
-                                                    } catch (e) { };
+                                                    } catch (e) {  };
                                                 }
 
                                                 return await this.edit("error", "Could not cancel challenge, go to " + challenge.url + " to cancel manually.");
