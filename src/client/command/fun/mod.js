@@ -702,8 +702,6 @@ export default new BotModule({
 									"bullet": "1+0",
 									"classical": "30+0"
                                 };
-                                
-                                console.log(this.args);
 								
                                 const challenge = await user.challenge({
                                     ...(this.args.control && this.args.control.value !== "unlimited" ? (
