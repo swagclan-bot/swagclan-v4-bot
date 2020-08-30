@@ -33,10 +33,8 @@ export default async function bot() {
     });
 	
     console.info("Process started" + (runtime_config.debug ? " in debug" : "") + " and client initialised, runtime ID: " + runtime_id);
-
-    console.log(process.env);
     
-    if (process.env.BASE_API = "https://api.thechimp.store") {
+    if (process.env.BASE_API === "https://api.thechimp.store") {
         console.info("Checking for updates..");
 
         const latest_stable = await client.getLatest();
