@@ -630,7 +630,7 @@ export default new BotModule({
                             name: "Time Control",
                             description: "A chess time control setting.",
                             examples: ["5+3", "10+0", "2d", "bullet", "blitz", "classical"],
-                            validate: /^(((1\/2)|(1\/4)|\d+)(\+\d+)?)|(\d+d)|(blitz)|(rapid)|(bullet)|(classical)(unlimited)$/
+                            validate: /^((((1\/2)|(1\/4)|\d+)(\+\d+)?)|(\d+d)|(blitz)|(rapid)|(bullet)|(classical)(unlimited))$/
                         })
                     ],
                     optional: true,
@@ -701,7 +701,9 @@ export default new BotModule({
 									"rapid": "10+0",
 									"bullet": "1+0",
 									"classical": "30+0"
-								};
+                                };
+                                
+                                console.log(this.args);
 								
                                 const challenge = await user.challenge({
                                     ...(this.args.control && this.args.control.value !== "unlimited" ? (

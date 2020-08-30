@@ -367,6 +367,8 @@ export class TerminalService extends Service {
 			process.stdout.write("See https://github.com/swagclan-bot/swagclan-v4-bot#Terminal-commands for help on terminal commands.\n");
 		} else if (command === "exit") {
 			process.exit(0);
+		} else {
+			process.stdout.write("Error: Command not found".red + "\n");
 		}
 	}
 	
