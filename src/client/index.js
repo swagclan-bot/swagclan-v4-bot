@@ -9,6 +9,8 @@ import { SwagClan } from "../class/SwagClan.js"
 import setting_definitions from "./settings.js"
 import credentials from "../../.credentials.js"
 
+import config from "../../.config.js"
+
 import runtime_config from "../runtime.cfg.js"
 import runtime_id from "../runtime.id.js"
 
@@ -31,6 +33,16 @@ export default async function bot() {
     });
 	
     console.info("Process started" + (runtime_config.debug ? " in debug" : "") + " and client initialised, runtime ID: " + runtime_id);
+    
+    console.info("Checking for updates..");
+
+    const latest_stable = await client.getLatest();
+
+    if (latest_stable > config.version) {
+        console.warn("A new stable version (" + config.version.green + " -> " + latest_stable.green + ") is available. Use `git pull` to update.");
+    } else {
+        console.info("No updates found.");
+    }
 	
 	client.TerminalService.begin();
 

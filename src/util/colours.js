@@ -46,6 +46,10 @@ export default async () => {
     console.info = (...log) => {
         return console.log("[INFO]".bgBlue, ...log);
     }
+
+    console.warn = (...log) => {
+        return console.log("[WARN]".bgYellow, ...log);
+    }
 	
     console.debug = (...log) => {
         if (runtime_config.debug) {

@@ -1,5 +1,5 @@
 export default {
-    "version": "4.2.1",
+    "version": "4.3.0",
     "last_update": "27.08.2020",
     "author": {
         "discord": "weak eyes#4248"

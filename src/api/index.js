@@ -268,7 +268,8 @@ export default async function api(client) {
                 node: versions.node,
                 npm: versions.npm,
                 discordjs: "12.2.0"
-            }
+            },
+            commit: await client.getCommit()
         });
     });
 

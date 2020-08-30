@@ -1,5 +1,7 @@
 // Imports
 import * as discord from "discord.js"
+import child_process from "child_process"
+import fetch from "node-fetch"
 
 import { AccountService } from "../service/AccountService.js"
 import { AuthorisationService } from "../service/AuthorisationService.js"
@@ -127,5 +129,24 @@ export class SwagClan extends discord.Client {
         }
 
         super.emit(message, ...args);
+    }
+
+    /**
+     * Get the last commit hash.
+     * @returns {String}
+     */
+    async getCommit() {
+        return child_process.execSync("git rev-parse HEAD").toString().trim();
+    }
+
+    /**
+     * Get the latest stable version.
+     * @returns {String}
+     */
+    async getLatest() {
+        const res = await fetch("https://api.thechimp.store/");
+        const { version } = await res.json();
+
+        return version;
     }
 }
