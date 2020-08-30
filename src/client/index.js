@@ -34,14 +34,16 @@ export default async function bot() {
 	
     console.info("Process started" + (runtime_config.debug ? " in debug" : "") + " and client initialised, runtime ID: " + runtime_id);
     
-    console.info("Checking for updates..");
+    if (process.env.BASE_API = "https://api.thechimp.store") {
+        console.info("Checking for updates..");
 
-    const latest_stable = await client.getLatest();
+        const latest_stable = await client.getLatest();
 
-    if (latest_stable > config.version) {
-        console.warn("A new stable version (" + config.version.green + " -> " + latest_stable.green + ") is available. Use `git pull` to update.");
-    } else {
-        console.info("No updates found.");
+        if (latest_stable > config.version) {
+            console.warn("A new stable version (" + config.version.green + " -> " + latest_stable.green + ") is available. Use `git pull` to update.");
+        } else {
+            console.info("No updates found.");
+        }
     }
 	
 	client.TerminalService.begin();
