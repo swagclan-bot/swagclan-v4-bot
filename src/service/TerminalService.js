@@ -59,7 +59,7 @@ export class TerminalService extends Service {
 			
 			if (modules.length) {
 				for (let i = 0; i < modules.length; i++) {
-					process.stdout.write("*".green + " " + modules[i].name.blue + "\n");
+					process.stdout.write("*".green + " " + modules[i].name + "\n");
 				}
 			} else {
 				process.stdout.write("None.\n");
