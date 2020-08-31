@@ -152,7 +152,7 @@ export default class Challenge extends EventEmitter {
 					this.emit("ended", { id });
 				}
 			},
-			"challengeCanelled": challenge => {
+			"challengeCancelled": challenge => {
 				if (challenge.id === this.id) {
 					this.emit("cancelled", challenge);
 				}
