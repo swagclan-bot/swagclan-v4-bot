@@ -622,11 +622,22 @@ export class CustomCommand {
 				name
 			}));
 		} else {
-			/**
-			 * An array of triggers to activate the command.
-			 * @type {Array<JSONCustomCommandTrigger>}
-			 */
-			this.triggers = command.triggers;
+            if (commands.triggers[0].trigger) { // Cleans up bugs from transferring to new trigger system.
+                /**
+                 * An array of triggers to activate the command.
+                 * @type {Array<JSONCustomCommandTrigger>}
+                 */
+                this.triggers = command.triggers.map(trigger => ({
+                    type: trigger.type,
+                    name: trigger.trigger
+                }));
+            } else {
+                /**
+                 * An array of triggers to activate the command.
+                 * @type {Array<JSONCustomCommandTrigger>}
+                 */
+                this.triggers = command.triggers;
+            }
 		}
 
         if (Array.isArray(command.parameters)) {
