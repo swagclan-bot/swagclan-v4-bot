@@ -96,7 +96,7 @@ export default new BotModule({
                                     fields: [
                                         {
                                             title: "`" + prefix + triggers[0].name + (params.length ? " " + params.map(param => "<" + param.name + ">") : "") + "`",
-                                            body: params.map(param => "**" + param.name + "** (" + param.type + ")").join("\n") || "No parameters."
+                                            body: params.map(param => "**" + param.name + "** (" + param.type + ")").join("\n") || "No arguments."
                                         }
                                     ]
                                 });
