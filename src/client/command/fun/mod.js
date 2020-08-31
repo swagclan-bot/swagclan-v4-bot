@@ -749,11 +749,6 @@ export default new BotModule({
 
 										reset_reactions();
 									},
-									"ended":  async () => {
-										await this.edit("success", "Match ended, post-match analysis at " + challenge.url);
-
-										reset_reactions();
-									},
 									"declined": async () => {
 										await this.edit("success", masked(challenge.destUser) + " declined a challenge against " + masked(challenge.challenger));
 
@@ -764,7 +759,13 @@ export default new BotModule({
 										
 										reset_reactions();
 									}
-								}, { timeout: 90000 });
+                                }, { timeout: 90000 });
+                                
+                                challenge.once("ended", async () => {
+                                    await this.edit("success", "Match ended, post-match analysis at " + challenge.url);
+
+                                    reset_reactions();
+                                });
 
                                 if (challenge.destUser) {
 									const variant = challenge.variant.key.replace(/([A-Z])/g, " $1").toLowerCase();

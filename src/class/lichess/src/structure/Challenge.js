@@ -162,7 +162,13 @@ export default class Challenge extends EventEmitter {
 					this.emit("declined", challenge);
 				}
 			}
-		}, { timeout: 90000 } ); // 1 1/2 hours
+        }, { timeout: 90000 } ); // 1 1/2 hours
+        
+        this.client.once("gameFinish", ({ id }) => {
+            if (id === this.id) {
+                this.emit("ended", { id });
+            }
+        });
     }
 
     /**
