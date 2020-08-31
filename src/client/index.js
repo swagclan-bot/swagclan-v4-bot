@@ -39,10 +39,14 @@ export default async function bot() {
 
         const latest_stable = await client.getLatest();
 
-        if (latest_stable > config.version) {
-            console.warn("A new stable version (" + config.version.green + " -> " + latest_stable.green + ") is available. Use `git pull` to update.");
+        if (latest_stable) {
+            if (latest_stable > config.version) {
+                console.warn("A new stable version (" + config.version.green + " -> " + latest_stable.green + ") is available. Use `git pull` to update.");
+            } else {
+                console.info("No updates found.");
+            }
         } else {
-            console.info("No updates found.");
+            console.warn("Could not retrieve latest version.");
         }
     }
 	

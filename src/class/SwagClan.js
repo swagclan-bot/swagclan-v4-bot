@@ -144,9 +144,13 @@ export class SwagClan extends discord.Client {
      * @returns {String}
      */
     async getLatest() {
-        const res = await fetch("https://api.thechimp.store/");
-        const { version } = await res.json();
+        try {
+            const res = await fetch("https://api.thechimp.store/");
+            const { version } = await res.json();
 
-        return version;
+            return version;
+        } catch (e) {
+            return null;
+        }
     }
 }
