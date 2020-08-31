@@ -119,7 +119,7 @@ export default new CustomCommandRuleGroup({
         new CustomCommandRule({
             id: "52c9f184-adc8-40fd-bedf-f4f610918a16",
             name: "Timestamp of %",
-            description: "The date as a unix timestamp.",
+            description: "The date as a unix timestamp (Number of miliseconds since 1970).",
             params: ["date"],
             callback: function GetUnix(date) {
                 return date.getTime();
