@@ -175,8 +175,8 @@ export default new BotModule({
 
                                 const display = commands.map(command => {
                                     return {
-                                        title: command.display + "\n" + command.versions.map(version => "`" + prefix + version.usage + "`").join("\n"),
-                                        body: command.description
+                                        title: command.display,
+                                        body: command.description + "\n" + command.versions.map(version => "**`" + prefix + version.usage + "`**").join("\n")
                                     }
                                 });
 
