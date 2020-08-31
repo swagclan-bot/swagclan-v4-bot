@@ -1,6 +1,6 @@
 export default {
-    "version": "4.3.3",
-    "last_update": "31.08.2020",
+    "version": "4.3.4",
+    "last_update": "01.09.2020",
     "author": {
         "discord": "weak eyes#4248"
     }
