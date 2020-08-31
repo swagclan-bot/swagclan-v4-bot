@@ -160,6 +160,8 @@ export class CustomCommandRule {
                     parsed_args.push(ctx.message.guild.channels.resolve(value));
                 } else if (param === "role") {
                     parsed_args.push(ctx.message.guild.roles.resolve(value));
+                } else if (param === "date") {
+                    parsed_args.push(new Date(value));
                 } else {
                     parsed_args.push(value);
                 }

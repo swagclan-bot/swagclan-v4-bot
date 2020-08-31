@@ -129,6 +129,16 @@ export default new CustomCommandRuleGroup({
                 await message.react(react);
             },
             returns: "void"
+        }),
+        new CustomCommandRule({
+            id: "dce546e8-c4b4-4a59-997e-d44bd19c5bfb",
+            name: "Date of %",
+            description: "When the message was created.",
+            params: ["message"],
+            callback: async function Message(message, react) {
+                return message.createdAt;
+            },
+            returns: "date"
         })
     ]
 });
