@@ -762,7 +762,7 @@ export default new BotModule({
                                 }, { timeout: 90000 });
                                 
                                 challenge.once("ended", async () => {
-                                    await this.edit("success", "Match ended, post-match analysis at " + challenge.url);
+                                    await this.edit("success", "Match between " + masked(challenge.challenger) + " and " + masked(challenge.destUser) + " ended, post-match analysis at " + challenge.url);
 
                                     reset_reactions();
                                 });
