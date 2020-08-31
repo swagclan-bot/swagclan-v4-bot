@@ -224,7 +224,7 @@ export default new BotModule({
             description: "Sweep bot messages and their uses.",
             emoji: "🧹",
             versions: [
-                new CommandVersion(["sweep"], [])
+                new CommandVersion(["sweep", "clean"], [])
             ],
 			example: "https://i.imgur.com/tCRsoY0.gif",
             callback: async function SweepMessages(message) {

@@ -913,6 +913,17 @@ export default new BotModule({
         }
     }),
     new ModuleCommand({
+    	name: "Apex Legends",
+    	descriptions: "Get statistics for a user on Apex Legends.",
+        emoji: "<:apex:749810142782160896>",
+        versions: [],
+        callback: async function GetApexStats(message) {
+
+        },
+        hidden: true,
+        beta: true
+    }),
+    new ModuleCommand({
         name: "Dictionary",
         description: "Get dictionary definitions and synonyms.",
         emoji: "📚",
