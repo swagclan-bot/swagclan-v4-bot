@@ -300,7 +300,7 @@ export class CommandInterface {
         const last_switch = {};
         const infractions = {};
 
-        if (pages.length === 1) {
+        if (pages.length < 2) {
             await this.reply(mode, body.trim(), {
                 fields: pages[cur_page],
                 ...options

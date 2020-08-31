@@ -69,80 +69,122 @@ export default new BotModule({
                 const client = message.client;
 
                 const modules = client.ModuleService.modules;
+                const custom = await client.CustomCommandService.getCustomCommands(message.guild);
                 const privilege = client.PrivilegeService;
 
                 const is_admin = privilege.admins.test(message.member);
                 const is_beta = privilege.beta.test(message.member);
 
                 if (this.args.module) {
-                    /** @type {BotModule} */
-                    const module = modules.get(this.args.module.value.toLowerCase());
-
-                    if (module) {
+                    if ("custom commands".startsWith(this.args.module.value.toLowerCase())) {
                         if (this.args.command) {
-                            const command = module.commands.find(command => command.name.toLowerCase().startsWith(this.args.command.value.toLowerCase()));
+                            const command = custom.commands.find(command => {
+                                const is_name = command.name.toLowerCase().startsWith(this.args.command.value.toLowerCase());
+                                const has_command = command.triggers.some(trigger => trigger.type === "command");
+                                
+                                return is_name && has_command;
+                            });
 
                             if (command) {
-                                if (!command.admin || is_admin) {
-                                    if (!command.beta || is_beta) {
-                                        const guild_settings = await message.client.SettingsService.getSettings(message.guild);
-                                        const prefix = guild_settings.settings.get("Prefix").value;
-        
-                                        const versions = command.versions;
-                                        
-                                        const display = versions.map(version => {
-                                            const triggers = version.triggers.slice(1);
-                                            const args = version.arguments.filter(argument => !argument.syntax);
-        
-                                            const display = args.map(arg => {
-                                                return arg.display + "\n" + arg.description
-                                            }).join("\n");
-        
-                                            return {
-                                                title: "`" + prefix + version.usage + "`",
-                                                body: (triggers.length ? "**Aliases**: `" + triggers.join(", ") + "`" : "") + "\n" + (args.length ? display : "No arguments.")
-                                            }
-                                        });
-        
-                                        return await this.createPages("success", "There " + is(versions.length) + " " + p(versions.length, "version") + " of `" + command.name + "` in `" + module.name + "`.", display);    
-                                    } else {
-                                        return await this.reply("error", "Could not find `" + this.escape_c(this.args.command.value) + "` in `" + module.name + "`.");
-                                    }
-                                } else {
-                                    return await this.reply("error", "Could not find `" + this.escape_c(this.args.command.value) + "` in `" + module.name + "`.");
-                                }
+                                const guild_settings = await client.SettingsService.getSettings(message.guild);
+                                const prefix = guild_settings.settings.get("Prefix").value;
+
+                                const triggers = command.triggers.filter(trigger => trigger.type === "command");
+                                const params = Object.values(command.parameters);
+
+                                return await this.reply("success", "**" + command.name + "**\n" + command.description, {
+                                    fields: [
+                                        {
+                                            title: "`" + prefix + triggers[0].name + " " + params.map(param => "<" + param.name + ">") + "`",
+                                            body: params.map(param => "**" + param.name + "** (" + param.type + ")").join("\n") || "No parameters."
+                                        }
+                                    ]
+                                });
                             } else {
-                                return await this.reply("error", "Could not find `" + this.escape_c(this.args.command.value) + "` in `" + module.name + "`.");
+                                return await this.reply("error", "Couldn't find a custom command called **" + this.escape(this.args.command.value) + "**.");
                             }
                         } else {
-                            /** @type {Array<BotModule>} */
-                            const commands = module.commands.filter(command => {
-                                if (command.hidden) {
-                                    return false;
-                                }
-
-                                if (command.admin && !privilege.admins.test(message.member)) {
-                                    return false;
-                                }
-
-                                if (command.beta && !privilege.beta.test(message.member) && !privilege.admins.test(message.member)) {
-                                    return false;
-                                }
-
-                                return true;
+                            const commands = [...custom.commands.values()].filter(command => {
+                                return command.triggers.some(trigger => trigger.type === "command");
                             });
 
                             const display = commands.map(command => {
                                 return {
-                                    title: command.display,
+                                    title: command.name,
                                     body: command.description
                                 }
                             });
-
-                            return await this.createPages("success", "There " + is(commands.length) + " " + p(commands.length, "command") + " in `" + this.escape_c(module.name) + "`.", display);
+                            
+                            return await this.createPages("success", "There " + is(commands.length) + " " + p(commands.length, "custom command") + ".", display);
                         }
                     } else {
-                        return await this.reply("error", "Could not find `" + this.escape_c(this.args.module.value) + "`.");
+                        /** @type {BotModule} */
+                        const botmodule = modules.get(this.args.module.value.toLowerCase());
+
+                        if (botmodule) {
+                            if (this.args.command) {
+                                const command = botmodule.commands.find(command => command.name.toLowerCase().startsWith(this.args.command.value.toLowerCase()));
+
+                                if (command) {
+                                    if (!command.admin || is_admin) {
+                                        if (!command.beta || is_beta) {
+                                            const guild_settings = await client.SettingsService.getSettings(message.guild);
+                                            const prefix = guild_settings.settings.get("Prefix").value;
+
+                                            const display = command.versions.map(version => {
+                                                const triggers = version.triggers.slice(1);
+                                                const args = version.arguments.filter(argument => !argument.syntax);
+            
+                                                const display = args.map(arg => {
+                                                    return arg.display + "\n" + arg.description
+                                                }).join("\n");
+            
+                                                return {
+                                                    title: "`" + prefix + version.usage + "`",
+                                                    body: (triggers.length ? "**Aliases**: `" + triggers.join(", ") + "`" : "") + "\n" + (args.length ? display : "No arguments.")
+                                                }
+                                            });
+            
+                                            return await this.createPages("success", "There " + is(versions.length) + " " + p(versions.length, "version") + " of **" + command.name + "** in **" + botmodule.name + "**.", display);    
+                                        } else {
+                                            return await this.reply("error", "Couldn't find a command called `" + this.escape_c(this.args.command.value) + "` in **" + botmodule.name + "**.");
+                                        }
+                                    } else {
+                                        return await this.reply("error", "Couldn't find a command called `" + this.escape_c(this.args.command.value) + "` in **" + botmodule.name + "**.");
+                                    }
+                                } else {
+                                    return await this.reply("error", "Couldn't find a command called `" + this.escape_c(this.args.command.value) + "` in **" + botmodule.name + "**.");
+                                }
+                            } else {
+                                /** @type {Array<BotModule>} */
+                                const commands = botmodule.commands.filter(command => {
+                                    if (command.hidden) {
+                                        return false;
+                                    }
+
+                                    if (command.admin && !privilege.admins.test(message.member)) {
+                                        return false;
+                                    }
+
+                                    if (command.beta && !privilege.beta.test(message.member) && !privilege.admins.test(message.member)) {
+                                        return false;
+                                    }
+
+                                    return true;
+                                });
+
+                                const display = commands.map(command => {
+                                    return {
+                                        title: command.display,
+                                        body: command.description
+                                    }
+                                });
+
+                                return await this.createPages("success", "There " + is(commands.length) + " " + p(commands.length, "command") + " in `" + this.escape_c(botmodule.name) + "`.", display);
+                            }
+                        } else {
+                            return await this.reply("error", "Couldn't find a module called `" + this.escape_c(this.args.module.value) + "`.");
+                        }
                     }
                 } else {
                     /** @type {Array<BotModule>} */
@@ -155,7 +197,13 @@ export default new BotModule({
                         }
                     });
 
-                    return await this.createPages("success", "There " + is(all_modules.length) + " " + p(all_modules.length, "module") + " loaded.", display);
+                    return await this.createPages("success", "There " + is(all_modules.length) + " " + p(all_modules.length, "module") + " loaded.", [
+                        ...display,
+                        (custom.commands.size ? [{
+                            title: "Custom Commands ❗",
+                            body: "All custom commands in the server."
+                        }] : [])
+                    ]);
                 }
             }
         }),
