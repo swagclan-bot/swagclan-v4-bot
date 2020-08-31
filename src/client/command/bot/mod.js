@@ -120,6 +120,9 @@ export default new BotModule({
                     } else {
                         /** @type {BotModule} */
                         const botmodule = modules.get(this.args.module.value.toLowerCase());
+                        
+                        const guild_settings = await client.SettingsService.getSettings(message.guild);
+                        const prefix = guild_settings.settings.get("Prefix").value;
 
                         if (botmodule) {
                             if (this.args.command) {
@@ -128,9 +131,6 @@ export default new BotModule({
                                 if (command) {
                                     if (!command.admin || is_admin) {
                                         if (!command.beta || is_beta) {
-                                            const guild_settings = await client.SettingsService.getSettings(message.guild);
-                                            const prefix = guild_settings.settings.get("Prefix").value;
-
                                             const display = command.versions.map(version => {
                                                 const triggers = version.triggers.slice(1);
                                                 const args = version.arguments.filter(argument => !argument.syntax);
@@ -156,7 +156,7 @@ export default new BotModule({
                                     return await this.reply("error", "Couldn't find a command called `" + this.escape_c(this.args.command.value) + "` in **" + botmodule.name + "**.");
                                 }
                             } else {
-                                /** @type {Array<BotModule>} */
+                                /** @type {Array<ModuleCommand>} */
                                 const commands = botmodule.commands.filter(command => {
                                     if (command.hidden) {
                                         return false;
@@ -175,7 +175,7 @@ export default new BotModule({
 
                                 const display = commands.map(command => {
                                     return {
-                                        title: command.display,
+                                        title: command.display + "\n" + command.versions.map(version => "`" + prefix + version.usage + "`").join("\n"),
                                         body: command.description
                                     }
                                 });
