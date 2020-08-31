@@ -754,7 +754,7 @@ export class CustomCommand {
             const prefix = guild_settings.settings.get("Prefix").value;
 
 			if (this.triggers[i].type === "command") {
-				const trigger = prefix + this.triggers[i].name;
+                const trigger = prefix + this.triggers[i].name;
 
 				if (message.content === trigger) {
 					return "";
@@ -831,7 +831,6 @@ export class CustomCommand {
 
             if (just_found) {
                 const lookahead = parameters[param_i + 1];
-                let parsed_la;
                 
                 if (lookahead && await lookahead[1].parse(message, parts[i])) {
                     just_found = false;
@@ -866,6 +865,10 @@ export class CustomCommand {
                     return false;
                 }
             }
+        }
+
+        if (i < parameters.length) {
+            return false;
         }
 
         if (i < parts.length) {

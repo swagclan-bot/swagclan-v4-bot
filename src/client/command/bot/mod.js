@@ -110,10 +110,14 @@ export default new BotModule({
 
                             const display = commands.map(command => {
                                 const triggers = command.triggers.filter(trigger => trigger.type === "command");
+                                const params = Object.values(command.parameters);
+
+                                const usage = "`" + prefix + triggers[0].name + (params.length ? " " + params.map(param => "<" + param.name + ">") : "") + "`";
+                                const aliases = (triggers.length > 1 ? "\n**Aliases**: `" + triggers.slice(1).map(trigger => trigger.name).join(", ") + "`" : "");
 
                                 return {
                                     title: command.name,
-                                    body: command.description + "\n**`" + prefix + triggers[0].name + "`**" + (triggers.length > 1 ? "\n**Aliases**: `" + triggers.slice(1).map(trigger => trigger.name).join(", ") + "`" : "")
+                                    body: command.description + "\n**" + usage + "**" + aliases
                                 }
                             });
                             
