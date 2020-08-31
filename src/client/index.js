@@ -41,7 +41,7 @@ export default async function bot() {
 
         if (latest_stable) {
             if (latest_stable > config.version) {
-                console.warn("A new stable version (" + config.version.green + " -> " + latest_stable.green + ") is available. Use `git pull` to update.");
+                console.warn("A new stable version (" + config.version.green + " -> " + latest_stable.green + ") is available. Use `git pull` and `npm install` to update.");
             } else {
                 console.info("No updates found.");
             }
