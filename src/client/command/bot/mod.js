@@ -77,6 +77,9 @@ export default new BotModule({
 
                 if (this.args.module) {
                     if ("custom commands".startsWith(this.args.module.value.toLowerCase())) {
+                        const guild_settings = await client.SettingsService.getSettings(message.guild);
+                        const prefix = guild_settings.settings.get("Prefix").value;
+
                         if (this.args.command) {
                             const command = custom.commands.find(command => {
                                 const is_name = command.name.toLowerCase().startsWith(this.args.command.value.toLowerCase());
@@ -86,16 +89,13 @@ export default new BotModule({
                             });
 
                             if (command) {
-                                const guild_settings = await client.SettingsService.getSettings(message.guild);
-                                const prefix = guild_settings.settings.get("Prefix").value;
-
                                 const triggers = command.triggers.filter(trigger => trigger.type === "command");
                                 const params = Object.values(command.parameters);
 
                                 return await this.reply("success", "**" + command.name + "**\n" + command.description, {
                                     fields: [
                                         {
-                                            title: "`" + prefix + triggers[0].name + " " + params.map(param => "<" + param.name + ">") + "`",
+                                            title: "`" + prefix + triggers[0].name + (params.length ? " " + params.map(param => "<" + param.name + ">") : "") + "`",
                                             body: params.map(param => "**" + param.name + "** (" + param.type + ")").join("\n") || "No parameters."
                                         }
                                     ]
@@ -109,9 +109,11 @@ export default new BotModule({
                             });
 
                             const display = commands.map(command => {
+                                const triggers = command.triggers.filter(trigger => trigger.type === "command");
+
                                 return {
                                     title: command.name,
-                                    body: command.description
+                                    body: command.description + "\n**`" + prefix + triggers[0].name + "`**" + (triggers.length > 1 ? "\n**Aliases**: `" + triggers.slice(1).map(trigger => trigger.name).join(", ") + "`" : "")
                                 }
                             });
                             
