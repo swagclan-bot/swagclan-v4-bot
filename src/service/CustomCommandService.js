@@ -622,7 +622,7 @@ export class CustomCommand {
 				name
 			}));
 		} else {
-            if (commands.triggers[0].trigger) { // Cleans up bugs from transferring to new trigger system.
+            if (commands.triggers[0]?.trigger) { // Cleans up bugs from transferring to new trigger system.
                 /**
                  * An array of triggers to activate the command.
                  * @type {Array<JSONCustomCommandTrigger>}
