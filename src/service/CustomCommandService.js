@@ -617,9 +617,9 @@ export class CustomCommand {
 			 * An array of triggers to activate the command.
 			 * @type {Array<JSONCustomCommandTrigger>}
 			 */
-			this.triggers = command.triggers.map(trigger => ({
+			this.triggers = command.triggers.map(name => ({
 				type: "command",
-				trigger
+				name
 			}));
 		} else {
 			/**
