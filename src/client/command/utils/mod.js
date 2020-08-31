@@ -1070,15 +1070,16 @@ export default new BotModule({
 								let def = definition + "\n\n" + example;
 
 								if (def.length > 900) {
-									def = def.substr(0, 900);
-
-									def += "...\n\n[Read on Urban Dictionary](" + item.permalink + ")";
+                                    def = def.substr(0, 900);
 									
-									if (def.length > definition + 4) {
+									if (def.length > definition.length + 4) {
 										def += "_";
-									}
+                                    }
+                                    
+                                    def += "...\n\n[Read on Urban Dictionary](" + item.permalink + ")";
 
-									def = def.replace(/ ?\[[^\]]+\]\([^\)]+(?=(\.\.\.)\n\n\[Read on Urban Dictionary\].+?\))/, "");
+									def = def.replace(/ ?\[[^\]]+\]\([^\)_]+_(?=(\.\.\.)\n\n\[Read on Urban Dictionary\].+?\))/, "_");
+									def = def.replace(/ ?\[[^\]]+\]\([^\)_]+(?=(\.\.\.)\n\n\[Read on Urban Dictionary\].+?\))/, "");
 								}
 
 								return {

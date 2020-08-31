@@ -92,11 +92,20 @@ export default new BotModule({
                                 const triggers = command.triggers.filter(trigger => trigger.type === "command");
                                 const params = Object.values(command.parameters);
 
+                                const emojis = {
+                                    "number": "🔢",
+                                    "string": "💬",
+                                    "boolean": "❓",
+                                    "member": "👤",
+                                    "channel": "📫",
+                                    "role": "🥼"
+                                }
+
                                 return await this.reply("success", "**" + command.name + "**\n" + command.description, {
                                     fields: [
                                         {
-                                            title: "`" + prefix + triggers[0].name + (params.length ? " " + params.map(param => "<" + param.name + ">") : "") + "`",
-                                            body: params.map(param => "**" + param.name + "** (" + param.type + ")").join("\n") || "No arguments."
+                                            title: "`" + prefix + triggers[0].name + (params.length ? " " + params.map(param => "<" + param.name + ">").join(" ") : "") + "`",
+                                            body: params.map(param => emojis[param.type] + " **" + param.name + "** (" + param.type[0].toUpperCase() + param.type.substr(1) + ")").join("\n") || "No arguments."
                                         }
                                     ]
                                 });
@@ -112,7 +121,7 @@ export default new BotModule({
                                 const triggers = command.triggers.filter(trigger => trigger.type === "command");
                                 const params = Object.values(command.parameters);
 
-                                const usage = "`" + prefix + triggers[0].name + (params.length ? " " + params.map(param => "<" + param.name + ">") : "") + "`";
+                                const usage = "`" + prefix + triggers[0].name + (params.length ? " " + params.map(param => "<" + param.name + ">").join(" ") : "") + "`";
                                 const aliases = (triggers.length > 1 ? "\n**Aliases**: `" + triggers.slice(1).map(trigger => trigger.name).join(", ") + "`" : "");
 
                                 return {
