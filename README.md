@@ -87,5 +87,10 @@ You can run `git pull` to update the bot to the latest version. If you have chan
 * `help` - Display a help message.
 * `exit` - Exit the process.
 
+### Emojis
+Some emojis will be missing if you run this bot yourself, so you will have to set them up yourself. Upload all images in [assets](/assets) as emojis into a server (keep the names), and input the IDs of each of them into `.config.js`. You can get the ID by typing the emoji into a text channel but with a backslash before it, i.e `\:lichess:`, and post the message. This will replace the emoji with something like `<:lichess:730936886557933650>`. The number is the ID of the emoji.
+
+![](https://i.imgur.com/h3f6BSq.png)
+
 ## Notes
 This repository is licensed under the GNU General Public License v3.0, which means I am not responsible for anything you do with this bot.

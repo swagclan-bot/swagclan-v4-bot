@@ -7,6 +7,8 @@ import FormData from "form-data"
 
 import lichess from "../../../class/lichess/index.js"
 
+import config from "../../../../.config.js"
+
 function pad_left(pad, len, str) {
     return pad.repeat(len - str.length >= 0 ? len - str.length : 0) + str;
 }
@@ -598,7 +600,7 @@ export default new BotModule({
     new ModuleCommand({
         name: "Lichess Challenge",
         description: "Challenge another user on lichess.",
-        emoji: "<:lichess:730936886557933650>",
+        emoji: "<:lichess:" + config.emoji.lichess + ">",
         versions: [
             new CommandVersion(["lichess", "challenge", "chess"], [
                 new CommandArgument({
@@ -610,7 +612,7 @@ export default new BotModule({
                 new CommandArgument({
                     name: "variant",
                     description: "The variant of chess to play",
-                    emoji: "<:horsey:747814569812164658>",
+                    emoji: "<:horsey:" + config.emoji.horsey + ">",
                     types: [new ArgumentType({
                         name: "Variant",
                         description: "A lichess variant.",

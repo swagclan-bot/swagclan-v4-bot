@@ -17,6 +17,7 @@ import lichess from "../../../class/lichess/index.js"
 import { p, is } from "../../../util/plural.js"
 
 import credentials from "../../../../.credentials.js"
+import config from "../../../../.config.js"
 
 const dnslookup = promisify(dns.lookup);
 const fmt = num => numeral(num).format("0,0");
@@ -153,7 +154,7 @@ export default new BotModule({
     }), new ModuleCommand({
         name: "Minecraft Server",
         description: "Get minecraft server information.",
-        emoji: "<:minecrafticon:725865209930973355>",
+        emoji: "<:minecrafticon:" + config.emoji.minecraft + ">",
         versions: [
             new CommandVersion(["mcserver"], [
                 new CommandArgument({
@@ -206,7 +207,7 @@ export default new BotModule({
     }), new ModuleCommand({
         name: "Minecraft User",
         description: "Get information on a minecraft user.",
-        emoji: "<:minecrafticon:725865209930973355>",
+        emoji: "<:minecraft:" + config.emoji.minecraft + ">",
         versions: [
             new CommandVersion(["mcuser"], [
                 new CommandArgument({
@@ -365,7 +366,7 @@ export default new BotModule({
     }), new ModuleCommand({
         name: "Steam User",
         description: "Get steam user information by their id.",
-        emoji: "<:steamicon:725864702462132284>",
+        emoji: "<:steam:" + config.emoji.steam + ">",
         versions: [
             new CommandVersion(["steam"], [
                 new CommandArgument({
@@ -816,7 +817,7 @@ export default new BotModule({
     new ModuleCommand({
         name: "Lichess User",
         description: "Get information about a user on lichess.",
-        emoji: "<:lichess:730936886557933650>",
+        emoji: "<:lichess:" + config.emoji.lichess + ">",
         versions: [
             new CommandVersion(["liuser"], [
                 new CommandArgument({
@@ -915,7 +916,7 @@ export default new BotModule({
     new ModuleCommand({
     	name: "Apex Legends",
     	descriptions: "Get statistics for a user on Apex Legends.",
-        emoji: "<:apex:749810142782160896>",
+        emoji: "<:apex:" + config.emoji.apex + ">",
         versions: [],
         callback: async function GetApexStats(message) {
 
@@ -1105,7 +1106,7 @@ export default new BotModule({
     new ModuleCommand({
         name: "Hyperscape",
         description: "Get stats for a player on hyperscape.",
-        emoji: "<:white_crown:743042449747738664>",
+        emoji: "<:hyperscape:" + emoji.config.hyperscape + ">",
 		example: "https://i.imgur.com/RcunoVk.gif",
         versions: [
             new CommandVersion(["hyperscape", "hsstats", "hs"], [
@@ -1431,7 +1432,7 @@ ${format_compare_stat("fusions_per_match", "Fusions per match", true, true)}
     new ModuleCommand({
         name: "Javascript",
         description: "Run Javascript in a secure Deno environment limited to 30s of runtime.",
-        emoji: "<:js:743104808520646810>",
+        emoji: "<:javascript:" + config.emoji.javascript + ">",
         versions: [
             new CommandVersion(["js", "eval", "exec"], [
                 new CommandArgument({
