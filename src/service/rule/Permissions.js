@@ -65,7 +65,7 @@ export default new CustomCommandRuleGroup({
             name: "Manage guild",
             description: "The permission to manage guild settings.",
             params: [],
-            callback: function ManageChannels() {
+            callback: function ManageGuild() {
                 return FLAGS.MANAGE_GUILD;
             },
             returns: "permission"
@@ -75,7 +75,7 @@ export default new CustomCommandRuleGroup({
             name: "Add reactions",
             description: "The permission to add reactions to messages.",
             params: [],
-            callback: function ManageChannels() {
+            callback: function AddReactions() {
                 return FLAGS.ADD_REACTIONS;
             },
             returns: "permission"
@@ -85,7 +85,7 @@ export default new CustomCommandRuleGroup({
             name: "View audit log",
             description: "The permission to view audit logs.",
             params: [],
-            callback: function ManageChannels() {
+            callback: function ViewAuditLog() {
                 return FLAGS.VIEW_AUDIT_LOG;
             },
             returns: "permission"
@@ -95,17 +95,17 @@ export default new CustomCommandRuleGroup({
             name: "Priority speaker",
             description: "The permission to be a speak with priority in voice channels.",
             params: [],
-            callback: function ManageChannels() {
+            callback: function PrioritySpeaker() {
                 return FLAGS.PRIORITY_SPEAKER;
             },
             returns: "permission"
         }),
         new CustomCommandRule({
             id: "e9b50981-4ea5-4d08-bab3-4ec224304bf2",
-            name: "Steam",
+            name: "Stream",
             description: "The permission to steam in a voice channel.",
             params: [],
-            callback: function ManageChannels() {
+            callback: function Stream() {
                 return FLAGS.STREAM;
             },
             returns: "permission"
@@ -115,7 +115,7 @@ export default new CustomCommandRuleGroup({
             name: "View channel",
             description: "The permission to view channels.",
             params: [],
-            callback: function ManageChannels() {
+            callback: function ViewChannel() {
                 return FLAGS.VIEW_CHANNEL;
             },
             returns: "permission"
@@ -125,7 +125,7 @@ export default new CustomCommandRuleGroup({
             name: "Send messages",
             description: "The permission to send messages to channels.",
             params: [],
-            callback: function ManageChannels() {
+            callback: function SendMessages() {
                 return FLAGS.SEND_MESSAGES;
             },
             returns: "permission"
@@ -135,7 +135,7 @@ export default new CustomCommandRuleGroup({
             name: "Send TTS messages",
             description: "The permission to send text to speech messages to channels.",
             params: [],
-            callback: function ManageChannels() {
+            callback: function SendTTSMessages() {
                 return FLAGS.SEND_TTS_MESSAGES;
             },
             returns: "permission"
@@ -145,7 +145,7 @@ export default new CustomCommandRuleGroup({
             name: "Manage messages",
             description: "The permission to manage messages in a channel.",
             params: [],
-            callback: function ManageChannels() {
+            callback: function ManageMessages() {
                 return FLAGS.MANAGE_MESSAGES;
             },
             returns: "permission"
@@ -155,7 +155,7 @@ export default new CustomCommandRuleGroup({
             name: "Embed links",
             description: "The permission to embed links in a channel.",
             params: [],
-            callback: function ManageChannels() {
+            callback: function EmbedLinks() {
                 return FLAGS.EMBED_LINKS;
             },
             returns: "permission"
@@ -165,7 +165,7 @@ export default new CustomCommandRuleGroup({
             name: "Attach files",
             description: "The permission to send files with messages.",
             params: [],
-            callback: function ManageChannels() {
+            callback: function AttachFiles() {
                 return FLAGS.ATTACH_FILES;
             },
             returns: "permission"
@@ -175,7 +175,7 @@ export default new CustomCommandRuleGroup({
             name: "Read message history",
             description: "The permission to send view messages that were sent previous to opening discord.",
             params: [],
-            callback: function ManageChannels() {
+            callback: function ReadMessageHistory() {
                 return FLAGS.READ_MESSAGE_HISTORY;
             },
             returns: "permission"
@@ -185,7 +185,7 @@ export default new CustomCommandRuleGroup({
             name: "Mention everyone",
             description: "The permission to mention everyone in messages.",
             params: [],
-            callback: function ManageChannels() {
+            callback: function MentionEveryone() {
                 return FLAGS.MENTION_EVERYONE;
             },
             returns: "permission"
@@ -195,7 +195,7 @@ export default new CustomCommandRuleGroup({
             name: "Use external emojis",
             description: "The permission to use emojis from other servers.",
             params: [],
-            callback: function ManageChannels() {
+            callback: function UseExternalEmojis() {
                 return FLAGS.USE_EXTERNAL_EMOJIS;
             },
             returns: "permission"
@@ -205,7 +205,7 @@ export default new CustomCommandRuleGroup({
             name: "View guild insights",
             description: "The permission to see guild insights.",
             params: [],
-            callback: function ManageChannels() {
+            callback: function ViewGuildInsights() {
                 return FLAGS.VIEW_GUILD_INSIGHTS;
             },
             returns: "permission"
@@ -215,7 +215,7 @@ export default new CustomCommandRuleGroup({
             name: "Connect to voice",
             description: "The permission to connect to voice channels.",
             params: [],
-            callback: function ManageChannels() {
+            callback: function Connect() {
                 return FLAGS.CONNECT;
             },
             returns: "permission"
@@ -225,7 +225,7 @@ export default new CustomCommandRuleGroup({
             name: "Speak in voice",
             description: "The permission to speak in voice channels.",
             params: [],
-            callback: function ManageChannels() {
+            callback: function Speak() {
                 return FLAGS.SPEAK;
             },
             returns: "permission"
@@ -235,7 +235,7 @@ export default new CustomCommandRuleGroup({
             name: "Mute members",
             description: "The permission to mute other members in a voice channel.",
             params: [],
-            callback: function ManageChannels() {
+            callback: function MuteMembers() {
                 return FLAGS.MUTE_MEMBERS;
             },
             returns: "permission"
@@ -245,7 +245,7 @@ export default new CustomCommandRuleGroup({
             name: "Deafen members",
             description: "The permission to deafen other members in a voice channel.",
             params: [],
-            callback: function ManageChannels() {
+            callback: function DeafenMembers() {
                 return FLAGS.DEAFEN_MEMBERS;
             },
             returns: "permission"
@@ -255,7 +255,7 @@ export default new CustomCommandRuleGroup({
             name: "Move members",
             description: "The permission to move members to other voice channels.",
             params: [],
-            callback: function ManageChannels() {
+            callback: function DeafenMembers() {
                 return FLAGS.DEAFEN_MEMBERS;
             },
             returns: "permission"
@@ -265,7 +265,7 @@ export default new CustomCommandRuleGroup({
             name: "Use voice activity detection",
             description: "The permission to use voice activity detection in voice channels.",
             params: [],
-            callback: function ManageChannels() {
+            callback: function UseVAD() {
                 return FLAGS.USE_VAD;
             },
             returns: "permission"
@@ -275,7 +275,7 @@ export default new CustomCommandRuleGroup({
             name: "Change nicknames",
             description: "The permission to change nickname.",
             params: [],
-            callback: function ManageChannels() {
+            callback: function ChangeNickname() {
                 return FLAGS.CHANGE_NICKNAME;
             },
             returns: "permission"
@@ -285,7 +285,7 @@ export default new CustomCommandRuleGroup({
             name: "Manage nicknames",
             description: "The permission to change the nicknames of other members.",
             params: [],
-            callback: function ManageChannels() {
+            callback: function ManageNicknames() {
                 return FLAGS.MANAGE_NICKNAMES;
             },
             returns: "permission"
@@ -295,7 +295,7 @@ export default new CustomCommandRuleGroup({
             name: "Manage roles",
             description: "The permission to manage roles.",
             params: [],
-            callback: function ManageChannels() {
+            callback: function ManageRoles() {
                 return FLAGS.MANAGE_ROLES;
             },
             returns: "permission"
@@ -305,7 +305,7 @@ export default new CustomCommandRuleGroup({
             name: "Manage webhooks",
             description: "The permission to manage channel webhooks.",
             params: [],
-            callback: function ManageChannels() {
+            callback: function ManageWebhooks() {
                 return FLAGS.MANAGE_WEBHOOKS;
             },
             returns: "permission"
@@ -315,7 +315,7 @@ export default new CustomCommandRuleGroup({
             name: "Manage emojis",
             description: "The permission to manage guild emojis.",
             params: [],
-            callback: function ManageChannels() {
+            callback: function ManageEmojis() {
                 return FLAGS.MANAGE_EMOJIS;
             },
             returns: "permission"

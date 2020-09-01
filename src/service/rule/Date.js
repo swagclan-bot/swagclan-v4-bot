@@ -37,7 +37,7 @@ export default new CustomCommandRuleGroup({
                 return date.getUTCDay();
             },
             fallback: "",
-            returns: "string"
+            returns: "number"
         }),
         new CustomCommandRule({
             id: "b9fc9932-364a-48f8-88d6-8d1ffd515527",
