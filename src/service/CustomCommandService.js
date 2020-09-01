@@ -831,8 +831,8 @@ export class CustomCommand {
 
             if (just_found) {
                 const lookahead = parameters[param_i + 1];
-                
-                if (lookahead && await lookahead[1].parse(message, parts[i])) {
+
+                if (lookahead && await lookahead[1].parse(message, parts[i]) !== InvalidArg) {
                     just_found = false;
                     i--;
                     param_i++;

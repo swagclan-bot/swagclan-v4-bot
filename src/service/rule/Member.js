@@ -234,6 +234,17 @@ export default new CustomCommandRuleGroup({
             returns: "boolean"
         }),
         new CustomCommandRule({
+            id: "40948cdf-0c1c-4933-8a84-b17c21acee5e",
+            name: "Member % can manage %",
+            description: "Check whether a member can manage another.",
+            params: ["member", "member"],
+            callback: function MemberCanManage(member1, member2) {
+                return member.canManage(member2);
+            },
+            fallback: false,
+            returns: "boolean"
+        }),
+        new CustomCommandRule({
             id: "d3e83107-20ee-47f0-91fc-af8681cb0f46",
             name: "Hoist role of %",
             description: "Get the hoist role of a member.",
