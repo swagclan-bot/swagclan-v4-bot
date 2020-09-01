@@ -45,7 +45,7 @@ export default new CustomCommandRuleGroup({
             description: "The day of the month of the date.",
             params: ["date"],
             callback: function GetDate(date) {
-                return date.getUTCDate();
+                return date.getUTCDate() + 1;
             },
             fallback: 0,
             returns: "number"
@@ -67,7 +67,7 @@ export default new CustomCommandRuleGroup({
             description: "The number of the current month of the date.",
             params: ["date"],
             callback: function GetMonth() {
-                return new Date().getUTCMonth();
+                return new Date().getUTCMonth() + 1;
             },
             fallback: 0,
             returns: "number"
@@ -89,7 +89,7 @@ export default new CustomCommandRuleGroup({
             description: "The current hour of the day of the date.",
             params: ["date"],
             callback: function GetHour(date) {
-                return date.getUTCHours();
+                return date.getUTCHours() + 1;
             },
             fallback: 0,
             returns: "number"
@@ -100,7 +100,7 @@ export default new CustomCommandRuleGroup({
             description: "The current minute of the hour of the date.",
             params: ["date"],
             callback: function GetMinute(date) {
-                return date.getUTCMinutes();
+                return date.getUTCMinutes() + 1;
             },
             fallback: 0,
             returns: "number"
@@ -111,7 +111,7 @@ export default new CustomCommandRuleGroup({
             description: "The current second of the minute of the date.",
             params: ["date"],
             callback: function GetSecond(date) {
-                return date.getUTCSeconds();
+                return date.getUTCSeconds() + 1;
             },
             fallback: 0,
             returns: "number"
