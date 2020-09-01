@@ -750,7 +750,7 @@ export default new BotModule({
 										reset_reactions();
 									},
 									"declined": async () => {
-										await this.edit("success", masked(challenge.destUser) + " declined a challenge against " + masked(challenge.challenger));
+										await this.edit("success", masked(challenge.destUser) + " declined challenge against " + masked(challenge.challenger));
 
 										reset_reactions();
 									},
