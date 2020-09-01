@@ -171,7 +171,7 @@ export default class Challenge extends EventEmitter {
      * @returns {Promise}
      */
     async cancel() {
-        await this.client.post("/challenge/" + this.id + "/cancel");
+        await this.client.post("/challenge/" + encodeURIComponent(this.id) + "/cancel");
     }
 
     /**
@@ -180,7 +180,7 @@ export default class Challenge extends EventEmitter {
      * @returns {Promise}
      */
     async decline(auth) {
-        await this.client.post("/challenge/" + this.id + "/decline", {
+        await this.client.post("/challenge/" + encodeURIComponent(this.id) + "/decline", {
             headers: {
                 Authorization: auth
             }
@@ -193,7 +193,7 @@ export default class Challenge extends EventEmitter {
      * @returns {Promise}
      */
     async accept(auth) {
-        await this.client.post("/challenge/" + this.id + "/accept", {
+        await this.client.post("/challenge/" + encodeURIComponent(this.id) + "/accept", {
             headers: {
                 Authorization: auth
             }

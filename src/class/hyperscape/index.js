@@ -142,7 +142,7 @@ function parsePerc(perc) {
  * @returns {UserProfileStats}
  */
 export async function getStats(id) {
-    const res = await fetch("https://hypers.apitab.com/update/" + id);
+    const res = await fetch("https://hypers.apitab.com/update/" + encodeURIComponent(id));
 
     if (res.status === 200) {
         const json = await res.json();
@@ -260,7 +260,7 @@ export async function getStats(id) {
  * @returns {UserProfile}
  */
 export async function getUser(platform, username) {
-    const res = await fetch("https://hypers.apitab.com/search/" + platform  + "/" + username);
+    const res = await fetch("https://hypers.apitab.com/search/" + encodeURIComponent(platform)  + "/" + encodeURIComponent(username));
 
     if (res.status === 200) {
         const search = await res.json();

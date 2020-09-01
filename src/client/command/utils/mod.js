@@ -168,7 +168,7 @@ export default new BotModule({
         callback: async function GetMinecraftServerInformation(message) {
             await this.reply("success", "Loading information for server with ip `" + this.args.ip.value + "`");
 
-            const res = await fetch("https://mcapi.xdefcon.com/server/" + this.args.ip.value + "/full/json");
+            const res = await fetch("https://mcapi.xdefcon.com/server/" + encodeURIComponent(this.args.ip.value) + "/full/json");
             const json = await res.json();
 
             if (json.serverStatus === "online") {
@@ -226,12 +226,12 @@ export default new BotModule({
         callback: async function GetMinecraftUserInformation(message) {
             await this.reply("success", "Loading user information for `" + this.escape_c(this.args.username.value) + "`..");
 
-            const res = await fetch("https://api.mojang.com/users/profiles/minecraft/" + this.args.username.value);
+            const res = await fetch("https://api.mojang.com/users/profiles/minecraft/" + encodeURIComponent(this.args.username.value));
 
             try {
                 const user = await res.json();
 
-                const res2 = await fetch("https://api.mojang.com/user/profiles/" + user.id + "/names");
+                const res2 = await fetch("https://api.mojang.com/user/profiles/" + encodeURIComponent(user.id) + "/names");
                 const usernames = await res2.json();
 
                 return await this.edit("success", "User `" + this.escape_c(user.name) + "`", {
@@ -328,7 +328,7 @@ export default new BotModule({
 					}
 				}
 			
-				const locate = await fetch("http://ipinfo.io/" + ip + "?token=" + credentials.ipinfo);
+				const locate = await fetch("http://ipinfo.io/" + encodeURIComponent(ip) + "?token=" + credentials.ipinfo);
 
 				if (locate.status === 200) {
 					const json = await locate.json();
@@ -385,7 +385,7 @@ export default new BotModule({
         callback: async function GetSteamUser(message) {
             await this.reply("success", "Loading steam user information..");
 
-            const steam = await fetch("https://playerdb.co/api/player/steam/" + this.args.id.value);
+            const steam = await fetch("https://playerdb.co/api/player/steam/" + encodeURIComponent(this.args.id.value));
             const json = await steam.json();
 
             if (json.code === "player.found") {
@@ -939,7 +939,7 @@ export default new BotModule({
         ],
 		example: "https://i.imgur.com/IEE5RsU.gif",
         callback: async function DictionaryDefinition(message) {
-            const res = await fetch("https://api.dictionaryapi.dev/api/v1/entries/en/" + this.args.word.value);
+            const res = await fetch("https://api.dictionaryapi.dev/api/v1/entries/en/" + encodeURIComponent(this.args.word.value));
 
             if (res.status === 200) {
                 const json = await res.json();
@@ -990,7 +990,7 @@ export default new BotModule({
             ])
         ],
         callback: async function DictionaryDefinition(message) {
-            const res = await fetch("https://api.dictionaryapi.dev/api/v1/entries/en/" + this.args.word.value);
+            const res = await fetch("https://api.dictionaryapi.dev/api/v1/entries/en/" + encodeURIComponent(this.args.word.value));
 
             if (res.status === 200) {
                 const json = await res.json();
@@ -1041,7 +1041,7 @@ export default new BotModule({
 		example: "https://i.imgur.com/8QYUEFG.gif",
         callback: async function UrbanDictionaryDefinition(message) {
             if (credentials.rapidapi) {
-				const res = await fetch("https://mashape-community-urban-dictionary.p.rapidapi.com/define?term=" + this.args.word.value, {
+				const res = await fetch("https://mashape-community-urban-dictionary.p.rapidapi.com/define?term=" + encodeURIComponent(this.args.word.value), {
 					headers: {
 						"x-rapidapi-host": "mashape-community-urban-dictionary.p.rapidapi.com",
 						"x-rapidapi-key": credentials.rapidapi,

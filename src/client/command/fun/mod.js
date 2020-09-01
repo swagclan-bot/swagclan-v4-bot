@@ -264,7 +264,7 @@ export default new BotModule({
         callback: async function GetBibleVerse(message) {
             if (this.args.book) {
                 if (this.args.verses) {
-                    const res = await fetch("https://bible-api.com/" + this.args.book.value + "+" + this.args.verses.value);
+                    const res = await fetch("https://bible-api.com/" + encodeURIComponent(this.args.book.value) + "+" + encodeURIComponent(this.args.verses.value));
                     const verse = await res.json();
 
                     if (verse.error) {
@@ -282,7 +282,7 @@ export default new BotModule({
                         });
                     }
                 } else if (this.args.verse) {
-                    const res = await fetch("https://bible-api.com/" + this.args.book.value + "%20" + this.args.verse.value);
+                    const res = await fetch("https://bible-api.com/" + encodeURIComponent(this.args.book.value) + "%20" + encodeURIComponent(this.args.verse.value));
                     const verse = await res.json();
 
                     if (verse.error) {
@@ -377,7 +377,7 @@ export default new BotModule({
                     return await this.edit("error", "Could not find any comics with term `" + this.args.search.value + "`.");
                 }
             } else if (this.args.id) {
-                const res = await fetch("https://xkcd.com/" + this.args.id.value + "/info.0.json");
+                const res = await fetch("https://xkcd.com/" + encodeURIComponent(this.args.id.value) + "/info.0.json");
 
                 if (res.status === 404) {
                     return await this.error("error", "Could not find comic with id `" + this.args.id.value + "`");
