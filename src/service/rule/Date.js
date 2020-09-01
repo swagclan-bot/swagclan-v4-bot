@@ -130,10 +130,32 @@ export default new CustomCommandRuleGroup({
         new CustomCommandRule({
             id: "64931c01-b4cf-456a-92eb-c1df435ea68d",
             name: "Now",
-            description: "The current date.",
+            description: "The current date (UTC + 0).",
             params: [],
             callback: function GetNow() {
                 return new Date();
+            },
+            fallback: null,
+            returns: "date"
+        }),
+        new CustomCommandRule({
+            id: "1baf5834-7046-41ab-85a1-3e639107f1cb",
+            name: "Formatted date of %",
+            description: "A formatted date.",
+            params: ["date"],
+            callback: function FormatDate(date) {
+                return date.toUTCString();
+            },
+            fallback: null,
+            returns: "date"
+        }),
+        new CustomCommandRule({
+            id: "1baf5834-7046-41ab-85a1-3e639107f1cb",
+            name: "ISO 8601 formatted date of %",
+            description: "A formatted date for ISO 8601.",
+            params: ["date"],
+            callback: function FormatDate(date) {
+                return date.toISOString();
             },
             fallback: null,
             returns: "date"
