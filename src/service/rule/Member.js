@@ -223,6 +223,17 @@ export default new CustomCommandRuleGroup({
             returns: "boolean"
         }),
         new CustomCommandRule({
+            id: "e560a24b-b3c4-4bc0-8880-248e0008e60e",
+            name: "Member % has permission %",
+            description: "Check whether a member has a permission.",
+            params: ["member", "permission"],
+            callback: function MemberHasPermission(member, permission) {
+                return member.hasPermission(permission);
+            },
+            fallback: false,
+            returns: "boolean"
+        }),
+        new CustomCommandRule({
             id: "d3e83107-20ee-47f0-91fc-af8681cb0f46",
             name: "Hoist role of %",
             description: "Get the hoist role of a member.",

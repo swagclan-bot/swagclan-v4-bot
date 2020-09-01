@@ -5,6 +5,7 @@ import Logic from "./Logic.js"
 import Maths from "./Maths.js"
 import Member from "./Member.js"
 import Message from "./Message.js"
+import Permissions from "./Permissions.js"
 import Role from "./Role.js"
 import String from "./String.js"
 
@@ -18,7 +19,8 @@ const rules = [
     Member,
     Message,
     Role,
-    String
+    String,
+    Permissions
 ];
 
 export default rules;
