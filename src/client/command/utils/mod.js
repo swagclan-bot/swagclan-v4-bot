@@ -1106,7 +1106,7 @@ export default new BotModule({
     new ModuleCommand({
         name: "Hyperscape",
         description: "Get stats for a player on hyperscape.",
-        emoji: "<:hyperscape:" + emoji.config.hyperscape + ">",
+        emoji: "<:hyperscape:" + config.emoji.hyperscape + ">",
 		example: "https://i.imgur.com/RcunoVk.gif",
         versions: [
             new CommandVersion(["hyperscape", "hsstats", "hs"], [

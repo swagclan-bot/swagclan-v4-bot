@@ -412,7 +412,7 @@ export default new BotModule({
     
                         const date = comic2.year + "-" + pad_left("0", 2, comic2.month) + "-" + pad_left("0", 2, comic2.day);
     
-                        return await this.reply("success", "[" + comic2.num + ". " + comic2.safe_title + " (" + date + ")](https://xkcd.com" + comic2.num + ")", {
+                        return await this.reply("success", "[" + comic2.num + ". " + comic2.safe_title + " (" + date + ")](https://xkcd.com/" + comic2.num + ")", {
                             image: {
                                 url: comic2.img
                             },
@@ -422,7 +422,7 @@ export default new BotModule({
                 } else {
                     const date = comic.year + "-" + pad_left("0", 2, comic.month) + "-" + pad_left("0", 2, comic.day);
 
-                    return await this.reply("success", "[" + comic.num + ". " + comic.safe_title + " (" + date + ")](https://xkcd.com" + comic.num + ")", {
+                    return await this.reply("success", "[" + comic.num + ". " + comic.safe_title + " (" + date + ")](https://xkcd.com/" + comic.num + ")", {
                         image: {
                             url: comic.img
                         },
