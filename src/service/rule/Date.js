@@ -34,7 +34,7 @@ export default new CustomCommandRuleGroup({
             description: "The number of the date.",
             params: ["date"],
             callback: function GetDay(date) {
-                return date.getUTCDay();
+                return date.getUTCDay() + 1;
             },
             fallback: "",
             returns: "number"
@@ -45,7 +45,7 @@ export default new CustomCommandRuleGroup({
             description: "The day of the month of the date.",
             params: ["date"],
             callback: function GetDate(date) {
-                return date.getUTCDate() + 1;
+                return date.getUTCDate();
             },
             fallback: 0,
             returns: "number"
