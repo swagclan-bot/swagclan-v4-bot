@@ -154,7 +154,7 @@ export default new CustomCommandRuleGroup({
             name: "ISO 8601 formatted date of %",
             description: "A formatted date for ISO 8601.",
             params: ["date"],
-            callback: function FormatDate(date) {
+            callback: function ISOFormatDate(date) {
                 return date.toISOString();
             },
             fallback: null,
