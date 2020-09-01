@@ -104,7 +104,7 @@ This repository is licensed under the GNU General Public License v3.0, which mea
 If you come across any bugs, or want to request a feature, you can file an issue with [GitHub issues](https://github.com/swagclan-bot/swagclan-v4-bot/issues).
 
 ### Contact
-If you need help setting-up the bot or any specific issues that **aren't** bugs, you can contact me on discord at "weakeyes"#4248, or email me at essmale2005@gmail.com.
+If you need help setting up the bot or any specific issues that **aren't** bugs, you can contact me on discord at "weakeyes"#4248, or email me at essmale2005@gmail.com.
 
 ### Credits
 The bot uses the following services:
