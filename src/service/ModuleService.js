@@ -827,6 +827,13 @@ export class ModuleCommand {
 
         return null;
     }
+    
+    /**
+     * Clear all timeouts for the command.
+     */
+    clearTimeouts() {
+        this.timeouts.clear();
+    }
 
     /**
      * Execute the command callback with the command call context.
@@ -856,7 +863,7 @@ export class ModuleCommand {
 
         if (Date.now() < timeout && !admins.test(message.member)) {
             return interact.message.react("⏰");
-       }
+        }
 
         if (this.admin && !admins.test(message.member)) {
             return interact.reply("error", "Only bot administrators can use this command.");

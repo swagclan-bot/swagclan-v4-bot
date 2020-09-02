@@ -88,7 +88,7 @@ export default new BotModule({
                                 return is_name && has_command;
                             });
 
-                            if (command) {
+                            if (command && !command.hidden) {
                                 const triggers = command.triggers.filter(trigger => trigger.type === "command");
                                 const params = Object.values(command.parameters);
 
@@ -114,7 +114,7 @@ export default new BotModule({
                             }
                         } else {
                             const commands = [...custom.commands.values()].filter(command => {
-                                return command.triggers.some(trigger => trigger.type === "command");
+                                return command.triggers.some(trigger => trigger.type === "command") && !command.hidden;
                             });
 
                             const display = commands.map(command => {

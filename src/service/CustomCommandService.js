@@ -14,7 +14,7 @@ import RuleManager from "./rule/rules.js"
 
 export const InvalidArg = Symbol("Invalid argument provided.");
 
-const rule_manager = new RuleManager;
+export const rule_manager = new RuleManager;
 
 /**
  * @typedef JSONCustomCommandInputObject
@@ -683,6 +683,24 @@ export class CustomCommand {
          * @type {Boolean}
          */
         this.enabled = command.enabled ?? true;
+
+        /**
+         * Whether or not the custom command is hidden.
+         * @type {Boolean}
+         */
+        this.hidden = command.hidden ?? false;
+
+        /**
+         * The delay for users to wait between each use of the command.
+         * @type {Number}
+         */
+        this.delay = command.delay ?? 0;
+
+        /**
+         * The timeouts for individual users for using the command.
+         * @type {discord.Collection<String,Number>}
+         */
+        this.timeouts = new discord.Collection;
     }
     
     /**
@@ -730,7 +748,9 @@ export class CustomCommand {
             actions: this.actions,
             created_at: this.created_at,
             modified_at: this.modified_at,
-            enabled: this.enabled
+            delay: this.delay,
+            enabled: this.enabled,
+            hidden: this.hidden
         }
     }
 
@@ -869,6 +889,13 @@ export class CustomCommand {
 
         return parsed_args;
     }
+    
+    /**
+     * Clear all timeouts for the command.
+     */
+    clearTimeouts() {
+        this.timeouts.clear();
+    }
 
     /**
      * Execute the command contextually.
@@ -877,6 +904,13 @@ export class CustomCommand {
      * @returns {CustomCommandExecutionPath}
      */
     async execute(message, parsed_args) {
+        const timeout = this.timeouts.get(message.author.id);
+
+        if (timeout && timeout > Date.now()) {
+            await message.react("⏰");
+            return;
+        }
+
         Object.entries(this.variables).forEach(([id, variable]) => {
             parsed_args[id] = {
                 type: variable.type,
@@ -888,6 +922,10 @@ export class CustomCommand {
 
         const service = this.guild_set.service.client.SweeperService;
         const sweeper = service.getSweeper(message.channel.id);
+
+        if (this.delay) {
+            this.timeouts.set(message.author.id, Date.now() + this.delay);
+        }
 
         sweeper.pushInterface(message, script.context);
 

@@ -17,7 +17,7 @@ import { SwagClan } from "../class/SwagClan.js"
 
 import config from "../../.config.js"
 
-import { CustomCommand } from "../service/CustomCommandService.js"
+import { rule_manager, CustomCommand } from "../service/CustomCommandService.js"
 
 import credentials from "../../.credentials.js"
 
@@ -54,8 +54,11 @@ const MAX_PARAMETERS = 3;
 /** The maximum number of variables allowed for a custom command */
 const MAX_VARIABLES = 5;
 
-/** The maxmimum number of actions allowed for a custom command */
+/** The maximum number of actions allowed for a custom command */
 const MAX_ACTIONS = 10;
+
+/** The maximum value allowed for a custom command delay */
+const MAX_DELAY = 86400000;
 
 const parameter_schema = joi.object().keys({
     type: joi.string().required(),
@@ -96,21 +99,13 @@ const post_command_schema = joi.object().keys({
     parameters: joi.object().pattern(/^/, parameter_schema).max(MAX_PARAMETERS),
     variables: joi.object().pattern(/^/, variable_schema).max(MAX_VARIABLES),
     actions: joi.array().required().items(expression_schema).max(MAX_ACTIONS),
-    enabled: joi.boolean().default(true)
+    delay: joi.number().positive().integer().max(MAX_DELAY),
+    enabled: joi.boolean(),
+    hidden: joi.boolean()
 });
 
-const command_schema = joi.object().keys({
-    id: joi.string().required().pattern(/^[0-9]+$/),
-    name: joi.string().required().min(MIN_NAME).max(MAX_NAME),
-    description: joi.string().empty("").max(MAX_DESCRIPTION),
-    triggers: joi.array().required().items(joi.object().keys({
-		type: joi.string().allow("command").allow("startsWith").allow("contains").allow("exact").allow("matches"),
-		name: joi.string().max(MAX_TRIGGER)
-	})).max(MAX_TRIGGERS),
-    variables: joi.object().pattern(/^/, variable_schema).max(MAX_VARIABLES),
-    parameters: joi.object().pattern(/^/, parameter_schema).max(MAX_PARAMETERS),
-    actions: joi.array().required().items(expression_schema).max(MAX_ACTIONS),
-    enabled: joi.boolean().required()
+const command_schema = post_command_schema.keys({
+    id: joi.string().required().pattern(/^[0-9]+$/)
 });
 
 const oauthDiscord = new oauth2({
@@ -361,9 +356,7 @@ export default async function api(client) {
     });
 
     server.get("/rules", async (req, res) => {
-        const rules = await import("../service/rule/rules.js");
-
-        res.status(200).json(rules.default);
+        res.status(200).json(rule_manager.rule_groups);
     });
 
     const dynAuth = dynamic.create(client.SessionService.handle());
@@ -675,7 +668,9 @@ export default async function api(client) {
                 command.setVariables(req.body.variables);
                 command.setActions(req.body.actions);
                 command.modified_at = Date.now();
+                command.delay = req.body.delay;
                 command.enabled = req.body.enabled;
+                command.hidden = req.body.hidden;
                 
                 await guild_commands.save();
 
@@ -685,6 +680,23 @@ export default async function api(client) {
             }
         } else { 
             badRequestBody(req, res);
+        }
+    });
+    
+    server.delete("/guilds/:id/commands/:command_id/timeouts", is_manageable, async (req, res) => {
+        const cache_guild = client.guilds.cache.get(req.params.id);
+
+        const service = client.CustomCommandService;
+        let guild_commands = await service.getCustomCommands(cache_guild);
+
+        const command = guild_commands.commands.get(req.params.command_id);
+
+        if (command) {
+            command.clearTimeouts();
+            
+            res.status(200).json(true);
+        } else {
+            notFound(req, res);
         }
     });
     

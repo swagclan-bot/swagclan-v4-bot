@@ -238,12 +238,12 @@ export default new CustomCommandRuleGroup({
         new CustomCommandRule({
             id: "40948cdf-0c1c-4933-8a84-b17c21acee5e",
             name: "Member % can manage %",
-            description: "Check whether a member can manage another.",
+            description: "Check whether a member should be able to manage another member .",
             params: ["member", "member"],
             callback: function MemberCanManage(member1, member2) {
                 const FLAGS = discord.Permissions.FLAGS;
 
-                return member1.hasPermission(FLAGS.MANAGE_NICKNAMES) && member1.hasPermission(FLAGS.KICK_MEMBERS) && member1.hasPermission(FLAGS.BAN_MEMBERS)
+                return member1.hasPermission(FLAGS.MANAGE_NICKNAMES) && member1.hasPermission(FLAGS.KICK_MEMBERS) // "Manage members?"
                     && member1.guild.ownerID !== member2.user.id &&
                     (member1.guild.ownerID === member1.user.id || member1.roles.highest.comparePositionTo(member2.roles.highest) > 0);
             },
