@@ -82,6 +82,7 @@ You can run `git pull` to update the bot to the latest version. If you have chan
 * `rbeta <id>` - Remove beta privileges from a user or a guild.
 * `modules` - Get a list of all loaded and available modules.
 * `load <module>` - Load a module.
+* `reload rules` - Reload all custom command rules.
 * `reload <module>` - Reload a module.
 * `unload <module>` - Unload a module.
 * `help` - Display a help message.
