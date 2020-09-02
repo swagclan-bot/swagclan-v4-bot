@@ -37,7 +37,7 @@ export default {
 }
 
 ```
-and enter in your credentials for each API that you have access to. Commands that require APIs that you don't have access to will not work. [See below](#APIs) to learn how to get credentials for each API.
+and enter in your credentials for each API that you have access to. Commands that require APIs that you don't have access to will not work.
 
 #### Credentials
 * `token` is your discord bot user's access token.
