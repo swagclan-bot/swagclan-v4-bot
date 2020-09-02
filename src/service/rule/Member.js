@@ -282,6 +282,16 @@ export default new CustomCommandRuleGroup({
             },
             fallback: null,
             returns: "role"
+        }),
+        new CustomCommandRule({
+            id: "2d5ddb54-c5ff-4891-8878-bf1cde085970",
+            name: "Send % to %",
+            description: "Send a message to another member.",
+            params: ["string", "member"],
+            callback: async function SendMessage(text, member) {
+                await member.send(text);
+            },
+            returns: "void"
         })
     ]
 });

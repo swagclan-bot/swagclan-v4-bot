@@ -58,7 +58,7 @@ const MAX_VARIABLES = 5;
 const MAX_ACTIONS = 10;
 
 /** The maximum value allowed for a custom command delay */
-const MAX_DELAY = 86400000;
+const MAX_TIMEOUT = 86400000;
 
 const parameter_schema = joi.object().keys({
     type: joi.string().required(),
@@ -99,7 +99,7 @@ const post_command_schema = joi.object().keys({
     parameters: joi.object().pattern(/^/, parameter_schema).max(MAX_PARAMETERS),
     variables: joi.object().pattern(/^/, variable_schema).max(MAX_VARIABLES),
     actions: joi.array().required().items(expression_schema).max(MAX_ACTIONS),
-    delay: joi.number().positive().integer().allow(0).max(MAX_DELAY),
+    timeout: joi.number().positive().integer().allow(0).max(MAX_TIMEOUT),
     enabled: joi.boolean(),
     hidden: joi.boolean()
 });
@@ -668,7 +668,7 @@ export default async function api(client) {
                 command.setVariables(req.body.variables);
                 command.setActions(req.body.actions);
                 command.modified_at = Date.now();
-                command.delay = req.body.delay;
+                command.timeout = req.body.timeout;
                 command.enabled = req.body.enabled;
                 command.hidden = req.body.hidden;
                 

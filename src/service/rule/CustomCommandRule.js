@@ -142,28 +142,33 @@ export class CustomCommandRule {
                 }
 
                 const arg = await args[i].evaluate(ctx);
-                const value = arg.value;
+                
+                if (arg) {
+                    const value = arg.value;
 
-                if (typeof value === "symbol") {
-                    parsed_args.push(value);
-                } else if (param === "number") {
-                    parsed_args.push(Number(value) || 0);
-                } else if (param === "boolean") {
-                    parsed_args.push(Boolean(value));
-                } else if (param === "string") {
-                    parsed_args.push(value ? (value + "") : "");
-                } else if (param === "message") {
-                    parsed_args.push(ctx.message.channel.messages.resolve(value));
-                } else if (param === "member") {
-                    parsed_args.push(ctx.message.guild.members.resolve(value));
-                } else if (param === "channel") {
-                    parsed_args.push(ctx.message.guild.channels.resolve(value));
-                } else if (param === "role") {
-                    parsed_args.push(ctx.message.guild.roles.resolve(value));
-                } else if (param === "date") {
-                    parsed_args.push(new Date(value));
+                    if (typeof value === "symbol") {
+                        parsed_args.push(value);
+                    } else if (param === "number") {
+                        parsed_args.push(Number(value) || 0);
+                    } else if (param === "boolean") {
+                        parsed_args.push(Boolean(value));
+                    } else if (param === "string") {
+                        parsed_args.push(value ? (value + "") : "");
+                    } else if (param === "message") {
+                        parsed_args.push(ctx.message.channel.messages.resolve(value));
+                    } else if (param === "member") {
+                        parsed_args.push(ctx.message.guild.members.resolve(value));
+                    } else if (param === "channel") {
+                        parsed_args.push(ctx.message.guild.channels.resolve(value));
+                    } else if (param === "role") {
+                        parsed_args.push(ctx.message.guild.roles.resolve(value));
+                    } else if (param === "date") {
+                        parsed_args.push(new Date(value));
+                    } else {
+                        parsed_args.push(value);
+                    }
                 } else {
-                    parsed_args.push(value);
+                    parsed_args.push(null);
                 }
             } else {
                 return;
@@ -174,7 +179,7 @@ export class CustomCommandRule {
             try {
                 await this._callback.call(ctx, ...parsed_args);
             } catch (e) {
-                if (~e.toString().indexOf("DiscordAPIError")) {
+                if (~e.toString().indexOf("DiscordAPIError") && ~e.toString().indexOf("empty message")) {
                     console.error(ctx.guild.id, ctx.command.id, e);
                 }
             }
@@ -184,7 +189,7 @@ export class CustomCommandRule {
 
                 return new CustomCommandContextVariable(this.returns, ret);
             } catch (e) {
-                if (~e.toString().indexOf("DiscordAPIError")) {
+                if (~e.toString().indexOf("DiscordAPIError") && ~e.toString().indexOf("empty message")) {
                     console.error(ctx.guild.id, ctx.command.id, e);
                 }
 

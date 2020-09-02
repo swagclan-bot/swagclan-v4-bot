@@ -39,6 +39,48 @@ export default new CustomCommandRuleGroup({
             returns: "void"
         }),
         new CustomCommandRule({
+            id: "e10bf0d2-e72b-425d-b9a5-fd7bbd84924f",
+            name: "Reply with embed % with colour %",
+            description: "Reply to the message with an embed.",
+            params: ["string", "string"],
+            callback: async function ReplyWithEmbed(text, colour) {
+                await this.reply({
+                    embed: {
+                        color: colour,
+                        title: this.script.command.name + " ❗",
+                        description: text
+                    }
+                });
+            },
+            returns: "void"
+        }),
+        new CustomCommandRule({
+            id: "4defd20b-7ab4-478a-8bf6-2b720807bdc8",
+            name: "Edit % with %",
+            description: "Edit a message.",
+            params: ["message", "string"],
+            callback: async function EditMessage(message, text) {
+                await message.edit(text);
+            },
+            returns: "void"
+        }),
+        new CustomCommandRule({
+            id: "4defd20b-7ab4-478a-8bf6-2b720807bdc8",
+            name: "Edit % with embed % with colour %",
+            description: "Edit a message as an embed.",
+            params: ["message", "string", "string"],
+            callback: async function EditMessageWithEmbed(message, text) {
+                await message.edit({
+                    embed: {
+                        color: colour,
+                        title: this.script.command.name + " ❗",
+                        description: text
+                    }
+                });
+            },
+            returns: "void"
+        }),
+        new CustomCommandRule({
             id: "63a1a817-9e70-47c5-a600-96506aebbfe3",
             name: "Delete message",
             description: "Delete the original message.",

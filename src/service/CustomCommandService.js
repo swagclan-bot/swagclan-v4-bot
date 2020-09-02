@@ -163,6 +163,12 @@ class CustomCommandContextVariableExpression extends CustomCommandExpression {
      * @returns {String}
      */
     async evaluate(ctx) {
+        if (ctx.vars[this.name] && ctx.vars[this.name].type === "void") {
+            console.log(ctx.vars[this.name]);
+
+            return await ctx.vars[this.name].value.evaluate(ctx);
+        }
+
         return ctx.vars[this.name] || { type: "undefined", value: undefined };
     }
 }
@@ -323,9 +329,10 @@ class CustomCommandExecutionPath {
      * Instantiate a custom command execution path.
      * @param {discord.Message} message The message that was originally sent.
      * @param {CustomCommand} command The custom command that was called.
-     * @param { { [key: string]: any }} args The arguments that were parsed.
+     * @param { { [key: string]: CustomCOmmandContextVariable }} args The arguments that were parsed.
+     * @param { { [key: string]: CustomCOmmandContextVariable }} vars The variables in the custom command.
      */
-    constructor(message, command, args) {
+    constructor(message, command, args, vars) {
         /**
          * The message that was originally sent.
          * @type {discord.Message}
@@ -342,7 +349,7 @@ class CustomCommandExecutionPath {
          * The context for the execution path.
          * @type {CustomCommandContext}
          */
-        this.context = new CustomCommandContext(message, this, args);
+        this.context = new CustomCommandContext(message, this, args, vars);
 
         /**
          * When the execution path was last executed.
@@ -394,9 +401,10 @@ class CustomCommandContext {
      * Instantiate a custom command context.
      * @param {discord.Message} message The message that was originally sent.
      * @param {CustomCommandExecutionPath} script The execution path for the context.
-     * @param { { [key: string]: any }} args The arguments that were parsed.
+     * @param { { [key: string]: CustomCommandContextVariable } } args The arguments that were parsed.
+     * @param { { [key: string]: CustomCommandContextVariable } } vars The custom command variables.
      */
-    constructor(message, script, args) {
+    constructor(message, script, args, vars) {
         /**
          * The message that was originally sent.
          * @type {discord.Message}
@@ -419,7 +427,7 @@ class CustomCommandContext {
          * The custom command that was called.
          * @type {CustomCommand}
          */
-        this.command = message.command;
+        this.command = script.command;
 
         /**
          * The execution path for the context.
@@ -435,9 +443,14 @@ class CustomCommandContext {
 
         /**
          * The context variables of the rules.
-         * @type { { [key: string]: CustomCommandContextVariableExpression }}
+         * @type { { [key: string]: CustomCommandContextVariable }}
          */
-        this.vars = args;
+        this.vars = { ...args, ...Object.fromEntries(Object.entries(vars).map(([id, variable]) => {
+            return [id, {
+                name: variable,
+                value: variable.inital
+            }];
+        })) };
     }
     
     /**
@@ -694,7 +707,7 @@ export class CustomCommand {
          * The delay for users to wait between each use of the command.
          * @type {Number}
          */
-        this.delay = command.delay ?? 0;
+        this.timeout = (command.delay || command.timeout) ?? 0;
 
         /**
          * The timeouts for individual users for using the command.
@@ -748,7 +761,7 @@ export class CustomCommand {
             actions: this.actions,
             created_at: this.created_at,
             modified_at: this.modified_at,
-            delay: this.delay,
+            timeout: this.timeout,
             enabled: this.enabled,
             hidden: this.hidden
         }
@@ -911,20 +924,13 @@ export class CustomCommand {
             return;
         }
 
-        Object.entries(this.variables).forEach(([id, variable]) => {
-            parsed_args[id] = {
-                type: variable.type,
-                value: variable.initial
-            }
-        });
-
-        const script = new CustomCommandExecutionPath(message, this, parsed_args);
+        const script = new CustomCommandExecutionPath(message, this, parsed_args, this.variables);
 
         const service = this.guild_set.service.client.SweeperService;
         const sweeper = service.getSweeper(message.channel.id);
 
-        if (this.delay) {
-            this.timeouts.set(message.author.id, Date.now() + this.delay);
+        if (this.timeout) {
+            this.timeouts.set(message.author.id, Date.now() + this.timeout);
         }
 
         sweeper.pushInterface(message, script.context);
