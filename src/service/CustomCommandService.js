@@ -1,5 +1,6 @@
 // Imports
 import discord from "discord.js"
+import randomstring from "randomstring"
 import path from "path"
 
 import { promises as fs } from "fs"
@@ -8,9 +9,12 @@ import { SwagClan } from "../class/SwagClan.js"
 import { Service } from "./Service.js"
 
 import { CustomCommandRuleGroup, CustomCommandRule } from "./rule/CustomCommandRule.js"
-import rules from "./rule/rules.js"
 
-const InvalidArg = Symbol("Invalid argument provided.");
+import RuleManager from "./rule/rules.js"
+
+export const InvalidArg = Symbol("Invalid argument provided.");
+
+const rule_manager = new RuleManager;
 
 /**
  * @typedef JSONCustomCommandInputObject
@@ -173,10 +177,10 @@ class RuleIdentifier {
      * @returns {CustomCommandRule|null}
      */
     static resolveID(id) {
-        for (let i = 0; i < rules.length; i++) {
-            for (let j = 0; j < rules[i].rules.length; j++) {
-                if (rules[i].rules[j].id === id) {
-                    return new RuleIdentifier(rules[i].name, rules[i].rules[j].id);
+        for (let i = 0; i < rule_manager.rule_groups.length; i++) {
+            for (let j = 0; j < rule_manager.rule_groups[i].rules.length; j++) {
+                if (rule_manager.rule_groups[i].rules[j].id === id) {
+                    return new RuleIdentifier(rule_manager.rule_groups[i].name, rule_manager.rule_groups[i].rules[j].id);
                 }
             }
         }
@@ -208,23 +212,11 @@ class RuleIdentifier {
      * @returns {CustomCommandRule|null}
      */
     resolve() {
-        for (let i = 0; i < rules.length; i++) {
-            for (let j = 0; j < rules[i].rules.length; j++) {
-                if (rules[i].rules[j].id === this.id) {
-                    return rules[i].rules[j];
+        for (let i = 0; i < rule_manager.rule_groups.length; i++) {
+            for (let j = 0; j < rule_manager.rule_groups[i].rules.length; j++) {
+                if (rule_manager.rule_groups[i].rules[j].id === this.id) {
+                    return rule_manager.rule_groups[i].rules[j];
                 }
-            }
-        }
-
-        return null;
-
-        const group = rules.find(group => group.name === this.group);
-
-        if (group) {
-            const rule = group.rules.find(rule => rule.id === this.id);
-
-            if (rule) {
-                return rule
             }
         }
 
@@ -993,6 +985,14 @@ export class CustomCommandService extends Service {
          * @type {discord.Collection<String,GuildCustomCommands>}
          */
         this.guilds = new discord.Collection;
+    }
+
+    /**
+     * Load or reload the rules from the file system.
+     * @returns {Array<CustomCommandRuleGroup>}
+     */
+    async loadRules() {
+        return await rule_manager.reload();
     }
 
     /**

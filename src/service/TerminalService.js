@@ -337,14 +337,20 @@ export class TerminalService extends Service {
 			}
 		} else if (command === "reload") {
 			if (args[0]) {
-				try {
-					const module = await this.client.ModuleService.reload(args[0]);
-					
-					process.stdout.write(("Reloaded module " + module.name + ".").green + "\n");
-					
-					await listAllModules();
-				} catch (e) {
-					process.stduout.write("Error: Could not reload module.".red + "\n");
+				if (args[0] === "rules") {
+					await this.client.CustomCommandService.loadRules();
+
+					process.stdout.write(("Reloaded custom command rules.").green + "\n");
+				} else {
+					try {
+						const module = await this.client.ModuleService.reload(args[0]);
+						
+						process.stdout.write(("Reloaded module " + module.name + ".").green + "\n");
+						
+						await listAllModules();
+					} catch (e) {
+						process.stduout.write("Error: Could not reload module.".red + "\n");
+					}
 				}
 			} else {
 				process.stdout.write("Error: Missing argument <module>".red + "\n");

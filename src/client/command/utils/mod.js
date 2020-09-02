@@ -154,7 +154,7 @@ export default new BotModule({
     }), new ModuleCommand({
         name: "Minecraft Server",
         description: "Get minecraft server information.",
-        emoji: "<:minecrafticon:" + config.emoji.minecraft + ">",
+        emoji: "<:minecraft:" + config.emoji.minecraft + ">",
         versions: [
             new CommandVersion(["mcserver"], [
                 new CommandArgument({

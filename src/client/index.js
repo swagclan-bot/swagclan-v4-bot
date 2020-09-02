@@ -59,6 +59,8 @@ export default async function bot() {
     await client.PrivilegeService.admins.load();
     await client.PrivilegeService.beta.load();
     await client.PrivilegeService.blacklist.load();
+    
+    await client.CustomCommandService.loadRules();
 
     // Settings service events.
     client.SettingsService.on("load", settings => {
