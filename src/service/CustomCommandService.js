@@ -909,7 +909,7 @@ export class CustomCommand {
 
         return {
             trigger,
-            args
+            args: parsed_args
         };
     }
     
