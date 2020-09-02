@@ -920,7 +920,7 @@ export class CustomCommand {
         const timeout = this.timeouts.get(message.author.id);
 
         if (timeout && timeout > Date.now()) {
-            await message.react("⏰");
+            // await message.react("⏰");
             return;
         }
 
