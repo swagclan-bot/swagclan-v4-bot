@@ -52,7 +52,7 @@ const MAX_TRIGGER = 20;
 const MAX_PARAMETERS = 3;
 
 /** The maximum number of variables allowed for a custom command */
-const MAX_VARIABLES = 5;
+const MAX_VARIABLES = 3;
 
 /** The maximum number of actions allowed for a custom command */
 const MAX_ACTIONS = 10;
@@ -101,7 +101,8 @@ const post_command_schema = joi.object().keys({
     actions: joi.array().required().items(expression_schema).max(MAX_ACTIONS),
     timeout: joi.number().positive().integer().allow(0).max(MAX_TIMEOUT),
     enabled: joi.boolean(),
-    hidden: joi.boolean()
+    hidden: joi.boolean(),
+    sweepable: joi.boolean()
 });
 
 const command_schema = post_command_schema.keys({
@@ -671,6 +672,7 @@ export default async function api(client) {
                 command.timeout = req.body.timeout;
                 command.enabled = req.body.enabled;
                 command.hidden = req.body.hidden;
+                command.sweepable = req.body.sweepable;
                 
                 await guild_commands.save();
 

@@ -692,16 +692,22 @@ export class CustomCommand {
         this.modified_at = command.modified_at || command.created_at;
 
         /**
-         * Whether or not the custom command is enabled.
+         * Whether or not the command is enabled.
          * @type {Boolean}
          */
         this.enabled = command.enabled ?? true;
 
         /**
-         * Whether or not the custom command is hidden.
+         * Whether or not the command is hidden.
          * @type {Boolean}
          */
         this.hidden = command.hidden ?? false;
+
+        /**
+         * Whether or not the command can be cleaned by the bot.
+         * @type {Boolean}
+         */
+        this.sweepable = command.sweepable ?? true;
 
         /**
          * The delay for users to wait between each use of the command.
@@ -763,7 +769,8 @@ export class CustomCommand {
             modified_at: this.modified_at,
             timeout: this.timeout,
             enabled: this.enabled,
-            hidden: this.hidden
+            hidden: this.hidden,
+            sweepable: this.sweepable
         }
     }
 
@@ -782,31 +789,31 @@ export class CustomCommand {
                 const trigger = prefix + this.triggers[i].name;
 
 				if (message.content === trigger) {
-					return "";
+					return [this.triggers[i], ""];
 				}
 
 				if (message.content.startsWith(trigger + " ")) {
-					return message.content.substr(trigger.length + 1);
+					return [this.triggers[i], message.content.substr(trigger.length + 1)];
 				}
 			} else if (this.triggers[i].type === "startsWith") {
 				const trigger = this.triggers[i].name;
 
 				if (message.content === trigger) {
-					return "";
+					return [this.triggers[i], ""];
 				}
 
 				if (message.content.startsWith(trigger + " ")) {
-					return message.content.substr(trigger.length + 1);
+					return [this.triggers[i], message.content.substr(trigger.length + 1)];s
 				}
 			} else if (this.triggers[i].type === "contains") {
 				const index = message.content.indexOf(this.triggers[i].name);
 				
 				if (~index) {
-					return "";
+					return [this.triggers[i], ""];
 				}
 			} else if (this.triggers[i].type === "exact") {
 				if (message.content === this.triggers[i].name) {
-					return "";
+					return [this.triggers[i], ""];
 				}
 			} else if (this.triggers[i].type === "matches") {
 				const trigger = this.triggers[i].name.replace(/(^\/)|(\/$)/g, "");
@@ -815,9 +822,7 @@ export class CustomCommand {
 				const matches = regex.exec(message.content);
 				
 				if (matches) {
-					const substr = "";
-					
-					return substr;
+					return [this.triggers[i], ""];
 				}
 			}
         } 
@@ -836,11 +841,13 @@ export class CustomCommand {
          */
         const parsed_args = {};
 
-        const msg = await this.validateCmd(message);
+        const validation = await this.validateCmd(message);
 
-        if (typeof msg !== "string") {
+        if (!validation) {
             return false;
         }
+
+        const [ trigger, msg ] = validation;
 
         const parts = msg.split(" ").filter(_ => _);
 
@@ -900,7 +907,10 @@ export class CustomCommand {
             return false;
         }
 
-        return parsed_args;
+        return {
+            trigger,
+            args
+        };
     }
     
     /**
@@ -913,27 +923,33 @@ export class CustomCommand {
     /**
      * Execute the command contextually.
      * @param {discord.Message} message The message that was originally sent.
+     * @param {JSONCustomCommandTrigger} trigger The trigger that was triggered.
      * @param { { [key: string]: CustomCommandContextVariable }} parsed_args The arguments that were parsed.
      * @returns {CustomCommandExecutionPath}
      */
-    async execute(message, parsed_args) {
+    async execute(message, trigger, parsed_args) {
         const timeout = this.timeouts.get(message.author.id);
 
         if (timeout && timeout > Date.now()) {
-            // await message.react("⏰");
+            if (trigger.type === "command") {
+                await message.react("⏰");
+            }
+
             return;
         }
 
         const script = new CustomCommandExecutionPath(message, this, parsed_args, this.variables);
 
-        const service = this.guild_set.service.client.SweeperService;
-        const sweeper = service.getSweeper(message.channel.id);
+        if (this.sweepable) {
+            const service = this.guild_set.service.client.SweeperService;
+            const sweeper = service.getSweeper(message.channel.id);
+
+            sweeper.pushInterface(message, script.context);
+        }
 
         if (this.timeout) {
             this.timeouts.set(message.author.id, Date.now() + this.timeout);
         }
-
-        sweeper.pushInterface(message, script.context);
 
         await script.run.call(script);
 

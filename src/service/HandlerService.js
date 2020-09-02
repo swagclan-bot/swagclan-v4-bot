@@ -70,10 +70,12 @@ export class HandlerService extends Service {
 
         for (let command of [...custom_commands.commands.values()]) {
             if (command.enabled) {
-                const args = await command.validate(message);
+                const validation = await command.validate(message);
 
-                if (args) {
-                    command.execute(message, args);
+                if (validation) {
+                    const { trigger, args } = validation;
+
+                    command.execute(message, trigger, args);
                     return;
                 }
             }
