@@ -243,7 +243,7 @@ export default new CustomCommandRuleGroup({
             callback: function MemberCanManage(member1, member2) {
                 const FLAGS = discord.Permissions.FLAGS;
 
-                return member1.hasPermission(FLAGS.MANAGE_NICKNAMES) && member1.hasPermission(FLAGS.KICK_MEMBERS) // "Manage members?"
+                return member1.hasPermission(FLAGS.MANAGE_NICKNAMES) && member1.hasPermission(FLAGS.KICK_MEMBERS) && member1.hasPermission(FLAGS.BAN_MEMBERS) // "Manage members?"
                     && member1.guild.ownerID !== member2.user.id &&
                     (member1.guild.ownerID === member1.user.id || member1.roles.highest.comparePositionTo(member2.roles.highest) > 0);
             },
