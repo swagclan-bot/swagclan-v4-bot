@@ -99,7 +99,7 @@ const post_command_schema = joi.object().keys({
     parameters: joi.object().pattern(/^/, parameter_schema).max(MAX_PARAMETERS),
     variables: joi.object().pattern(/^/, variable_schema).max(MAX_VARIABLES),
     actions: joi.array().required().items(expression_schema).max(MAX_ACTIONS),
-    delay: joi.number().positive().integer().max(MAX_DELAY),
+    delay: joi.number().positive().integer().allow(0).max(MAX_DELAY),
     enabled: joi.boolean(),
     hidden: joi.boolean()
 });
