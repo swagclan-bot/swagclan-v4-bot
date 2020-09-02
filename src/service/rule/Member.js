@@ -239,7 +239,8 @@ export default new CustomCommandRuleGroup({
             description: "Check whether a member can manage another.",
             params: ["member", "member"],
             callback: function MemberCanManage(member1, member2) {
-                return member.canManage(member2);
+                return member1.guild.ownerID !== member2.user.id &&
+                    (member1.guild.ownerID === member1.user.id || member1.roles.highest.comparePositionTo(member2.roles.highest) > 0);
             },
             fallback: false,
             returns: "boolean"
