@@ -1,3 +1,5 @@
+import discord from "discord.js"
+
 import { CustomCommandRuleGroup, CustomCommandRule } from "./CustomCommandRule.js"
 
 export default new CustomCommandRuleGroup({
@@ -239,7 +241,10 @@ export default new CustomCommandRuleGroup({
             description: "Check whether a member can manage another.",
             params: ["member", "member"],
             callback: function MemberCanManage(member1, member2) {
-                return member1.guild.ownerID !== member2.user.id &&
+                const FLAGS = discord.Permissions.FLAGS;
+
+                return member1.hasPermission(FLAGS.MANAGE_NICKNAMES) && member1.hasPermission(FLAGS.KICK_MEMBERS) && member1.hasPermission(FLAGS.BAN_MEMBERS)
+                    && member1.guild.ownerID !== member2.user.id &&
                     (member1.guild.ownerID === member1.user.id || member1.roles.highest.comparePositionTo(member2.roles.highest) > 0);
             },
             fallback: false,
