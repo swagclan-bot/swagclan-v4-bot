@@ -273,12 +273,7 @@ export default async function api(client) {
         res.status(200).json({
             started: Date.now() - Math.floor(process.uptime() * 1000),
             status: client.user.presence.status,
-            user: {
-                id: client.user.id,
-                username: client.user.username,
-                discriminator: client.user.discriminator,
-                avatar: client.user.avatar,
-            }
+            user: resolve_basic_user_object(client.user)
         })
     });
 
@@ -448,6 +443,7 @@ export default async function api(client) {
             icon: guild.icon,
             is_owner: guild.owner,
             permissions: guild.permissions,
+            created: guild.createdTimestamp,
             dashboard_available: !!cache_guild,
             premium: {
                 active: true,
@@ -463,6 +459,19 @@ export default async function api(client) {
                     roles: cache_guild.channels.cache.size
                 }
             } : {})
+        }
+    }
+
+    /**
+     * Resolve a complex user structure to a JSON user object.
+     * @param {discord.User} user The user to resolve.
+     */
+    function resolve_basic_user_object(user) {
+        return {
+            id: user.id,
+            username: user.username,
+            discriminator: user.discriminator,
+            avatar: user.avatar
         }
     }
 
@@ -684,6 +693,30 @@ export default async function api(client) {
             badRequestBody(req, res);
         }
     });
+
+    server.get("/guilds/:id/commands/:command_id/timeouts", is_manageable, async (req, res) => {
+        const cache_guild = client.guilds.cache.get(req.params.id);
+
+        const service = client.CustomCommandService;
+        let guild_commands = await service.getCustomCommands(cache_guild);
+
+        const command = guild_commands.commands.get(req.params.command_id);
+
+        if (command) {
+            const timeouts = [...command.timeouts.entries()].map(([user_id, timeout]) => {
+                const user = cache_guild.members.resolve(user_id).user;
+
+                return {
+                    ...resolve_basic_user_object(user),
+                    timeout
+                }
+            }).filter(user_timeout => user_timeout.timeout > Date.now());
+
+            res.status(200).json(timeouts);
+        } else {
+            notFound(req, res);
+        }
+    });
     
     server.delete("/guilds/:id/commands/:command_id/timeouts", is_manageable, async (req, res) => {
         const cache_guild = client.guilds.cache.get(req.params.id);
@@ -695,6 +728,23 @@ export default async function api(client) {
 
         if (command) {
             command.clearTimeouts();
+            
+            res.status(200).json(true);
+        } else {
+            notFound(req, res);
+        }
+    });
+    
+    server.delete("/guilds/:id/commands/:command_id/timeouts/:user_id", is_manageable, async (req, res) => {
+        const cache_guild = client.guilds.cache.get(req.params.id);
+
+        const service = client.CustomCommandService;
+        let guild_commands = await service.getCustomCommands(cache_guild);
+
+        const command = guild_commands.commands.get(req.params.command_id);
+
+        if (command) {
+            command.timeouts.delete(req.params.user_id);
             
             res.status(200).json(true);
         } else {
