@@ -160,7 +160,7 @@ export default new BotModule({
                                                 }
                                             });
             
-                                            return await this.createPages("success", "There " + is(versions.length) + " " + p(versions.length, "version") + " of **" + command.name + "** in **" + botmodule.name + "**.", display);    
+                                            return await this.createPages("success", "There " + is(command.versions.length) + " " + p(command.versions.length, "version") + " of **" + command.name + "** in **" + botmodule.name + "**.", display);    
                                         } else {
                                             return await this.reply("error", "Couldn't find a command called `" + this.escape_c(this.args.command.value) + "` in **" + botmodule.name + "**.");
                                         }
