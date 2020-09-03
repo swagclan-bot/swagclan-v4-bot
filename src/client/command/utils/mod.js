@@ -1076,12 +1076,14 @@ export default new BotModule({
 									if (def.length > definition.length + 4) {
 										def += "_";
                                     }
-                                    
-                                    def += "...\n\n[Read on Urban Dictionary](" + item.permalink + ")";
 
-									def = def.replace(/ ?\[[^\]]+\]\([^\)_]+_(?=(\.\.\.)\n\n\[Read on Urban Dictionary\].+?\))/, "_");
-									def = def.replace(/ ?\[[^\]]+\]\([^\)_]+(?=(\.\.\.)\n\n\[Read on Urban Dictionary\].+?\))/, "");
-								}
+                                    def += "...";
+
+									def = def.replace(/ ?\[[^\]]+\]\([^\)_]+_(?=(\.\.\.))$/, "_");
+									def = def.replace(/ ?\[[^\]]+\]\([^\)_]+(?=(\.\.\.))$/, "");
+                                }
+                                
+                                def += "\n\n[Read on Urban Dictionary](" + item.permalink + ")";
 
 								return {
 									title: "\"" + item.word + "\" - " + item.author + " (" + new Date(item.written_on).toLocaleDateString() + ")",
