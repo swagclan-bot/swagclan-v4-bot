@@ -2,6 +2,7 @@
 import discord from "discord.js"
 import randomstring from "randomstring"
 import path from "path"
+import EventEmitter from "events"
 
 import { promises as fs } from "fs"
 
@@ -585,14 +586,17 @@ export class CustomCommandVariable {
 
 /**
  * Represents a guild custom command.
+ * @extends {EventEmitter}
  */
-export class CustomCommand {
+export class CustomCommand extends EventEmitter {
     /**
      * Instantiate a custom command object.
      * @param {GuildCustomCommands} guild_set The guild's entire set of custom commands.
      * @param {JSONCustomCommandObject} command The command information.
      */
     constructor(guild_set, command) {
+        super();
+        
         /**
          * The guild's entire set of custom commands.
          * @type {GuildCustomCommands}
@@ -948,7 +952,11 @@ export class CustomCommand {
         }
 
         if (this.timeout) {
-            this.timeouts.set(message.author.id, Date.now() + this.timeout);
+            const timeout = Date.now() + this.timeout;
+
+            this.timeouts.set(message.author.id, timeout);
+
+            this.emit("timeout", message.author, timeout)
         }
 
         await script.run.call(script);
