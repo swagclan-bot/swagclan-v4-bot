@@ -382,9 +382,13 @@ export default async function api(client) {
         let json = account.toJSON();
 
         json.connections = Object.fromEntries(Object.entries(json.connections).map(([name, connection]) => {
-            const { auth, ...noauth } = connection;
-
-            return noauth;
+            return {
+                created_at: connection.created_at,
+                id: connection.id,
+                name: connection.name,
+                url: connection.url,
+                username: connection.username
+            };
         }));
 
         res.status(200).json(account);
