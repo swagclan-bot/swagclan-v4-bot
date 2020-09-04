@@ -198,7 +198,7 @@ class UserAccount {
         try {
             if (connection === "lichess") {
                 const lichesstoken = await oauthLichess.code.getToken(url);
-                const auth = lichtoken.data;
+                const auth = lichesstoken.data;
 
                 const user = await fetch(lichess.Client.BASE_API + "/account", {
                     headers: {
@@ -220,6 +220,8 @@ class UserAccount {
                 return false;
             }
         } catch (e) {
+            console.error(e);
+
             return false;
         }
         
