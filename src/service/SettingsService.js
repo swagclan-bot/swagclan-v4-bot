@@ -710,7 +710,7 @@ export class SettingsService extends Service {
      * @param {discord.GuildResolvable} guild_resolvable The guild to create the settings for.
      * @returns {GuildSettings}
      */
-    async createSettings(guild_resolvable) {
+    createSettings(guild_resolvable) {
         const guild = this.client.guilds.resolve(guild_resolvable);
 
         const settings = new GuildSettings(this, guild.id, {

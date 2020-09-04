@@ -1079,8 +1079,8 @@ export default new BotModule({
 
                                     def += "...";
 
-									def = def.replace(/ ?\[[^\]]+\]\([^\)_]+_(?=(\.\.\.))$/, "_");
-									def = def.replace(/ ?\[[^\]]+\]\([^\)_]+(?=(\.\.\.))$/, "");
+									def = def.replace(/ ?\[[^\]]+\]\([^\)_]+_(?=(\.\.\.))/, "_");
+									def = def.replace(/ ?\[[^\]]+\]\([^\)_]+(?=(\.\.\.))/, "");
                                 }
                                 
                                 def += "\n\n[Read on Urban Dictionary](" + item.permalink + ")";

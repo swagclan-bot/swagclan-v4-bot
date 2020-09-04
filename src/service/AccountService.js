@@ -333,7 +333,7 @@ export class AccountService extends Service {
      * @param {discord.UserResolvable} user_resolvable The user to create the account for.
      * @returns {UserAccount}
      */
-    async createAccount(user_resolvable) {
+    createAccount(user_resolvable) {
         const user = this.client.users.resolve(user_resolvable);
 
         const account = new UserAccount(this, {

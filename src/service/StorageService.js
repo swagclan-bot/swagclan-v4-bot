@@ -1,0 +1,271 @@
+// Imports
+import discord from "discord.js"
+import path from "path"
+import EventEmitter from "events"
+
+import { promises as fs } from "fs"
+
+import { Service } from "./Service.js"
+import { SwagClan } from "../class/SwagClan.js"
+
+/**
+ * Represents a collection of items for a guild storage.
+ * @extends {EventEmitter}
+ */
+class StorageCollection extends EventEmitter {
+    /**
+     * Instantiate a storage collection object.
+     * @param {GuildStorage} storage The guild storage that the collection belongs to.
+     * @param { { [key: string]: String } } items The items in the collection.
+     */
+    constructor(storage, name, items) {
+        super();
+
+        /**
+         * The guild storage that the collection belongs to.
+         * @type {GuildStorage}
+         */
+        this.storage = storage;
+
+        /**
+         * @type {String}
+         */
+        this.name = name;
+
+        /**
+         * The items in the collection.
+         * @type {discord.Collection<String,String>}
+         */
+        this.items = new discord.Collection(Object.entries(items))
+    }
+
+    /**
+     * Clear the collection's items.
+     */
+    async clear() {
+        this.emit("clear", this);
+
+        this.storage.save();
+    }
+
+    /**
+     * Delete the storage collection.
+     */
+    async delete() {
+        this.storage.deleteCollection(this.name);
+    }
+}
+
+/**
+ * Represents chat settings for a guild.
+ * @extends {EventEmitter}
+ */
+class GuildStorage extends EventEmitter {
+    /**
+     * Instantiate a guild storage object.
+     * @param {SettingsService} service The storage service that the guild settings is loaded into.
+     * @param {String} id The ID of the guild.
+     * @param {JSONGuildStorage} raw The raw json object to construct the guild storage from.
+     */
+    constructor(service, id, raw) {
+        super();
+
+        /**
+         * The storage service that the guild settings is loaded into.
+         * @type {StorageService}
+         */
+        this.service = service;
+        
+        /**
+         * The ID of the guild.
+         * @type {String}
+         */
+        this.id = id;
+
+        /**
+         * The storage collections.
+         * @type {discord.Collection<String,StorageCollection>}
+         */
+        this.collections = new discord.Collection(Object.entries(raw.collections).map(entry => {
+            return [entry[0], new StorageCollection(this, entry[0], entry[1])];
+        }));
+    }
+
+    /**
+     * Create a storage collection.
+     * @param {String} name The name of the collection to create.
+     */
+    createCollection(name) {
+        this.collections.set(name, new StorageCollection(this, entry[1]));
+
+        this.emit("collection", this.collections.get(name));
+    }
+
+    /**
+     * Delete a storage collection.
+     * @param {String} name The name of the collection to delete.
+     */
+    deleteCollection(name) {
+        const collection = this.collections.get(name);
+
+        if (this.collections.delete(name)) {
+            this.emit("deleteCollection", collection);
+        }
+    }
+
+    /**
+     * Convert the complex object to a pure JSON object.
+     * @returns {JSONGuildSettings}
+     */
+    toJSON() {
+        return {
+            collections: this.collections
+        }
+    }
+
+    async save() {
+        if (this.prevent_save) return;
+
+        await fs.writeFile(path.resolve(this.service.path, this.id + ".json"), JSON.stringify(this));
+    }
+}
+
+/**
+ * Represents a service for interacting with guild storage.
+ * @extends {Service}
+ */
+export class StorageService extends Service {
+    /**
+     * Instantiate the storage service.
+     * @param {SwagClan} client The bot client that instantiated this service
+     * @param {String} path Directory of where guild storages are stored.
+     */
+    constructor(client, definitions, path) {
+        super(client);
+
+        /**
+         * The guild storages by the guild ID.
+         * @type {discord.Collection<String,GuildStorage>}
+         */
+        this.guilds = new discord.Collection;
+
+        /**
+         * Directory of where guild storages are stored.
+         * @type {String}
+         */
+        this.path = path;
+    }
+
+    /**
+     * Get a guild's storage by it's ID.
+     * @param {discord.GuildResolvable} guild_resolvable The guild to get the storage for.
+     * @returns {GuildStorage}
+     */
+    async getStorage(guild_resolvable) {
+        const guild = this.client.guilds.resolve(guild_resolvable);
+
+        if (guild && this.guilds.get(guild.id)) {
+            return this.guilds.get(guild.id);
+        } else {
+            try {
+                await this.loadStorage(guild.id);
+            } catch (e) {
+                if (e.code === "ENOENT") {
+                    const storage = await this.createStorage(guild_resolvable);
+                    
+                    await storage.save();
+
+                    this.guilds.set(guild.id, storage);
+                }
+            }
+            
+            return await this.getStorage(guild_resolvable);
+        }
+    }
+
+    /**
+     * Save all storages.
+     */
+    async saveAll() {
+        for (let entry of this.guilds) {
+            const guild = entry[1];
+
+            await guild.save();
+        }
+    }
+
+    /**
+     * Load storage for a guild.
+     * @param {String} id The ID of the guild to load.
+     * @returns {GuildStorage}
+     */
+    async loadStorage(id) {
+        try {
+            const data = await fs.readFile(path.resolve(this.path, id + ".json"));
+            const json = JSON.parse(data.toString());
+
+            const storage = new GuildStorage(this, id, json);
+
+            this.guilds.set(id, storage);
+            
+            this.emit("load", storage);
+            
+            return storage;
+        } catch (e) {
+            if (e.code === "ENOENT") {
+                throw e;
+            }
+
+            const storage = this.createStorage(id);
+
+            storage.prevent_save = true;
+            
+            this.emit("error", id, e);
+
+            return storage;
+        }
+    }
+
+    /**
+     * Load all guild storages from a directory.
+     * @returns {discord.Collection<String,GuildStorage>} The storages that were loaded.
+     */
+    async loadFromDirectory() {
+        const files = await fs.readdir(this.path);
+
+        /** @type {discord.Collection<String,GuildStorage>} */
+        const loaded = new discord.Collection;
+
+        for (let i = 0; i < files.length; i++) {
+            const file = files[i];
+
+            const guild_id = file.split(".")[0]; // <snowflake>.json
+
+            const storage = await this.loadStorage(guild_id);
+
+            loaded.set(guild_id, storage);
+        }
+
+        return loaded;
+    }
+
+    /**
+     * Create storage for a guild.
+     * @param {discord.GuildResolvable} guild_resolvable The guild to create the settings for.
+     * @returns {GuildStorage}
+     */
+    createStorage(guild_resolvable) {
+        const guild = this.client.guilds.resolve(guild_resolvable);
+
+        const settings = new GuildStorage(this, guild.id, {
+            collections: {
+                users: {},
+                guild: {}
+            }
+        });
+
+        this.guilds.set(guild.id, settings);
+
+        return settings;
+    }
+}

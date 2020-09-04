@@ -585,6 +585,10 @@ export class CustomCommandVariable {
 }
 
 /**
+ * @typedef { { [key: string]: String } } JSONCustomCommandStorageItemObject
+ */
+
+/**
  * Represents a guild custom command.
  * @extends {EventEmitter}
  */
