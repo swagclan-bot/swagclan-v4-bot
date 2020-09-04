@@ -916,12 +916,24 @@ export class CustomCommand extends EventEmitter {
             args: parsed_args
         };
     }
+
+    /**
+     * Clear the timeout for a user.
+     * @param {discord.UserResolvable} user The user to clear the timeout for.
+     */
+    clearTimeout(user) {
+        if (this.timeouts.delete(user.id || user)) {
+            this.emit("timeoutClear", user);
+        }
+    }
     
     /**
      * Clear all timeouts for the command.
      */
     clearTimeouts() {
         this.timeouts.clear();
+
+        this.emit("allTimeoutsClear");
     }
 
     /**

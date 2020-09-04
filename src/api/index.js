@@ -718,6 +718,56 @@ export default async function api(client) {
         }
     });
     
+    server.get("/guilds/:id/commands/:command_id/timeouts/stream", is_manageable, async (req, res) => {
+        const cache_guild = client.guilds.cache.get(req.params.id);
+
+        const service = client.CustomCommandService;
+        let guild_commands = await service.getCustomCommands(cache_guild);
+
+        const command = guild_commands.commands.get(req.params.command_id);
+
+        if (command) {
+            res.status(200);
+
+            function onTimeout(user, timeout) {
+                res.write(JSON.stringify({
+                    op: "timeout",
+                    data: {
+                        ...resolve_basic_user_object(user),
+                        timeout
+                    }
+                }) + "\n");
+            }
+            
+            function onTimeoutClear(user_id) {
+                const user = cache_guild.members.resolve(user_id).user;
+
+                res.write(JSON.stringify({
+                    op: "timeoutClear",
+                    data: resolve_basic_user_object(user)
+                }) + "\n");
+            }
+            
+            function onAllTimeoutsClear(user, timeout) {
+                res.write(JSON.stringify({
+                    op: "allTimeoutsClear"
+                }) + "\n");
+            }
+
+            command.on("timeout", onTimeout);
+            command.on("timeoutClear", onTimeoutClear);
+            command.on("allTimeoutsClear", onAllTimeoutsClear);
+
+            req.on("close", () => {
+                command.off("timeout", onTimeout);
+                command.off("timeoutClear", onTimeoutClear);
+                command.off("allTimeoutsClear", onAllTimeoutsClear);
+            });
+        } else {
+            notFound(req, res);
+        }
+    });
+    
     server.delete("/guilds/:id/commands/:command_id/timeouts", is_manageable, async (req, res) => {
         const cache_guild = client.guilds.cache.get(req.params.id);
 
@@ -744,7 +794,7 @@ export default async function api(client) {
         const command = guild_commands.commands.get(req.params.command_id);
 
         if (command) {
-            command.timeouts.delete(req.params.user_id);
+            command.clearTimeout(req.params.user_id);
             
             res.status(200).json(true);
         } else {
