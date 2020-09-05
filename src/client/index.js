@@ -29,6 +29,7 @@ export default async function bot() {
         privileges_path: path.resolve("private/privileges"),
         sessions_path: path.resolve("private/sessions"),
         settings_path: path.resolve("private/settings"),
+        storage_path: path.resolve("private/storage"),
         module_path: path.resolve(__dirname, "command")
     });
 	
@@ -61,7 +62,16 @@ export default async function bot() {
     await client.PrivilegeService.blacklist.load();
     
     await client.CustomCommandService.loadRules();
+    
+    // Custom command service events
+    client.CustomCommandService.on("load", settings => {
+        console.info("Loaded commands for guild " + settings.id + " (" + client.CustomCommandService.guilds.size + ")");
+    });
 
+    client.CustomCommandService.on("error", (id, error) => {
+        console.error("Could not load commands for guild " + id);
+    });
+    
     // Settings service events.
     client.SettingsService.on("load", settings => {
         console.info("Loaded settings for guild " + settings.id + " (" + client.SettingsService.guilds.size + ")");
@@ -71,13 +81,13 @@ export default async function bot() {
         console.error("Could not load settings for guild " + id);
     });
     
-    // Custom command service events
-    client.CustomCommandService.on("load", settings => {
-        console.info("Loaded commands for guild " + settings.id + " (" + client.CustomCommandService.guilds.size + ")");
+    // Settings service events.
+    client.StorageService.on("load", settings => {
+        console.info("Loaded storage for guild " + settings.id + " (" + client.StorageService.guilds.size + ")");
     });
 
-    client.CustomCommandService.on("error", (id, error) => {
-        console.error("Could not load commands for guild " + id);
+    client.StorageService.on("error", (id, error) => {
+        console.error("Could not load storage for guild " + id);
     });
 
     const modules = await client.ModuleService.loadFromDirectory();

@@ -180,7 +180,7 @@ export default async function api(client) {
      * @param {express.Request} req The request body.
      * @param {express.Response} res The response body.
      */
-    async function badRequestBody(req, res) {
+    async function badRequest(req, res) {
         res.status(400).json({
             error: {
                 code: 400,
@@ -627,7 +627,7 @@ export default async function api(client) {
 
             res.status(200).json(command);
         } else {
-            badRequestBody(req, res);
+            badRequest(req, res);
         }
     });
 
@@ -694,7 +694,7 @@ export default async function api(client) {
                 notFound(req, res);
             }
         } else { 
-            badRequestBody(req, res);
+            badRequest(req, res);
         }
     });
 
@@ -852,6 +852,168 @@ export default async function api(client) {
         const guild_settings = await service.getSettings(cache_guild);
 
         res.status(200).json(guild_settings.history);
+    });
+
+    server.get("/guilds/:id/storage", is_manageable, async (req, res) => {
+        const cache_guild = client.guilds.cache.get(req.params.id);
+
+        const service = client.StorageService;
+        const guild_storage = await service.getStorage(cache_guild);
+
+        if (guild_storage) {
+            res.status(200).json(guild_storage);
+        } else {
+            notFound(req, res);
+        }
+    });
+    
+    server.post("/guilds/:id/storage/collections", is_manageable, async (req, res) => {
+        const cache_guild = client.guilds.cache.get(req.params.id);
+
+        const service = client.StorageService;
+        const guild_storage = await service.getStorage(cache_guild);
+
+        if (req.body.name) {
+            const collection = guild_storage.createCollection(req.body.name);
+            
+            await guild_storage.save();
+
+            res.status(200).json(collection);
+        } else {
+            badRequest(req, res);
+        }
+    });
+    
+    server.delete("/guilds/:id/storage/collections", is_manageable, async (req, res) => {
+        const cache_guild = client.guilds.cache.get(req.params.id);
+
+        const service = client.StorageService;
+        const guild_storage = await service.getStorage(cache_guild);
+
+        if (guild_storage) {
+            guild_storage.clear();
+            
+            await guild_storage.save();
+
+            res.status(200).json(true);
+        } else {
+            notFound(req, res);
+        }
+    });
+
+    server.get("/guilds/:id/storage/collections/:collection_name", is_manageable, async (req, res) => {
+        const cache_guild = client.guilds.cache.get(req.params.id);
+
+        const service = client.StorageService;
+        const guild_storage = await service.getStorage(cache_guild);
+
+        if (guild_storage) {
+            const collection = guild_storage.collections.get(req.params.collection_name);
+
+            if (collection) {
+                res.status(200).json(collection);
+            } else {
+                notFound(req, res);
+            }
+        } else {
+            notFound(req, res);
+        }
+    });
+    
+    server.delete("/guilds/:id/storage/collections/:collection_name", is_manageable, async (req, res) => {
+        const cache_guild = client.guilds.cache.get(req.params.id);
+
+        const service = client.StorageService;
+        const guild_storage = await service.getStorage(cache_guild);
+
+        if (guild_storage) {
+            const collection = guild_storage.collections.get(req.params.collection_name);
+
+            if (collection) {
+                collection.delete();
+                
+                await guild_storage.save();
+
+                res.status(200).json(true);
+            } else {
+                notFound(req, res);
+            }
+        } else {
+            notFound(req, res);
+        }
+    });
+    
+    server.delete("/guilds/:id/storage/collections/:collection_name/items", is_manageable, async (req, res) => {
+        const cache_guild = client.guilds.cache.get(req.params.id);
+
+        const service = client.StorageService;
+        const guild_storage = await service.getStorage(cache_guild);
+
+        if (guild_storage) {
+            const collection = guild_storage.collections.get(req.params.collection_name);
+
+            if (collection) {
+                collection.clear();
+                
+                await guild_storage.save();
+
+                res.status(200).json(true);
+            } else {
+                notFound(req, res);
+            }
+        } else {
+            notFound(req, res);
+        }
+    });
+
+    server.put("/guilds/:id/storage/collections/:collection_name/items/:item_name", is_manageable, async (req, res) => {
+        const cache_guild = client.guilds.cache.get(req.params.id);
+
+        const service = client.StorageService;
+        const guild_storage = await service.getStorage(cache_guild);
+
+        if (req.body.value) {
+            if (guild_storage) {
+                const collection = guild_storage.collections.get(req.params.collection_name);
+
+                if (collection) {
+                    const item = collection.set(req.params.item_name, req.body.value);
+
+                    await guild_storage.save();
+
+                    res.status(200).json(item);
+                } else {
+                    notFound(req, res);
+                }
+            } else {
+                notFound(req, res);
+            }
+        } else {
+            badRequest(req, res);
+        }
+    });
+    
+    server.delete("/guilds/:id/storage/collections/:collection_name/items/:item_name", is_manageable, async (req, res) => {
+        const cache_guild = client.guilds.cache.get(req.params.id);
+
+        const service = client.StorageService;
+        const guild_storage = await service.getStorage(cache_guild);
+
+        if (guild_storage) {
+            const collection = guild_storage.collections.get(req.params.collection_name);
+
+            if (collection) {
+                collection.deleteItem(req.params.item_name);
+                
+                await guild_storage.save();
+
+                res.status(200).json(true);
+            } else {
+                notFound(req, res);
+            }
+        } else {
+            notFound(req, res);
+        }
     });
 
     dynAuth.unuse();

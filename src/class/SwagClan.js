@@ -12,6 +12,7 @@ import { PremiumService } from "../service/PremiumService.js"
 import { PrivilegeService } from "../service/PrivilegeService.js"
 import { SessionService } from "../service/SessionService.js"
 import { SettingsService } from "../service/SettingsService.js"
+import { StorageService } from "../service/StorageService.js"
 import { SweeperService } from "../service/SweeperService.js"
 import { TerminalService } from "../service/TerminalService.js"
 import { VoiceService } from "../service/VoiceService.js"
@@ -90,6 +91,12 @@ export class SwagClan extends discord.Client {
          * @type {SettingsService}
          */
         this.SettingsService = new SettingsService(this, options.setting_definitions, options.settings_path);
+
+        /**
+         * The service dedicated to guild storage.
+         * @type {StorageService}
+         */
+        this.StorageService = new StorageService(this, options.storage_path);
 
         /**
          * The service dedicated to interacting with channel sweepers.

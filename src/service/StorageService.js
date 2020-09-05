@@ -9,6 +9,129 @@ import { Service } from "./Service.js"
 import { SwagClan } from "../class/SwagClan.js"
 
 /**
+ * @typedef JSONCollectionItem
+ * @property {String} value The value of the item.
+ * @property {Number} created When the item was first created.
+ * @property {Number} [modified] When the item was last modified.
+ * @property {Number} size The size of the item in bytes.
+ */
+
+/**
+ * @typedef JSONStorageCollection
+ * @property { { [key: string]: JSONCollectionItem } } items The items in the collection.
+ * @property {Number} size The size of the collection in bytes.
+ */
+
+/**
+ * @typedef JSONGuildStorage
+ * @property { { [key: string]: JSONStorageCollection } } collections The collections in storage.
+ * @property {Number} size The size of the storage in bytes.
+ */
+
+/**
+ * Calculate the size of a JSON object in bytes.
+ * @param {any} obj The object to calculate the size of.
+ * @returns {Number}
+ */
+function obj_size(obj) {
+    const str = JSON.stringify(obj);
+
+    return Buffer.byteLength(str) - 2;
+}
+
+/**
+ * Represents an item of a collection for a guild storage.
+ * @extends {EventEmitter}
+ */
+class CollectionItem extends EventEmitter {
+    /**
+     * Instantiate a collection item object.
+     * @param {StorageCollection} collection The collection that the collection item belongs to.
+     * @param {String} name The name of the collection item.
+     * @param {JSONCollectionItem} item The raw object to construct the collection item.
+     */
+    constructor(collection, name, item) {
+        super();
+
+        /**
+         * The collection that the collection item belongs to.
+         * @param {StorageCollection}
+         */
+        this.collection = collection;
+
+        /**
+         * The name of the item.
+         * @type {String}
+         */
+        this.name = name;
+
+        /**
+         * The value of the item.
+         * @type {String}
+         */
+        this.value = item.value;
+
+        /**
+         * When the item was first created.
+         * @type {Number}
+         */
+        this.created = item.created;
+
+        /**
+         * When the item was last modified.
+         * @type {Number}
+         */
+        this.modified = item.modified || item.created;
+    }
+
+
+    /**
+     * Convert the complex object to a pure JSON object.
+     * @returns {JSONCollectionItem}
+     */
+    toJSON() {
+        return {
+            value: this.value,
+            created: this.created,
+            modified: this.modified,
+            size: this.size
+        }
+    }
+
+    /**
+     * Get the size of the item in bytes.
+     * @type {Number}
+     */
+    get size() {
+        return obj_size({
+            value: this.value,
+            created: this.created,
+            modified: this.modified
+        });
+    }
+
+    /**
+     * Set the value of the item.
+     * @param {String} val The value to set the item to.
+     */
+    set(val) {
+        this.emit("update", this.value, val);
+
+        this.value = val;
+        this.modified = Date.now();
+    }
+
+    /**
+     * Delete the item from the collection.
+     */
+    delete() {
+        this.emit("deleted");
+
+        this.collection.deleteItem(this.name);
+    }
+}
+
+/**
  * Represents a collection of items for a guild storage.
  * @extends {EventEmitter}
  */
@@ -16,9 +139,9 @@ class StorageCollection extends EventEmitter {
     /**
      * Instantiate a storage collection object.
      * @param {GuildStorage} storage The guild storage that the collection belongs to.
-     * @param { { [key: string]: String } } items The items in the collection.
+     * @param {JSONStorageCollection} raw The items in the collection.
      */
-    constructor(storage, name, items) {
+    constructor(storage, name, raw) {
         super();
 
         /**
@@ -34,24 +157,86 @@ class StorageCollection extends EventEmitter {
 
         /**
          * The items in the collection.
-         * @type {discord.Collection<String,String>}
+         * @type {discord.Collection<String,CollectionItem>}
          */
-        this.items = new discord.Collection(Object.entries(items))
+        this.items = new discord.Collection(Object.entries(raw.items).map(([name, item]) => [name, new CollectionItem(this, name, item)]));
+    }
+
+    /**
+     * Convert the complex object to a pure JSON object.
+     */
+    toJSON() {
+        return {
+            items: Object.fromEntries(this.items.entries()),
+            size: this.size
+        }
+    }
+
+    /**
+     * Get the size of the collection in bytes.
+     * @type {Number}
+     */
+    get size() {
+        const items = Object.fromEntries([...this.items.entries()].map(entry => {
+            const { size, ...item } = entry[1].toJSON();
+            
+            return [entry[0], item];
+        }));
+
+        return obj_size(items);
+    }
+
+    /**
+     * Update an item of the collection.
+     * @param {String} key The key of the item to set.
+     * @param {String} val The value of the item to set.
+     * @returns {CollectionItem}
+     */
+    set(key, val) {
+        const item = this.items.get(key);
+
+        if (item) {
+            const old_value = item.value;
+
+            item.set(val);
+
+            this.emit("itemUpdate", key, old_value, item.value);
+        } else {
+            this.items.set(key, new CollectionItem(this, key, {
+                value: val,
+                created: Date.now(),
+                modified: Date.now()
+            }));
+
+            this.emit("itemCreate", key, this.items.get(key));
+        }
+
+        return this.items.get(key);
+    }
+
+    /**
+     * Delete an item from the collection.
+     * @param {String} key The key of the item to set.
+     */
+    deleteItem(key) {
+        if (this.items.delete(key)) {
+            this.emit("itemDelete", key);
+        }
     }
 
     /**
      * Clear the collection's items.
      */
-    async clear() {
-        this.emit("clear", this);
+    clear() {
+        this.items.clear();
 
-        this.storage.save();
+        this.emit("clear");
     }
 
     /**
      * Delete the storage collection.
      */
-    async delete() {
+    delete() {
         this.storage.deleteCollection(this.name);
     }
 }
@@ -92,13 +277,39 @@ class GuildStorage extends EventEmitter {
     }
 
     /**
+     * Convert the complex object to a pure JSON object.
+     */
+    toJSON() {
+        return {
+            collections: Object.fromEntries(this.collections.entries()),
+            size: this.size
+        }
+    }
+
+    /**
+     * Get the size of the storage in bytes.
+     * @type {Number}
+     */
+    get size() {
+        const collections = Object.fromEntries([...this.collections.entries()].map(entry => {
+            const { size, ...collection } = entry[1].toJSON();
+            
+            return [entry[0], collection];
+        }));
+
+        return obj_size(collections);
+    }
+
+    /**
      * Create a storage collection.
      * @param {String} name The name of the collection to create.
      */
     createCollection(name) {
-        this.collections.set(name, new StorageCollection(this, entry[1]));
+        this.collections.set(name, new StorageCollection(this, name, {}));
 
-        this.emit("collection", this.collections.get(name));
+        this.emit("collectionCreate", this.collections.get(name));
+
+        return this.collections.get(name);
     }
 
     /**
@@ -109,18 +320,17 @@ class GuildStorage extends EventEmitter {
         const collection = this.collections.get(name);
 
         if (this.collections.delete(name)) {
-            this.emit("deleteCollection", collection);
+            this.emit("collectionDelete", collection);
         }
     }
 
     /**
-     * Convert the complex object to a pure JSON object.
-     * @returns {JSONGuildSettings}
+     * Clear all of the storage.
      */
-    toJSON() {
-        return {
-            collections: this.collections
-        }
+    clear() {
+        this.collections.clear();
+
+        this.emit("clear");
     }
 
     async save() {
@@ -140,7 +350,7 @@ export class StorageService extends Service {
      * @param {SwagClan} client The bot client that instantiated this service
      * @param {String} path Directory of where guild storages are stored.
      */
-    constructor(client, definitions, path) {
+    constructor(client, path) {
         super(client);
 
         /**
