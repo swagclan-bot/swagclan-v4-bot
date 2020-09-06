@@ -187,7 +187,11 @@ export class CustomCommandRule {
             try {
                 const ret = await this._callback.call(ctx, ...parsed_args);
 
-                return new CustomCommandContextVariable(this.returns, ret);
+                if (typeof ret !== "undefined") {
+                    return new CustomCommandContextVariable(this.returns, ret);
+                } else {
+                    return this.fallback;
+                }
             } catch (e) {
                 if (~e.toString().indexOf("DiscordAPIError") && ~e.toString().indexOf("empty message")) {
                     console.error(ctx.guild.id, ctx.command.id, e);

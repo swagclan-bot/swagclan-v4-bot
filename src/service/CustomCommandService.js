@@ -405,6 +405,12 @@ class CustomCommandContext {
      */
     constructor(message, script, args, vars) {
         /**
+         * The client that instantiated this object.
+         * @type {SwagClan}
+         */
+        this.client = message.client;
+        
+        /**
          * The message that was originally sent.
          * @type {discord.Message}
          */

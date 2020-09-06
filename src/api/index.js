@@ -955,23 +955,32 @@ export default async function api(client) {
         const guild_storage = await service.getStorage(cache_guild);
 
         if (req.body.name) {
-            try {
-                const collection = guild_storage.createCollection(req.body.name);
-            
-                if (collection) {
-                    await guild_storage.save();
-
-                    res.status(200).json(collection);
-                } else {
-                    res.status(409).json(false);
-                }
-            } catch (e) {
-                console.error(e);
+            if (req.body.name.length < 20) {
+                try {
+                    const collection = guild_storage.createCollection(req.body.name);
                 
-                res.status(413).json({
+                    if (collection) {
+                        await guild_storage.save();
+
+                        res.status(200).json(collection);
+                    } else {
+                        res.status(409).json(false);
+                    }
+                } catch (e) {
+                    console.error(e);
+                    
+                    res.status(413).json({
+                        error: {
+                            code: 413,
+                            message: "Not enough space in storage."
+                        }
+                    });
+                }
+            } else {
+                res.status(400).json({
                     error: {
-                        code: 413,
-                        message: "Not enough space in storage."
+                        code: 400,
+                        message: "Collection name is too long."
                     }
                 });
             }
@@ -1068,35 +1077,44 @@ export default async function api(client) {
         const service = client.StorageService;
         const guild_storage = await service.getStorage(cache_guild);
 
-        if (req.body.value) {
-            if (guild_storage) {
-                const collection = guild_storage.collections.get(req.params.collection_name);
+        if (req.params.item_name.length < 20) {
+            if (req.body.value) {
+                if (guild_storage) {
+                    const collection = guild_storage.collections.get(req.params.collection_name);
 
-                if (collection) {
-                    try {
-                        const item = collection.set(req.params.item_name, req.body.value);
+                    if (collection) {
+                        try {
+                            const item = collection.set(req.params.item_name, req.body.value);
 
-                        await guild_storage.save();
+                            await guild_storage.save();
 
-                        res.status(200).json(item);
-                    } catch (e) {
-                        console.error(e);
+                            res.status(200).json(item);
+                        } catch (e) {
+                            console.error(e);
 
-                        res.status(413).json({
-                            error: {
-                                code: 413,
-                                message: "Not enough space in storage."
-                            }
-                        });
+                            res.status(413).json({
+                                error: {
+                                    code: 413,
+                                    message: "Not enough space in storage."
+                                }
+                            });
+                        }
+                    } else {
+                        notFound(req, res);
                     }
                 } else {
                     notFound(req, res);
                 }
             } else {
-                notFound(req, res);
+                badRequest(req, res);
             }
         } else {
-            badRequest(req, res);
+            res.status(400).json({
+                error: {
+                    code: 400,
+                    message: "Item name is too long."
+                }
+            });
         }
     });
     

@@ -145,7 +145,7 @@ class StorageCollection extends EventEmitter {
          * The items in the collection.
          * @type {discord.Collection<String,CollectionItem>}
          */
-        this.items = new discord.Collection(Object.entries(raw.items).map(([name, item]) => [name, new CollectionItem(this, name, item)]));
+        this.items = new discord.Collection(Object.entries(raw.items).map(([name, item]) => [name, new CollectionItem(this, item)]));
     }
 
     /**
@@ -178,7 +178,7 @@ class StorageCollection extends EventEmitter {
         if (item) {
             const new_value = new CollectionItem(this, {
                 name: key,
-                value: item.value,
+                value: val,
                 created: item.created,
                 modified: Date.now()
             });
