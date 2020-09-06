@@ -10,22 +10,21 @@ import { SwagClan } from "../class/SwagClan.js"
 
 /**
  * @typedef JSONCollectionItem
+ * @property {String} name The name of the item.
  * @property {String} value The value of the item.
  * @property {Number} created When the item was first created.
  * @property {Number} [modified] When the item was last modified.
- * @property {Number} size The size of the item in bytes.
  */
 
 /**
  * @typedef JSONStorageCollection
+ * @property {String} name The name of the collection.
  * @property { { [key: string]: JSONCollectionItem } } items The items in the collection.
- * @property {Number} size The size of the collection in bytes.
  */
 
 /**
  * @typedef JSONGuildStorage
  * @property { { [key: string]: JSONStorageCollection } } collections The collections in storage.
- * @property {Number} size The size of the storage in bytes.
  */
 
 /**
@@ -41,18 +40,14 @@ function obj_size(obj) {
 
 /**
  * Represents an item of a collection for a guild storage.
- * @extends {EventEmitter}
  */
-class CollectionItem extends EventEmitter {
+class CollectionItem {
     /**
      * Instantiate a collection item object.
      * @param {StorageCollection} collection The collection that the collection item belongs to.
-     * @param {String} name The name of the collection item.
-     * @param {JSONCollectionItem} item The raw object to construct the collection item.
+     * @param {JSONCollectionItem} raw The raw object to construct the collection item.
      */
-    constructor(collection, name, item) {
-        super();
-
+    constructor(collection, raw) {
         /**
          * The collection that the collection item belongs to.
          * @param {StorageCollection}
@@ -63,25 +58,25 @@ class CollectionItem extends EventEmitter {
          * The name of the item.
          * @type {String}
          */
-        this.name = name;
+        this.name = raw.name;
 
         /**
          * The value of the item.
          * @type {String}
          */
-        this.value = item.value;
+        this.value = raw.value;
 
         /**
          * When the item was first created.
          * @type {Number}
          */
-        this.created = item.created;
+        this.created = raw.created;
 
         /**
          * When the item was last modified.
          * @type {Number}
          */
-        this.modified = item.modified || item.created;
+        this.modified = raw.modified || raw.created;
     }
 
 
@@ -91,10 +86,10 @@ class CollectionItem extends EventEmitter {
      */
     toJSON() {
         return {
+            name: this.name,
             value: this.value,
             created: this.created,
-            modified: this.modified,
-            size: this.size
+            modified: this.modified
         }
     }
 
@@ -103,11 +98,7 @@ class CollectionItem extends EventEmitter {
      * @type {Number}
      */
     get size() {
-        return obj_size({
-            value: this.value,
-            created: this.created,
-            modified: this.modified
-        });
+        return obj_size(this);
     }
 
     /**
@@ -115,18 +106,13 @@ class CollectionItem extends EventEmitter {
      * @param {String} val The value to set the item to.
      */
     set(val) {
-        this.emit("update", this.value, val);
-
-        this.value = val;
-        this.modified = Date.now();
+        this.collection.set(this.name, val);
     }
 
     /**
      * Delete the item from the collection.
      */
     delete() {
-        this.emit("deleted");
-
         this.collection.deleteItem(this.name);
     }
 }
@@ -141,7 +127,7 @@ class StorageCollection extends EventEmitter {
      * @param {GuildStorage} storage The guild storage that the collection belongs to.
      * @param {JSONStorageCollection} raw The items in the collection.
      */
-    constructor(storage, name, raw) {
+    constructor(storage, raw) {
         super();
 
         /**
@@ -153,7 +139,7 @@ class StorageCollection extends EventEmitter {
         /**
          * @type {String}
          */
-        this.name = name;
+        this.name = raw.name;
 
         /**
          * The items in the collection.
@@ -168,7 +154,7 @@ class StorageCollection extends EventEmitter {
     toJSON() {
         return {
             items: Object.fromEntries(this.items.entries()),
-            size: this.size
+            name: this.name
         }
     }
 
@@ -177,13 +163,7 @@ class StorageCollection extends EventEmitter {
      * @type {Number}
      */
     get size() {
-        const items = Object.fromEntries([...this.items.entries()].map(entry => {
-            const { size, ...item } = entry[1].toJSON();
-            
-            return [entry[0], item];
-        }));
-
-        return obj_size(items);
+        return obj_size(this);
     }
 
     /**
@@ -196,19 +176,46 @@ class StorageCollection extends EventEmitter {
         const item = this.items.get(key);
 
         if (item) {
-            const old_value = item.value;
+            const new_value = new CollectionItem(this, {
+                name: key,
+                value: item.value,
+                created: item.created,
+                modified: Date.now()
+            });
 
-            item.set(val);
+            const byte_diff = obj_size({ [key]: new_value }) - obj_size({ [key]: item.value });
 
-            this.emit("itemUpdate", key, old_value, item.value);
+            if (this.storage.size + byte_diff > this.storage.max) {
+                throw new Error("Max length of storage reached.");
+            }
+
+            const old_value = new CollectionItem(this, {
+                name: key,
+                value: item.value,
+                created: item.created,
+                modified: item.modified
+            });
+
+            this.items.set(key, new_value);
+
+            this.storage.emit("itemUpdate", this.name, key, old_value, new_value);
         } else {
-            this.items.set(key, new CollectionItem(this, key, {
+            const new_item = new CollectionItem(this, {
+                name: key,
                 value: val,
                 created: Date.now(),
                 modified: Date.now()
-            }));
+            });
 
-            this.emit("itemCreate", key, this.items.get(key));
+            const byte_diff = obj_size({ [key]: new_item }) + (!!this.items.size);
+            
+            if (this.storage.size + byte_diff > this.storage.max) {
+                throw new Error("Max length of storage reached.");
+            }
+            
+            this.items.set(key, new_item);
+
+            this.storage.emit("itemCreate", this.name, key, new_item);
         }
 
         return this.items.get(key);
@@ -220,7 +227,7 @@ class StorageCollection extends EventEmitter {
      */
     deleteItem(key) {
         if (this.items.delete(key)) {
-            this.emit("itemDelete", key);
+            this.storage.emit("itemDelete", this.name, key);
         }
     }
 
@@ -230,7 +237,7 @@ class StorageCollection extends EventEmitter {
     clear() {
         this.items.clear();
 
-        this.emit("clear");
+        this.storage.emit("collectionClear", this.name);
     }
 
     /**
@@ -272,8 +279,14 @@ class GuildStorage extends EventEmitter {
          * @type {discord.Collection<String,StorageCollection>}
          */
         this.collections = new discord.Collection(Object.entries(raw.collections).map(entry => {
-            return [entry[0], new StorageCollection(this, entry[0], entry[1])];
+            return [entry[0], new StorageCollection(this, entry[1])];
         }));
+
+        /**
+         * The max amount of bytes allowed to be stored.
+         * @type {Number}
+         */
+        this.max = 16384; // 16kb
     }
 
     /**
@@ -281,8 +294,7 @@ class GuildStorage extends EventEmitter {
      */
     toJSON() {
         return {
-            collections: Object.fromEntries(this.collections.entries()),
-            size: this.size
+            collections: Object.fromEntries(this.collections.entries())
         }
     }
 
@@ -291,13 +303,7 @@ class GuildStorage extends EventEmitter {
      * @type {Number}
      */
     get size() {
-        const collections = Object.fromEntries([...this.collections.entries()].map(entry => {
-            const { size, ...collection } = entry[1].toJSON();
-            
-            return [entry[0], collection];
-        }));
-
-        return obj_size(collections);
+        return obj_size(this);
     }
 
     /**
@@ -305,11 +311,18 @@ class GuildStorage extends EventEmitter {
      * @param {String} name The name of the collection to create.
      */
     createCollection(name) {
-        this.collections.set(name, new StorageCollection(this, name, {}));
+        if (!this.collections.get(name)) {
+            this.collections.set(name, new StorageCollection(this, {
+                name,
+                items: {}
+            }));
 
-        this.emit("collectionCreate", this.collections.get(name));
+            this.emit("collectionCreate", name, this.collections.get(name));
 
-        return this.collections.get(name);
+            return this.collections.get(name);
+        } else {
+            return false;
+        }
     }
 
     /**
@@ -320,7 +333,7 @@ class GuildStorage extends EventEmitter {
         const collection = this.collections.get(name);
 
         if (this.collections.delete(name)) {
-            this.emit("collectionDelete", collection);
+            this.emit("collectionDelete", name);
         }
     }
 
@@ -469,8 +482,14 @@ export class StorageService extends Service {
 
         const settings = new GuildStorage(this, guild.id, {
             collections: {
-                users: {},
-                guild: {}
+                users: {
+                    name: "users",
+                    items: {}
+                },
+                guild: {
+                    name: "guild",
+                    items: {}
+                }
             }
         });
 

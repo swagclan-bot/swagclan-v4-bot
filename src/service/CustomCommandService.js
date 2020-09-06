@@ -165,8 +165,6 @@ class CustomCommandContextVariableExpression extends CustomCommandExpression {
      */
     async evaluate(ctx) {
         if (ctx.vars[this.name] && ctx.vars[this.name].type === "void") {
-            console.log(ctx.vars[this.name]);
-
             return await ctx.vars[this.name].value.evaluate(ctx);
         }
 

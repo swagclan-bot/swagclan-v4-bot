@@ -721,6 +721,24 @@ export default async function api(client) {
             notFound(req, res);
         }
     });
+
+    function create_stream(req, object, events) {
+        const entries = Object.entries(events);
+
+        for (let i = 0; i < entries.length; i++) {
+            const entry = entries[i];
+
+            object.on(entry[0], entry[1]);
+        }
+
+        req.on("close", () => {
+            for (let i = 0; i < entries.length; i++) {
+                const entry = entries[i];
+
+                object.off(entry[0], entry[1]);
+            }
+        });
+    }
     
     server.get("/guilds/:id/commands/:command_id/timeouts/stream", is_manageable, async (req, res) => {
         const cache_guild = client.guilds.cache.get(req.params.id);
@@ -733,39 +751,29 @@ export default async function api(client) {
         if (command) {
             res.status(200);
 
-            function onTimeout(user, timeout) {
-                res.write(JSON.stringify({
-                    op: "timeout",
-                    data: {
-                        ...resolve_basic_user_object(user),
-                        timeout
-                    }
-                }) + "\n");
-            }
-            
-            function onTimeoutClear(user_id) {
-                const user = cache_guild.members.resolve(user_id).user;
-
-                res.write(JSON.stringify({
-                    op: "timeoutClear",
-                    data: resolve_basic_user_object(user)
-                }) + "\n");
-            }
-            
-            function onAllTimeoutsClear(user, timeout) {
-                res.write(JSON.stringify({
-                    op: "allTimeoutsClear"
-                }) + "\n");
-            }
-
-            command.on("timeout", onTimeout);
-            command.on("timeoutClear", onTimeoutClear);
-            command.on("allTimeoutsClear", onAllTimeoutsClear);
-
-            req.on("close", () => {
-                command.off("timeout", onTimeout);
-                command.off("timeoutClear", onTimeoutClear);
-                command.off("allTimeoutsClear", onAllTimeoutsClear);
+            create_stream(req, command, {
+                timeout(user, timeout) {
+                    res.write(JSON.stringify({
+                        op: "timeout",
+                        data: {
+                            ...resolve_basic_user_object(user),
+                            timeout
+                        }
+                    }) + "\n");
+                },
+                timeoutClear(user_id) {
+                    const user = cache_guild.members.resolve(user_id).user;
+    
+                    res.write(JSON.stringify({
+                        op: "timeoutClear",
+                        data: resolve_basic_user_object(user)
+                    }) + "\n");
+                },
+                allTimeoutsClear(user, timeout) {
+                    res.write(JSON.stringify({
+                        op: "allTimeoutsClear"
+                    }) + "\n");
+                }
             });
         } else {
             notFound(req, res);
@@ -861,7 +869,80 @@ export default async function api(client) {
         const guild_storage = await service.getStorage(cache_guild);
 
         if (guild_storage) {
-            res.status(200).json(guild_storage);
+            res.status(200).json({
+                ...guild_storage.toJSON(),
+                max: guild_storage.max
+            });
+        } else {
+            notFound(req, res);
+        }
+    });
+
+    server.get("/guilds/:id/storage/stream", is_manageable, async (req, res) => {
+        const cache_guild = client.guilds.cache.get(req.params.id);
+
+        const service = client.StorageService;
+        const guild_storage = await service.getStorage(cache_guild);
+
+        if (guild_storage) {
+            create_stream(req, guild_storage, {
+                clear() {
+                    res.write(JSON.stringify({
+                        op: "clear"
+                    }) + "\n");
+                },
+                collectionDelete(name) {
+                    res.write(JSON.stringify({
+                        op: "collectionDelete",
+                        data: name
+                    }) + "\n");
+                },
+                collectionCreate(name, collection) {
+                    res.write(JSON.stringify({
+                        op: "collectionCreate",
+                        data: {
+                            name,
+                            collection
+                        }
+                    }) + "\n");
+                },
+                collectionClear(collection) {
+                    res.write(JSON.stringify({
+                        op: "collectionClear",
+                        data: collection
+                    }) + "\n");
+                },
+                itemDelete(collection, key) {
+                    res.write(JSON.stringify({
+                        op: "itemDelete",
+                        data: {
+                            collection: collection,
+                            key
+                        }
+                    }) + "\n");
+                },
+                itemCreate(collection, key, item) {
+                    res.write(JSON.stringify({
+                        op: "itemCreate",
+                        data: {
+                            collection,
+                            key,
+                            item
+                        }
+                    }) + "\n");
+                },
+                itemUpdate(collection, key, before, after) {
+                    res.write(JSON.stringify({
+                        op: "itemUpdate",
+                        data: {
+                            collection,
+                            key,
+                            before,
+                            after
+                        }
+                    }) + "\n");
+                }
+            });
         } else {
             notFound(req, res);
         }
@@ -874,11 +955,26 @@ export default async function api(client) {
         const guild_storage = await service.getStorage(cache_guild);
 
         if (req.body.name) {
-            const collection = guild_storage.createCollection(req.body.name);
+            try {
+                const collection = guild_storage.createCollection(req.body.name);
             
-            await guild_storage.save();
+                if (collection) {
+                    await guild_storage.save();
 
-            res.status(200).json(collection);
+                    res.status(200).json(collection);
+                } else {
+                    res.status(409).json(false);
+                }
+            } catch (e) {
+                console.error(e);
+                
+                res.status(413).json({
+                    error: {
+                        code: 413,
+                        message: "Not enough space in storage."
+                    }
+                });
+            }
         } else {
             badRequest(req, res);
         }
@@ -977,11 +1073,22 @@ export default async function api(client) {
                 const collection = guild_storage.collections.get(req.params.collection_name);
 
                 if (collection) {
-                    const item = collection.set(req.params.item_name, req.body.value);
+                    try {
+                        const item = collection.set(req.params.item_name, req.body.value);
 
-                    await guild_storage.save();
+                        await guild_storage.save();
 
-                    res.status(200).json(item);
+                        res.status(200).json(item);
+                    } catch (e) {
+                        console.error(e);
+
+                        res.status(413).json({
+                            error: {
+                                code: 413,
+                                message: "Not enough space in storage."
+                            }
+                        });
+                    }
                 } else {
                     notFound(req, res);
                 }

@@ -1805,14 +1805,14 @@ export class ModuleService extends Service {
         const refresh_id = Math.random().toString(36).substr(2);
 
         /** @type { { default: BotModule } } */
-        const loaded_module = await import("file:///" + filename + "?" + refresh_id);
+        const { default: loaded_module } = await import("file:///" + filename + "?" + refresh_id);
 
-        loaded_module.default.loaded_at = Date.now();
-        loaded_module.default.refresh_id = refresh_id;
+        loaded_module.loaded_at = Date.now();
+        loaded_module.refresh_id = refresh_id;
 
-        this.modules.set(loaded_module.default.name.toLowerCase(), loaded_module.default);
+        this.modules.set(loaded_module.name.toLowerCase(), loaded_module);
 
-        return loaded_module.default;
+        return loaded_module;
     }
 
     /**
