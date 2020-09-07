@@ -1139,8 +1139,6 @@ export class CustomCommandService extends Service {
             
             return commands;
         } catch (e) {
-            console.error(e);
-
             if (e.code === "ENOENT") {
                 throw e;
             }
