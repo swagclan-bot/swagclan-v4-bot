@@ -182,7 +182,7 @@ export default new CustomCommandRuleGroup({
         new CustomCommandRule({
             id: "4542c410-2f53-4549-8bb9-7c1a15774fc0",
             name: "Last message of %",
-            description: "Get the last message of a member.",
+            description: "Get the last message of a member in the channel.",
             params: ["member"],
             callback: function LastMessageOf(member) {
                 return member.lastMessage;
@@ -296,6 +296,16 @@ export default new CustomCommandRuleGroup({
                 await member.send(text);
             },
             returns: "void"
+        }),
+        new CustomCommandRule({
+            id: "566c10d0-617a-4553-975b-1145b13defa7",
+            name: "Join date of %",
+            description: "When a member joined the server.",
+            params: ["member"],
+            callback: async function GetJoinDate(member) {
+                return member.joinedAt
+            },
+            returns: "date"
         })
     ]
 });

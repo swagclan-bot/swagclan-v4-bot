@@ -186,6 +186,16 @@ export default new CustomCommandRuleGroup({
                 }
             },
             returns: "void"
+        }),
+        new CustomCommandRule({
+            id: "e97e96b7-6ce1-4354-abba-f443ac4b5016",
+            name: "Date created of %",
+            description: "When the role was first created.",
+            params: ["role"],
+            callback: async function GetCreated(role) {
+                return role.createdAt;
+            },
+            returns: "date"
         })
     ]
 });

@@ -72,7 +72,7 @@ export default new CustomCommandRuleGroup({
                     const collection = storage.collections.get(name);
 
                     if (collection) {
-                        return collection.items.get(item);
+                        return collection.items.get(item).value;
                     }
                 }
             },

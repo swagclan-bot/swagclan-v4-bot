@@ -174,13 +174,23 @@ export default new CustomCommandRuleGroup({
         }),
         new CustomCommandRule({
             id: "dce546e8-c4b4-4a59-997e-d44bd19c5bfb",
-            name: "Date of %",
-            description: "When the message was created.",
+            name: "Date created of %",
+            description: "When the message was first created.",
             params: ["message"],
-            callback: async function Message(message, react) {
+            callback: async function GetCreated(message, react) {
                 return message.createdAt;
             },
             returns: "date"
-        })
+        }),
+        new CustomCommandRule({
+            id: "67b08881-ac38-4e04-b468-c99e344bbddc",
+            name: "Date editied of %",
+            description: "When the message was last edited.",
+            params: ["message"],
+            callback: async function GetEdited(message, react) {
+                return message.editedAt;
+            },
+            returns: "date"
+        }),
     ]
 });
