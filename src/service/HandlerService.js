@@ -76,7 +76,6 @@ export class HandlerService extends Service {
                     const { trigger, args } = validation;
 
                     command.execute(message, trigger, args);
-                    return;
                 }
             }
         }
