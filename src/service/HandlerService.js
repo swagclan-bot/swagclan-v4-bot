@@ -63,7 +63,6 @@ export class HandlerService extends Service {
             for (let matcher of matchers) {
                 if (await matcher.test(message)) {
                     matcher.callback(message);
-                    return;
                 }
             }
         }
