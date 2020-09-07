@@ -286,7 +286,7 @@ class GuildStorage extends EventEmitter {
          * The max amount of bytes allowed to be stored.
          * @type {Number}
          */
-        this.max = 16384; // 16kb
+        this.max = 65536; // 64kb
     }
 
     /**
