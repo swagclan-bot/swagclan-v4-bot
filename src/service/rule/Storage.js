@@ -17,6 +17,8 @@ export default new CustomCommandRuleGroup({
 
                 if (storage) {
                     storage.createCollection(name);
+
+                    await storage.save();
                 }
             },
             returns: "void"
@@ -35,6 +37,8 @@ export default new CustomCommandRuleGroup({
 
                     if (collection) {
                         collection.clear();
+
+                        await storage.save();
                     }
                 }
             },
@@ -54,6 +58,8 @@ export default new CustomCommandRuleGroup({
 
                     if (collection) {
                         collection.delete();
+
+                        await storage.save();
                     }
                 }
             },
@@ -93,6 +99,8 @@ export default new CustomCommandRuleGroup({
 
                     if (collection) {
                         collection.set(item, val);
+                        
+                        await storage.save();
                     }
                 }
             },
@@ -111,7 +119,9 @@ export default new CustomCommandRuleGroup({
                     const collection = storage.collections.get(name);
 
                     if (collection) {
-                        collection.set(item, val);
+                        collection.deleteItem(item);
+
+                        await storage.save();
                     }
                 }
             },
