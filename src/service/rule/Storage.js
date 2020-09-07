@@ -79,6 +79,14 @@ export default new CustomCommandRuleGroup({
 
                     if (collection) {
                         return collection.items.get(item).value;
+                    } else {
+                        const collection = storage.createCollection(name);
+                        
+                        await storage.save();
+
+                        if (collection) {
+                            return collection.items.get(item).value;
+                        }
                     }
                 }
             },
@@ -101,6 +109,14 @@ export default new CustomCommandRuleGroup({
                         collection.set(item, val);
                         
                         await storage.save();
+                    } else {
+                        const collection = storage.createCollection(name);
+
+                        if (collection) {
+                            collection.set(item, val);
+                        }
+
+                        await storage.save();
                     }
                 }
             },
@@ -120,6 +136,14 @@ export default new CustomCommandRuleGroup({
 
                     if (collection) {
                         collection.deleteItem(item);
+
+                        await storage.save();
+                    } else {
+                        const collection = storage.createCollection(name);
+
+                        if (collection) {
+                            collection.deleteItem(item, val);
+                        }
 
                         await storage.save();
                     }

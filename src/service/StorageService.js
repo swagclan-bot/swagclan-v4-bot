@@ -309,6 +309,7 @@ class GuildStorage extends EventEmitter {
     /**
      * Create a storage collection.
      * @param {String} name The name of the collection to create.
+     * @returns {StorageCollection|false}
      */
     createCollection(name) {
         if (!this.collections.get(name)) {
