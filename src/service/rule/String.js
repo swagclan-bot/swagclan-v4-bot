@@ -1,5 +1,7 @@
 import { CustomCommandRuleGroup, CustomCommandRule } from "./CustomCommandRule.js"
 
+import randomstring from "randomstring"
+
 export default new CustomCommandRuleGroup({
     name: "String",
     description: "Rules for string matching and manipulation.",
@@ -103,8 +105,19 @@ export default new CustomCommandRuleGroup({
             name: "Substring of % from % with length %",
             description: "Get part of a string.",
             params: ["string", "number", "number"],
-            callback: function Substring(str, start, lenth) {
+            callback: function Substring(str, start, length) {
                 return str.substr(start, length);
+            },
+            fallback: "",
+            returns: "string"
+        }),
+        new CustomCommandRule({
+            id: "64d6a69d-1d89-43c3-af35-c7d7ff938424",
+            name: "Random string with length %",
+            description: "Create a string with random characters of a certain length.",
+            params: ["number"],
+            callback: function RandomString(length) {
+                return randomstring.generate(length);
             },
             fallback: "",
             returns: "string"
