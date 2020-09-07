@@ -15,10 +15,12 @@ export default new CustomCommandRuleGroup({
                 const service = this.client.StorageService;
                 const storage = await service.getStorage(this.guild);
 
-                if (storage) {
-                    storage.createCollection(name);
+                if (name.length <= 20) {
+                    if (storage) {
+                        storage.createCollection(name);
 
-                    await storage.save();
+                        await storage.save();
+                    }
                 }
             },
             returns: "void"
@@ -102,21 +104,23 @@ export default new CustomCommandRuleGroup({
                 const service = this.client.StorageService;
                 const storage = await service.getStorage(this.guild);
 
-                if (storage) {
-                    const collection = storage.collections.get(name);
-
-                    if (collection) {
-                        collection.set(item, val);
-                        
-                        await storage.save();
-                    } else {
-                        const collection = storage.createCollection(name);
+                if (item.length <= 20) {
+                    if (storage) {
+                        const collection = storage.collections.get(name);
 
                         if (collection) {
                             collection.set(item, val);
-                        }
+                            
+                            await storage.save();
+                        } else {
+                            const collection = storage.createCollection(name);
 
-                        await storage.save();
+                            if (collection) {
+                                collection.set(item, val);
+                            }
+
+                            await storage.save();
+                        }
                     }
                 }
             },

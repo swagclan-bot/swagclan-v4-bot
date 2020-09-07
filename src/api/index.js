@@ -955,7 +955,7 @@ export default async function api(client) {
         const guild_storage = await service.getStorage(cache_guild);
 
         if (req.body.name) {
-            if (req.body.name.length < 20) {
+            if (req.body.name.length <= 20) {
                 try {
                     const collection = guild_storage.createCollection(req.body.name);
                 
@@ -1077,7 +1077,7 @@ export default async function api(client) {
         const service = client.StorageService;
         const guild_storage = await service.getStorage(cache_guild);
 
-        if (req.params.item_name.length < 20) {
+        if (req.params.item_name.length <= 20) {
             if (typeof req.body.value !== "undefined") {
                 if (guild_storage) {
                     const collection = guild_storage.collections.get(req.params.collection_name);
