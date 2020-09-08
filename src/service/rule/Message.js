@@ -184,7 +184,7 @@ export default new CustomCommandRuleGroup({
         }),
         new CustomCommandRule({
             id: "67b08881-ac38-4e04-b468-c99e344bbddc",
-            name: "Date editied of %",
+            name: "Date edited of %",
             description: "When the message was last edited.",
             params: ["message"],
             callback: async function GetEdited(message, react) {
