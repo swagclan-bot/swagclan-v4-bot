@@ -130,8 +130,8 @@ export default new CustomCommandRuleGroup({
             id: "d5bf0083-26c2-4fbc-9b1e-46b75bc6bc5d",
             name: "Delete item % in %",
             description: "Set an item in a storage collection.",
-            params: ["string", "string", "string"],
-            callback: async function SetCollectionItem(item, name,) {
+            params: ["string", "string"],
+            callback: async function SetCollectionItem(item, name) {
                 const service = this.client.StorageService;
                 const storage = await service.getStorage(this.guild);
 

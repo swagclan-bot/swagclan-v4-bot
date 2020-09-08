@@ -32,7 +32,7 @@ export default new CustomCommandRuleGroup({
         }),
         new CustomCommandRule({
             id: "9a427fd2-51e4-4d50-8c80-bbcfb188e676",
-            name: "String % starts with %",
+            name: "% starts with %",
             description: "Check if a string starts with a value.",
             params: ["string", "string"],
             callback: function StringStartsWith(str, substr) {
@@ -43,7 +43,7 @@ export default new CustomCommandRuleGroup({
         }),
         new CustomCommandRule({
             id: "4ad48234-d092-4866-9d06-9f6ca676fe09",
-            name: "String % ends with %",
+            name: "% ends with %",
             description: "Check if a string ends with a value.",
             params: ["string", "string"],
             callback: function StringEndsWith(str, substr) {
@@ -54,7 +54,7 @@ export default new CustomCommandRuleGroup({
         }),
         new CustomCommandRule({
             id: "e20d738d-edc4-4c11-aa9f-a0cc3fa9b907",
-            name: "String % matches %",
+            name: "% matches %",
             description: "Check if a string matches a regex.",
             params: ["string", "string"],
             callback: function StringMatchesRegex(str, regex) {
@@ -66,6 +66,15 @@ export default new CustomCommandRuleGroup({
             },
             fallback: false,
             returns: "boolean"
+        }),
+        new CustomCommandRule({
+            id: "45093a4d-eddd-4814-9205-49b0c57622eb",
+            name:" % contains %",
+            description: "Check if a string contains another string.",
+            params: ["string", "string"],
+            callback: function StringContains(str, substr) {
+                return ~str.indexOf(substr);
+            }
         }),
         new CustomCommandRule({
             id: "df2766d6-e124-4d89-b1a2-e88f19a1ca6b",
