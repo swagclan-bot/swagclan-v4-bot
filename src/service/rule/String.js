@@ -84,7 +84,7 @@ export default new CustomCommandRuleGroup({
             description: "Get the number of occurances of a string inside another string.",
             params: ["string", "string"],
             callback: function SubstringCount(str, substr) {
-                return str.split(substring).length - 1;
+                return str.split(substr).length - 1;
             },
             fallback: 0,
             returns: "number"
