@@ -69,7 +69,7 @@ export default new CustomCommandRuleGroup({
         }),
         new CustomCommandRule({
             id: "2624943f-dacd-4d37-8a40-d8c3b46b2905",
-            name: "Item % in %",
+            name: "Value of % in %",
             description: "Get an item in a storage collection.",
             params: ["string", "string"],
             callback: async function GetCollectionItem(item, name) {
@@ -100,7 +100,7 @@ export default new CustomCommandRuleGroup({
             name: "Set item % in % to %",
             description: "Set an item in a storage collection.",
             params: ["string", "string", "string"],
-            callback: async function GetCollectionItem(item, name, val) {
+            callback: async function SetCollectionItem(item, name, val) {
                 const service = this.client.StorageService;
                 const storage = await service.getStorage(this.guild);
 
@@ -111,14 +111,6 @@ export default new CustomCommandRuleGroup({
                         if (collection) {
                             collection.set(item, val);
                             
-                            await storage.save();
-                        } else {
-                            const collection = storage.createCollection(name);
-
-                            if (collection) {
-                                collection.set(item, val);
-                            }
-
                             await storage.save();
                         }
                     }
@@ -131,7 +123,7 @@ export default new CustomCommandRuleGroup({
             name: "Delete item % in %",
             description: "Set an item in a storage collection.",
             params: ["string", "string"],
-            callback: async function SetCollectionItem(item, name) {
+            callback: async function DeleteCollectionItem(item, name) {
                 const service = this.client.StorageService;
                 const storage = await service.getStorage(this.guild);
 
@@ -140,14 +132,6 @@ export default new CustomCommandRuleGroup({
 
                     if (collection) {
                         collection.deleteItem(item);
-
-                        await storage.save();
-                    } else {
-                        const collection = storage.createCollection(name);
-
-                        if (collection) {
-                            collection.deleteItem(item);
-                        }
 
                         await storage.save();
                     }

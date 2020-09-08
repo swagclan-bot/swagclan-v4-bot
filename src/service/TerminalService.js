@@ -330,7 +330,7 @@ export class TerminalService extends Service {
 					
 					await listAllModules();
 				} catch (e) {
-					process.stduout.write("Error: Could not load module.".red + "\n");
+					process.stdout.write("Error: Could not load module.".red + "\n");
 				}
 			} else {
 				process.stdout.write("Error: Missing argument <module>".red + "\n");
@@ -349,7 +349,7 @@ export class TerminalService extends Service {
 						
 						await listAllModules();
 					} catch (e) {
-						process.stduout.write("Error: Could not reload module.".red + "\n");
+						process.stdout.write("Error: Could not reload module.".red + "\n");
 					}
 				}
 			} else {
@@ -364,7 +364,7 @@ export class TerminalService extends Service {
 					
 					await listAllModules();
 				} catch (e) {
-					process.stduout.write("Error: Could not unload module.".red + "\n");
+					process.stdout.write("Error: Could not unload module.".red + "\n");
 				}
 			} else {
 				process.stdout.write("Error: Missing argument <module>".red + "\n");
