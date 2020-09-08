@@ -75,7 +75,30 @@ export default new CustomCommandRuleGroup({
             callback: function StringContains(str, substr) {
                 return ~str.indexOf(substr);
             },
+            fallback: false,
             returns: "boolean"
+        }),
+        new CustomCommandRule({
+            id: "427e30ca-90c5-4199-8172-3adafda91761",
+            name: "Number of % in %",
+            description: "Get the number of occurances of a string inside another string.",
+            params: ["string", "string"],
+            callback: function SubstringCount(str, substr) {
+                return str.split(substring).length - 1;
+            },
+            fallback: 0,
+            returns: "number"
+        }),
+        new CustomCommandRule({
+            id: "04d886d6-808c-4527-9613-e50be4154c69",
+            name: "Number of matches for % in %",
+            description: "Get the number of occurances of a regex match inside another string.",
+            params: ["string", "string"],
+            callback: function MatchCount(str, substr) {
+                return str.match(RegExp(substr, "g"))?.length || 0;
+            },
+            fallback: 0,
+            returns: "number"
         }),
         new CustomCommandRule({
             id: "df2766d6-e124-4d89-b1a2-e88f19a1ca6b",
