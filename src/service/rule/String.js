@@ -69,7 +69,7 @@ export default new CustomCommandRuleGroup({
         }),
         new CustomCommandRule({
             id: "45093a4d-eddd-4814-9205-49b0c57622eb",
-            name:"% contains %",
+            name: "% contains %",
             description: "Check if a string contains another string.",
             params: ["string", "string"],
             callback: function StringContains(str, substr) {
@@ -83,7 +83,7 @@ export default new CustomCommandRuleGroup({
             name: "Number of % in %",
             description: "Get the number of occurances of a string inside another string.",
             params: ["string", "string"],
-            callback: function SubstringCount(str, substr) {
+            callback: function SubstringCount(substr, str) {
                 return str.split(substr).length - 1;
             },
             fallback: 0,
