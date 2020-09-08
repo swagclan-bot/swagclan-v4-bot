@@ -74,7 +74,8 @@ export default new CustomCommandRuleGroup({
             params: ["string", "string"],
             callback: function StringContains(str, substr) {
                 return ~str.indexOf(substr);
-            }
+            },
+            returns: "boolean"
         }),
         new CustomCommandRule({
             id: "df2766d6-e124-4d89-b1a2-e88f19a1ca6b",
