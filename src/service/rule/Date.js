@@ -147,7 +147,7 @@ export default new CustomCommandRuleGroup({
                 return date.toUTCString();
             },
             fallback: null,
-            returns: "date"
+            returns: "string"
         }),
         new CustomCommandRule({
             id: "1baf5834-7046-41ab-85a1-3e639107f1cb",
@@ -158,7 +158,7 @@ export default new CustomCommandRuleGroup({
                 return date.toISOString();
             },
             fallback: null,
-            returns: "date"
+            returns: "string"
         })
     ]
 });
