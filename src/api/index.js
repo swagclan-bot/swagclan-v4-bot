@@ -436,11 +436,9 @@ export default async function api(client) {
     function resolve_basic_guild_object(guild) {
         const cache_guild = client.guilds.cache.get(guild.id);
 
-        console.log(guild);
-
-        const iconURL = "https://cdn.discordapp.com/icons/" + 
+        const iconURL = guild.icon ? ("https://cdn.discordapp.com/icons/" + 
             guild.id + "/" +
-            guild.icon + (guild.icon.startsWith("a_") ? ".gif" : ".png");
+            guild.icon + (guild.icon.startsWith("a_") ? ".gif" : ".png")) : "https://api.thechimp.store/asset/other/noicon.png";
 
         return {
             id: guild.id,
