@@ -41,7 +41,7 @@ export default new CustomCommandRuleGroup({
         }),
         new CustomCommandRule({
             id: "b9fc9932-364a-48f8-88d6-8d1ffd515527",
-            name: "Date of %",
+            name: "Month date of %",
             description: "The day of the month of the date.",
             params: ["date"],
             callback: function GetDate(date) {
@@ -139,6 +139,17 @@ export default new CustomCommandRuleGroup({
             returns: "date"
         }),
         new CustomCommandRule({
+            id: "6f936571-ef22-49ce-9010-5fdb42ba04ac",
+            name: "Date from %",
+            description: "Create a date from a date string or from a timestamp.",
+            params: ["any"],
+            callback: function DateFrom(date) {
+                return new Date(date);
+            },
+            fallback: new Date(),
+            returns: "date"
+        }),
+        new CustomCommandRule({
             id: "1baf5834-7046-41ab-85a1-3e639107f1cb",
             name: "Formatted date of %",
             description: "A formatted date.",
@@ -146,7 +157,7 @@ export default new CustomCommandRuleGroup({
             callback: function FormatDate(date) {
                 return date.toUTCString();
             },
-            fallback: null,
+            fallback: "",
             returns: "string"
         }),
         new CustomCommandRule({
@@ -157,7 +168,7 @@ export default new CustomCommandRuleGroup({
             callback: function ISOFormatDate(date) {
                 return date.toISOString();
             },
-            fallback: null,
+            fallback: "",
             returns: "string"
         })
     ]
