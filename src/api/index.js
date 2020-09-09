@@ -565,11 +565,13 @@ export default async function api(client) {
             const guilds = (await req.auth.getGuilds()).filter(guild => {
                 const cache_guild = client.guilds.cache.get(guild.id);
 
-                return !req.query.manageable || cache_guild && (guild.permissions & 0x20) === 0x20 // MANAGE_GUILD
+                return req.query.manageable !== "true" || cache_guild && (guild.permissions & 0x20) === 0x20 // MANAGE_GUILD
             }).map(resolve_basic_guild_object);
 
             res.status(200).json(guilds);
         } catch (e) {
+            console.log(e);
+            
             couldNotGet(req, res);
         }
     });
