@@ -23,7 +23,7 @@ export class TerminalService extends Service {
 	async runCommand(str) {
 		const _this = this;
 		
-		const args = str.match(/\w+|"[\w\s]*"/g).map(_ => _.replace(/^\"/, "").replace(/\"$/, "")); // Split on spaces except those in quotes.
+		const args = (str.match(/\w+|"[\w\s]*"/g) || []).map(_ => _.replace(/^\"/, "").replace(/\"$/, "")); // Split on spaces except those in quotes.
 		const command = args.shift();
 		const privileges = this.client.PrivilegeService;
 		

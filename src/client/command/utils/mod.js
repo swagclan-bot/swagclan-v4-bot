@@ -916,7 +916,7 @@ export default new BotModule({
         }
     }),
     new ModuleCommand({
-        name: "Chess Openings",
+        name: "Chess Opening",
         description: "Get a chess opening, moves to play and it's setup.",
         emoji: "<:horsey:" + config.emoji.horsey + ">",
         versions: [
@@ -967,11 +967,15 @@ export default new BotModule({
                         const last = history[history.length - 1];
                         const lastmove = last ? last.from + last.to : null;
 
-                        return await this.edit("success", "[" + item.name + "](https://lichess.org/analysis/standard/" + encodeURIComponent(cgame.fen()) + ")", {
+                        return await this.edit("success", "[" + item.eco + "](https://chessopenings.com/eco/" + item.eco + ") [" + item.name + "](https://lichess.org/analysis/standard/" + encodeURIComponent(cgame.fen()) + ")", {
                             fields: [
                                 {
                                     title: "Moves",
                                     body: "`" + moves.map((move, i) => (i + 1) === cur_move ? "*" + move + "*" : "" || move).join(", ") + "`"
+                                },
+                                {
+                                    title: "FEN",
+                                    body: "`" + item.fen + "`"
                                 }
                             ],
                             image: {
