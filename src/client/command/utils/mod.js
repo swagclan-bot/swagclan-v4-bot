@@ -1080,7 +1080,7 @@ export default new BotModule({
                         })
                     }).flat();
 
-                    await this.createPages("success", "There " + is(meanings.length) + " " + p(meanings.length, "definition") + " for `" + this.escape_c(this.args.word.value) + (json[0].phonetics.length ? "` (`" + json[0].phonetics.map(phonetic => {
+                    await this.createPages("success", "There " + is(meanings.length) + " " + p(meanings.length, "definition") + " for `" + this.escape_c(this.args.word.value) + (json[0].phonetics.some(phonetic => phonetic.text) ? "` (`" + json[0].phonetics.filter(phonetic => phonetic.text).map(phonetic => {
                         return phonetic.text;
                     }).join(", ") + "`)" : "`"),
                         meanings.map(meaning => {
