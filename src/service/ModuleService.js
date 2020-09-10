@@ -7,6 +7,7 @@ import { promises as fs } from "fs"
 import { Service } from "./Service.js"
 
 import { SwagClan } from "../class/SwagClan.js"
+import ChunkArr from "../util/chunk.js"
 
 import config from "../../.config.js"
 
@@ -16,22 +17,6 @@ const reply_modes = {
     loading: 0x424242,
     debug: 0xebc034,
     error: 0xeb4c34
-}
-
-/**
- * Chunk up an array of considerable length into smaller arrays of less significant length.
- * @param {Array<any>} array The array to chunk.
- * @param {Number} size The size of each chunk.
- * @returns {Array<Array<any>>}
- */
-function ChunkArr(array, size) {
-    return array.reduce((all, one, i) => {
-        const ch = Math.floor(i / size);
-
-        all[ch] = [].concat((all[ch] || []), one);
-
-        return all
-     }, []);
 }
 
 /**

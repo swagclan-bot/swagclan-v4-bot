@@ -17,6 +17,7 @@ import hyperscape from "../../../class/hyperscape/index.js"
 import lichess from "../../../class/lichess/index.js"
 
 import { p, is } from "../../../util/plural.js"
+import ChunkArr from "../../../util/chunk.js"
 
 import credentials from "../../../../.credentials.js"
 import config from "../../../../.config.js"
@@ -944,8 +945,15 @@ export default new BotModule({
                 const { item } = items[0];
 
                 if (item) {
+                    const complete_game = new chess.Chess;
                     const cgame = new chess.Chess;
-                    const moves = item.moves.split(" ");
+                    const sloppy_moves = item.moves.split(" ");
+
+                    for (let i = 0; i < sloppy_moves.length; i++) {
+                        complete_game.move(sloppy_moves[i], { sloppy: true });
+                    }
+
+                    const moves = complete_game.history();
 
                     let cur_move = 0;
 
@@ -972,7 +980,7 @@ export default new BotModule({
                             fields: [
                                 {
                                     title: "Moves",
-                                    body: "`" + moves.map((move, i) => (i + 1) === cur_move ? "*" + move + "*" : "" || move).join(", ") + "`"
+                                    body: "`" + ChunkArr(moves.map((move, i) => (i + 1) === cur_move ? "*" + move + "*" : "" || move), 2).map((turn, i) => ++i + ". " + turn.join(" ")).join(", ") + "`"
                                 },
                                 {
                                     title: "FEN",
@@ -1002,11 +1010,11 @@ export default new BotModule({
                         }
                         
                         if (success) {
-                            display_board(moves[cur_move]);
+                            display_board(sloppy_moves[cur_move]);
                         }
                     }
 
-                    const msg = await display_board(moves[0]);
+                    const msg = await display_board(sloppy_moves[0]);
 
                     msg.react("◀");
                     msg.react("▶");
