@@ -936,7 +936,8 @@ export default new BotModule({
             const search_term = this.args.opening.value;
 
             const fuse = new Fuse(openings, {
-                keys: ["eco", "name"]
+                keys: ["eco", "name"],
+                threshold: 0.1
             });
 
             const items = fuse.search(search_term);
