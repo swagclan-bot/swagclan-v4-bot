@@ -929,6 +929,7 @@ export default new BotModule({
                 })
             ])
         ],
+        example: "https://i.imgur.com/5zAjrnA.gif",
         callback: async function GetChessOpening(message) {
             const openings = JSON.parse(await fs.readFile("lib/openings.json"));
             const search_term = this.args.opening.value;
