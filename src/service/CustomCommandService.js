@@ -507,7 +507,7 @@ class CustomCommandParameter {
     async parse(message, value) {
         if (this.type === "number") {
             if (/^-?\d+(\.\d+)?$/.test(value)) {
-                return new CustomCommandContextVariable("number", Number(value));
+                return new CustomCommandContextVariable("number", Number(value) || 0);
             }
         } else if (this.type === "string") {
             if (/^.+$/.test(value)) {

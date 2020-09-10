@@ -7,6 +7,8 @@ import fetch from "node-fetch"
 import path from "path"
 import randomstring from "randomstring"
 import child_process from "child_process"
+import chess from "chess.js"
+import Fuse from "fuse.js"
 import { promises as fs } from "fs"
 
 import { promisify } from "util"
@@ -911,6 +913,113 @@ export default new BotModule({
 					return await this.reply("error", "Could not get user, please try again later");
 				}
 			}
+        }
+    }),
+    new ModuleCommand({
+        name: "Chess Openings",
+        description: "Get a chess opening, moves to play and it's setup.",
+        emoji: "<:horsey:" + config.emoji.horsey + ">",
+        versions: [
+            new CommandVersion(["chessopening", "opening"], [
+                new CommandArgument({
+                    name: "opening",
+                    description:" The name of the opening to get.",
+                    emoji: "<:pawn:" + config.emoji.pawn + ">",
+                    types: [ArgumentType.Text]
+                })
+            ])
+        ],
+        callback: async function GetChessOpening(message) {
+            const openings = JSON.parse(await fs.readFile("lib/openings.json"));
+            const search_term = this.args.opening.value;
+
+            const fuse = new Fuse(openings, {
+                keys: ["name"]
+            });
+
+            const items = fuse.search(search_term);
+
+            if (items.length) {
+                const { item } = items[0];
+
+                if (item) {
+                    const cgame = new chess.Chess;
+                    const moves = item.moves.split(" ");
+
+                    let cur_move = 0;
+
+                    // https://github.com/jhlywa/chess.js/issues/174
+                    const get_piece_position = (type, color) => {
+                        return [].concat(...cgame.board()).map((p, index) => {
+                            if (p !== null && p.type === type && p.color === color) {
+                                return index;
+                            }
+                        }).filter(Number.isInteger).map((piece_index) => {
+                            const row = "abcdefgh"[piece_index % 8];
+                            const column = Math.ceil((64 - piece_index) / 8);
+
+                            return row + column;
+                        })[0] || null;
+                    }
+
+                    const display_board = async nextmove => {
+                        const history = cgame.history({ verbose: true });
+                        const last = history[history.length - 1];
+                        const lastmove = last ? last.from + last.to : null;
+
+                        return await this.edit("success", "[" + item.name + "](https://lichess.org/analysis/standard/" + encodeURIComponent(cgame.fen()) + ")", {
+                            fields: [
+                                {
+                                    title: "Moves",
+                                    body: "`" + moves.map((move, i) => (i + 1) === cur_move ? "*" + move + "*" : "" || move).join(", ") + "`"
+                                }
+                            ],
+                            image: {
+                                url: "https://backscattering.de/web-boardimage/board.png?fen=" + encodeURIComponent(cgame.fen()) +
+                                    (lastmove ? "&lastMove=" + lastmove : "") +
+                                    (nextmove ? "&arrows=" + nextmove : "") +
+                                    (cgame.in_check() ? "&check=" + (last.color === "w" ? get_piece_position("k", "b") :  get_piece_position("k", "w")) : "")
+                            }
+                        });
+                    }
+
+                    function update_move(reaction) {
+                        let success = false;
+
+                        if (reaction.emoji.name === "◀") {
+                            success = cgame.undo();
+
+                            cur_move = --cur_move >= 0 ? cur_move : 0; // Clamp the page number.
+                        } else if (reaction.emoji.name === "▶") {
+                            success = cgame.move(moves[cur_move], { sloppy: true });
+
+                            cur_move = ++cur_move <= moves.length ? cur_move : moves.length;
+                        }
+                        
+                        if (success) {
+                            display_board(moves[cur_move]);
+                        }
+                    }
+
+                    const msg = await display_board(moves[0]);
+
+                    msg.react("◀");
+                    msg.react("▶");
+
+                    const collector = msg.createReactionCollector((reaction, user) => { // Wait for ◀ and ▶ emoji reactions to change page.
+                        return (reaction.emoji.name === "◀" || reaction.emoji.name === "▶") && user.id === this.message.author.id;
+                    }, { idle: 60000, dispose: true });
+
+                    collector.on("collect", update_move);
+                    collector.on("remove", update_move);
+
+                    collector.on("end", async () => {
+                        await msg.reactions.removeAll();
+                    });
+                }
+            } else {
+                this.reply("error", "Could not find an opening by that name.");
+            }
         }
     }),
     new ModuleCommand({
