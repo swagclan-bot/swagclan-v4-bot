@@ -111,6 +111,8 @@ If you need help setting up the bot or any specific issues that **aren't** bugs,
 The bot uses the following services:
 * Made with [Node.js](https://nodejs.org) using [Discord.js](https://discord.js.org)
 * Icons from [Lichess](https://lichess.org), [Steam](https://steamcommunity.com), [Minecraft](https://minecraft.net), [Apex Legends](https://www.ea.com/games/apex-legends)
+* Chess board images (i.e. The ones seen in the `.opening` command) from the free service by [Niklas Fiekas](https://github.com/niklasf), [Web-BoardImage](https://github.com/niklasf/web-boardimage).
+* Chess openings database from https://github.com/niklasf/eco, also by [Niklas Fiekas](https://github.com/niklasf).
 * And APIs from the following:
   * [Tabstats](https://tabstats.com) (API at https://github.com/Tabwire/HyperScape-API) for Hyperscape player statistics.
   * [Lichess](https://lichess.org) (API at https://lichess.org/api) for Lichess player statistics and matchmaking.
