@@ -1066,7 +1066,7 @@ export default new BotModule({
             if (items.length) {
                 const top_25 = items.map(i => i.item).slice(0, 25);
 
-                return await this.createPages("success", "Found " + p(top_25.length + (items.length > 25 ? "+" : ""), "opening") + " by that name, here are the top 25.", top_25.map(opening => {
+                return await this.createPages("success", "Found " + p(top_25.length + (items.length > 25 ? "+" : ""), "opening") + " by that name" + (items.length > 25 ? ", here are the top 25" : "") + ".", top_25.map(opening => {
                     const complete_game = new chess.Chess;
                     const sloppy_moves = opening.moves.split(" ");
 
