@@ -977,7 +977,7 @@ export default new BotModule({
                         const last = history[history.length - 1];
                         const lastmove = last ? last.from + last.to : null;
 
-                        return await this.edit("success", "[" + item.eco + "](https://chessopenings.com/eco/" + item.eco + ") [" + item.name + "](https://lichess.org/analysis/standard/" + encodeURIComponent(cgame.fen()) + ")", {
+                        return await this.edit("success", "[" + item.eco + "](https://chessopenings.com/eco/" + item.eco + ") [" + item.name + "](https://lichess.org/analysis/standard/" + encodeURIComponent(complete_game.fen()) + ")", {
                             fields: [
                                 {
                                     title: "Moves",
@@ -985,7 +985,7 @@ export default new BotModule({
                                 },
                                 {
                                     title: "FEN",
-                                    body: "`" + item.fen + "`"
+                                    body: "`" + complete_game.fen() + "`"
                                 }
                             ],
                             image: {
