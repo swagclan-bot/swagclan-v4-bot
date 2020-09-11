@@ -41,8 +41,6 @@ export default new BotModule({
         ],
 		example: "https://i.imgur.com/Co5v0Un.gif",
         callback: async function WouldYouRather(message) {
-            message.delete();
-
             let choicea = this.args.choicea?.value;
             let choiceb = this.args.choiceb?.value;
 

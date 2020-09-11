@@ -215,6 +215,10 @@ export default async function api(client) {
         next();
     });
 
+    server.get("/invite", async (req, res) => {
+        res.redirect("https://discord.com/oauth2/authorize?client_id=" + credentials.client_id + "&scope=bot&permissions=" + config.permissions);
+    });
+
     server.get("/auth/discord", async (req, res) => {
         res.redirect(oauthDiscord.code.getUri());
     });
