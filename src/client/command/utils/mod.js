@@ -935,13 +935,7 @@ export default new BotModule({
             const openings = JSON.parse(await fs.readFile("lib/openings.json"));
             const search_term = this.args.opening.value;
 
-            const fuse = new Fuse(openings.map(opening => {
-                if (openings.filter(({ name })=> name === opening.name)) {
-                    opening.name = 
-                }
-
-                return opening;
-            }), {
+            const fuse = new Fuse(openings, {
                 keys: ["eco", "name"],
                 threshold: 0.4
             });
