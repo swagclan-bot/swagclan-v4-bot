@@ -977,7 +977,7 @@ export default new BotModule({
                         const last = history[history.length - 1];
                         const lastmove = last ? last.from + last.to : null;
 
-                        return await this.edit("success", "[" + item.eco + "](https://chessopenings.com/eco/" + item.eco + ") [" + item.name + "](https://lichess.org/analysis/standard/" + encodeURIComponent(complete_game.fen()) + ")", {
+                        return await this.edit("success", "[" + item.eco + "](https://chessopenings.com/eco/" + item.eco + ") [" + item.name + "](https://lichess.org/analysis/standard/" + encodeURIComponent(complete_game.fen()) + "/white)", {
                             fields: [
                                 {
                                     title: "Moves",
@@ -992,7 +992,8 @@ export default new BotModule({
                                 url: "https://backscattering.de/web-boardimage/board.png?fen=" + encodeURIComponent(cgame.fen()) +
                                     (lastmove ? "&lastMove=" + lastmove : "") +
                                     (nextmove ? "&arrows=" + nextmove : "") +
-                                    (cgame.in_check() ? "&check=" + (last.color === "w" ? get_piece_position("k", "b") :  get_piece_position("k", "w")) : "")
+                                    (cgame.in_check() ? "&check=" + (last.color === "w" ? get_piece_position("k", "b") :  get_piece_position("k", "w")) : "") +
+                                    "&orientation=" + (moves.length % 2 ? "white" : "black")
                             }
                         });
                     }
