@@ -69,7 +69,7 @@ export default new BotModule({
                         body: member.joinedAt.toISOString()
                     }
                 ],
-                thumbnail: {
+                image: {
                     url: member.user.avatarURL({ format: "png", dynamic: true })
                 }
             }); 
@@ -122,7 +122,7 @@ export default new BotModule({
         description: "Get a user's avatar in a specified format.",
         emoji: "🖼",
         versions: [
-            new CommandVersion(["avatar"], [
+            new CommandVersion(["avatar", "av"], [
                 new CommandArgument({
                     name: "user",
                     description: "The user of whom to get the avatar.",
@@ -921,7 +921,7 @@ export default new BotModule({
         description: "Get a chess opening, moves to play and it's setup.",
         emoji: "<:horsey:" + config.emoji.horsey + ">",
         versions: [
-            new CommandVersion(["chessopening", "opening"], [
+            new CommandVersion(["opening"], [
                 new CommandArgument({
                     name: "opening",
                     description:" The name of the opening to get.",
@@ -1033,7 +1033,56 @@ export default new BotModule({
                     });
                 }
             } else {
-                this.reply("error", "Could not find an opening by that name.");
+                return await this.reply("error", "Could not find an opening by that name.");
+            }
+        }
+    }),
+    new ModuleCommand({
+        name: "Search openings",
+        description: "Search chess openings by it's ECO or by it's name.",
+        emoji: "<:horsey:" + config.emoji.horsey + ">",
+        versions: [
+            new CommandVersion(["openings"], [
+                new CommandArgument({
+                    name: "opening",
+                    description:" The name of the opening to get.",
+                    emoji: "<:pawn:" + config.emoji.pawn + ">",
+                    types: [ArgumentType.Text]
+                })
+            ])
+        ],
+        example: "https://i.imgur.com/H6OzEPp.gif",
+        callback: async function GetChessOpening(message) {
+            const openings = JSON.parse(await fs.readFile("lib/openings.json"));
+            const search_term = this.args.opening.value;
+
+            const fuse = new Fuse(openings, {
+                keys: ["eco", "name"],
+                threshold: 0.4
+            });
+
+            const items = fuse.search(search_term);
+
+            if (items.length) {
+                const top_25 = items.map(i => i.item).slice(0, 25);
+
+                return await this.createPages("success", "Found " + p(top_25.length + (items.length > 25 ? "+" : ""), "opening") + " by that name, here are the top 25.", top_25.map(opening => {
+                    const complete_game = new chess.Chess;
+                    const sloppy_moves = opening.moves.split(" ");
+
+                    for (let i = 0; i < sloppy_moves.length; i++) {
+                        complete_game.move(sloppy_moves[i], { sloppy: true });
+                    }
+
+                    const moves = complete_game.history();
+
+                    return {
+                        title: opening.eco + " " + opening.name,
+                        body: "`" + ChunkArr(moves, 2).map((turn, i) => ++i + ". " + turn.join(" ")).join(", ") + "`"
+                    }
+                }));
+            } else {
+                return await this.reply("error", "Could not find any openings by that name.");
             }
         }
     }),
