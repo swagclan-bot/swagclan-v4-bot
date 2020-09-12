@@ -12,7 +12,7 @@ setTimeout(async function () {
         await colours();
     } else {
         await colours({
-            suppress_errs: ["DiscordAPIError: Unknown Message", "Unhandled promise rejection"]
+            suppress_errs: ["DiscordAPIError: Unknown Message", "Unhandled promise rejection", ...runtime_config.suppress]
         });
     }
     

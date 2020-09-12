@@ -11,4 +11,9 @@ export default yargs
         description: "Whether or not to use a local development version of lichess.",
         default: false
     })
+    .option("suppress", {
+        type: "array",
+        description: "Suppress an error message.",
+        default: []
+    })
     .argv;
