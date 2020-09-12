@@ -9,7 +9,15 @@ import fs from "fs"
 import runtime_config from "../runtime.cfg.js"
 import runtime_id from "../runtime.id.js"
 
-export default async () => {
+/**
+ * @typedef ConsoleColoursOptions
+ * @property {Array<String>} [suppress_errs] Suppress errors that contain a string in this array.
+ */
+
+/**
+ * @param {ConsoleColoursOptions} options The options for the console colours.
+ */
+export default async (options) => {
     // await mkdirp("logs");
 
     const log_stream = fs.createWriteStream("logs.txt", {
@@ -58,6 +66,12 @@ export default async () => {
     }
 
     console.error = (...log) => {
+        if (options.suppress_errs) {
+            if (options.suppress_errs.some(err => ~log.join(" ").indexOf(err))) {
+                return null;
+            }
+        }
+
         return console.log("[ERROR]".bgRed, ...log);
     }
 }

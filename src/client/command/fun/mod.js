@@ -268,7 +268,7 @@ export default new BotModule({
                     const verse = await res.json();
 
                     if (verse.error) {
-                        return await this.reply("error", "Verse not found.");
+                        return await this.reply("error", "Verse range not found.");
                     } else {
                         return await this.createPages("success", "Found " + verse.verses.length + " verse" + (verse.verses.length === 1 ? "" : "s"), verse.verses.map(verse_ => {
                             const book_name = verse_.book_name === "Psalm" ? "Psalms" : verse_.book_name;

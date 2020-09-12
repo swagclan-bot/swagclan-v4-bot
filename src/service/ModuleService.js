@@ -297,7 +297,10 @@ export class CommandInterface {
             });
             
             const collector = display.createReactionCollector((reaction, user) => { // Wait for ◀ and ▶ emoji reactions to change page.
-                return (reaction.emoji.name === "◀" || reaction.emoji.name === "▶") && user.id === this.message.author.id;
+                return ~["◀","▶",
+                    ...(pages.length > 5 ? ["⏪", "⏩"] : []),
+                    ...(pages.length > 15 ? ["🔢"] : [])
+            ].indexOf(reaction.emoji.name) && user.id === this.message.author.id;
             }, { idle: 60000, dispose: true });
     
             const update_page = async (reaction, user) => { // Re-render the page.
@@ -316,15 +319,39 @@ export class CommandInterface {
                 if (infractions[user] && infractions[user] > 6) {
                     this.edit("error", "You are changing pages too fast.");
                     this.replies[this.replies.length - 1].reactions.removeAll();
+
                     collector.stop();
     
                     return;
                 }
     
-                if (reaction.emoji.name === "◀") {
-                    cur_page = --cur_page >= 0 ? cur_page : 0; // Clamp the page number.
-                } else if (reaction.emoji.name === "▶") {
-                    cur_page = ++cur_page < pages.length ? cur_page : pages.length - 1;
+                if (reaction.emoji.name === "⏪") cur_page-=5;
+                if (reaction.emoji.name == "◀") cur_page--;
+                if (reaction.emoji.name === "▶") cur_page++;
+                if (reaction.emoji.name === "⏩") cur_page+=5;
+
+                if (reaction.emoji.name === "🔢") {
+                    const messages = await this.message.channel.awaitMessages(msg => {
+                        return msg.author.id === this.message.author.id && /^-?\d+$/.test(msg.content);
+                    }, { max: 1, time: 90000 });
+                    
+                    const msg = messages.first();
+                    
+                    if (msg) {
+                        const num = parseInt(msg.content);
+
+                        cur_page = (num - 1);
+                    }
+
+                    reaction.users.remove(user.id);
+                }
+
+                if (cur_page < 0) {
+                    cur_page = 0;
+                }
+
+                if (cur_page > pages.length - 1) {
+                    cur_page = pages.length - 1;
                 }
     
                 if (before === cur_page) { // If the page hasn't changed, then there is nothing new to render.
@@ -352,8 +379,19 @@ export class CommandInterface {
             });
 
             try {
-                await display.react("◀");
-                await display.react("▶");
+                if (pages.length > 5) {
+                    await display.react("⏪");
+                    await display.react("◀");
+                    await display.react("▶");
+                    await display.react("⏩");
+
+                    if (pages.length > 15) {
+                        await display.react("🔢");
+                    }
+                } else {
+                    await display.react("◀");
+                    await display.react("▶");
+                }
             } catch (e) {
                 
             }

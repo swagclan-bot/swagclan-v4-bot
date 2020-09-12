@@ -922,6 +922,9 @@ export default new BotModule({
         emoji: "<:horsey:" + config.emoji.horsey + ">",
         versions: [
             new CommandVersion(["opening"], [
+                new CommandSyntax("random")
+            ]),
+            new CommandVersion(["opening"], [
                 new CommandArgument({
                     name: "opening",
                     description:" The name of the opening to get.",
@@ -933,107 +936,116 @@ export default new BotModule({
         example: "https://i.imgur.com/H6OzEPp.gif",
         callback: async function GetChessOpening(message) {
             const openings = JSON.parse(await fs.readFile("lib/openings.json"));
-            const search_term = this.args.opening.value;
 
-            const fuse = new Fuse(openings, {
-                keys: ["eco", "name"],
-                threshold: 0.4
-            });
+            const next = async item => {
+                const complete_game = new chess.Chess;
+                const cgame = new chess.Chess;
+                const sloppy_moves = item.moves.split(" ");
 
-            const items = fuse.search(search_term);
+                for (let i = 0; i < sloppy_moves.length; i++) {
+                    complete_game.move(sloppy_moves[i], { sloppy: true });
+                }
 
-            if (items.length) {
-                const { item } = items[0];
+                const moves = complete_game.history();
 
-                if (item) {
-                    const complete_game = new chess.Chess;
-                    const cgame = new chess.Chess;
-                    const sloppy_moves = item.moves.split(" ");
+                let cur_move = 0;
 
-                    for (let i = 0; i < sloppy_moves.length; i++) {
-                        complete_game.move(sloppy_moves[i], { sloppy: true });
-                    }
-
-                    const moves = complete_game.history();
-
-                    let cur_move = 0;
-
-                    // https://github.com/jhlywa/chess.js/issues/174
-                    const get_piece_position = (type, color) => {
-                        return [].concat(...cgame.board()).map((p, index) => {
-                            if (p !== null && p.type === type && p.color === color) {
-                                return index;
-                            }
-                        }).filter(Number.isInteger).map((piece_index) => {
-                            const row = "abcdefgh"[piece_index % 8];
-                            const column = Math.ceil((64 - piece_index) / 8);
-
-                            return row + column;
-                        })[0] || null;
-                    }
-
-                    const display_board = async nextmove => {
-                        const history = cgame.history({ verbose: true });
-                        const last = history[history.length - 1];
-                        const lastmove = last ? last.from + last.to : null;
-
-                        return await this.edit("success", "[" + item.eco + "](https://chessopenings.com/eco/" + item.eco + ") [" + item.name + "](https://lichess.org/analysis/standard/" + encodeURIComponent(complete_game.fen()) + "/white)", {
-                            fields: [
-                                {
-                                    title: "Moves",
-                                    body: "`" + ChunkArr(moves.map((move, i) => (i + 1) === cur_move ? "*" + move + "*" : "" || move), 2).map((turn, i) => ++i + ". " + turn.join(" ")).join(", ") + "`"
-                                },
-                                {
-                                    title: "FEN",
-                                    body: "`" + complete_game.fen() + "`"
-                                }
-                            ],
-                            image: {
-                                url: "https://backscattering.de/web-boardimage/board.png?fen=" + encodeURIComponent(cgame.fen()) +
-                                    (lastmove ? "&lastMove=" + lastmove : "") +
-                                    (nextmove ? "&arrows=" + nextmove : "") +
-                                    (cgame.in_check() ? "&check=" + (last.color === "w" ? get_piece_position("k", "b") :  get_piece_position("k", "w")) : "") +
-                                    "&orientation=" + (moves.length % 2 ? "white" : "black")
-                            }
-                        });
-                    }
-
-                    function update_move(reaction) {
-                        let success = false;
-
-                        if (reaction.emoji.name === "◀") {
-                            success = cgame.undo();
-
-                            cur_move = --cur_move >= 0 ? cur_move : 0; // Clamp the page number.
-                        } else if (reaction.emoji.name === "▶") {
-                            success = cgame.move(moves[cur_move], { sloppy: true });
-
-                            cur_move = ++cur_move <= moves.length ? cur_move : moves.length;
+                // https://github.com/jhlywa/chess.js/issues/174
+                const get_piece_position = (type, color) => {
+                    return [].concat(...cgame.board()).map((p, index) => {
+                        if (p !== null && p.type === type && p.color === color) {
+                            return index;
                         }
-                        
-                        if (success) {
-                            display_board(sloppy_moves[cur_move]);
+                    }).filter(Number.isInteger).map((piece_index) => {
+                        const row = "abcdefgh"[piece_index % 8];
+                        const column = Math.ceil((64 - piece_index) / 8);
+
+                        return row + column;
+                    })[0] || null;
+                }
+
+                const display_board = async nextmove => {
+                    const history = cgame.history({ verbose: true });
+                    const last = history[history.length - 1];
+                    const lastmove = last ? last.from + last.to : null;
+
+                    return await this.edit("success", "[" + item.eco + "](https://chessopenings.com/eco/" + item.eco + ") [" + item.name + "](https://lichess.org/analysis/standard/" + encodeURIComponent(complete_game.fen()) + "/white)", {
+                        fields: [
+                            {
+                                title: "Moves",
+                                body: "`" + ChunkArr(moves.map((move, i) => (i + 1) === cur_move ? "*" + move + "*" : "" || move), 2).map((turn, i) => ++i + ". " + turn.join(" ")).join(", ") + "`"
+                            },
+                            {
+                                title: "FEN",
+                                body: "`" + complete_game.fen() + "`"
+                            }
+                        ],
+                        image: {
+                            url: "https://backscattering.de/web-boardimage/board.png?fen=" + encodeURIComponent(cgame.fen()) +
+                                (lastmove ? "&lastMove=" + lastmove : "") +
+                                (nextmove ? "&arrows=" + nextmove : "") +
+                                (cgame.in_check() ? "&check=" + (last.color === "w" ? get_piece_position("k", "b") :  get_piece_position("k", "w")) : "") +
+                                "&orientation=" + (moves.length % 2 ? "white" : "black")
                         }
-                    }
-
-                    const msg = await display_board(sloppy_moves[0]);
-
-                    msg.react("◀");
-                    msg.react("▶");
-
-                    const collector = msg.createReactionCollector((reaction, user) => { // Wait for ◀ and ▶ emoji reactions to change page.
-                        return (reaction.emoji.name === "◀" || reaction.emoji.name === "▶") && user.id === this.message.author.id;
-                    }, { idle: 60000, dispose: true });
-
-                    collector.on("collect", update_move);
-                    collector.on("remove", update_move);
-
-                    collector.on("end", async () => {
-                        await msg.reactions.removeAll();
                     });
                 }
+
+                function update_move(reaction) {
+                    let success = false;
+
+                    if (reaction.emoji.name === "◀") {
+                        success = cgame.undo();
+
+                        cur_move = --cur_move >= 0 ? cur_move : 0; // Clamp the page number.
+                    } else if (reaction.emoji.name === "▶") {
+                        success = cgame.move(moves[cur_move], { sloppy: true });
+
+                        cur_move = ++cur_move <= moves.length ? cur_move : moves.length;
+                    }
+                    
+                    if (success) {
+                        display_board(sloppy_moves[cur_move]);
+                    }
+                }
+
+                const msg = await display_board(sloppy_moves[0]);
+
+                msg.react("◀");
+                msg.react("▶");
+
+                const collector = msg.createReactionCollector((reaction, user) => { // Wait for ◀ and ▶ emoji reactions to change page.
+                    return (reaction.emoji.name === "◀" || reaction.emoji.name === "▶") && user.id === this.message.author.id;
+                }, { idle: 60000, dispose: true });
+
+                collector.on("collect", update_move);
+                collector.on("remove", update_move);
+
+                collector.on("end", async () => {
+                    await msg.reactions.removeAll();
+                });
+            }
+
+            if (this.args.random) {
+                return await next(openings[Math.floor(Math.random() * openings.length - 1)]);
             } else {
-                return await this.reply("error", "Could not find an opening by that name.");
+                const search_term = this.args.opening.value;
+
+                const fuse = new Fuse(openings, {
+                    keys: ["eco", "name"],
+                    threshold: 0.4
+                });
+
+                const items = fuse.search(search_term);
+
+                if (items.length) {
+                    const { item } = items[0];
+
+                    if (item) {
+                        return await next(item);
+                    }
+                } else {
+                    return await this.reply("error", "Could not find an opening by that name.");
+                }
             }
         }
     }),
