@@ -1156,4 +1156,12 @@ export default async function api(client) {
     server.listen(process.env.PORT, async () => {
         console.success("API server listening at *:" + process.env.PORT);
     });
+
+    process.on("uncaughtException", async err => {
+        if (err.code === "EADDRINUSE") {
+            console.error("Unable to start API server, port in use.");
+        } else {
+            throw err;
+        }
+    });
 }
