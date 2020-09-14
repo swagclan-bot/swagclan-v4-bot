@@ -1130,7 +1130,7 @@ export default new BotModule({
             if (res.status === 200) {
                 const json = await res.json();
 
-                if (json.title !== "No Definitions Found") {
+                if (json.title !== "No Definitions Found" && Object.entries(json[0].meaning).length) {
                     const meanings = Object.entries(json[0].meaning).map(([partofspeech, meanings]) => {
                         return meanings.map(definition => {
                             return {
@@ -1154,7 +1154,7 @@ export default new BotModule({
                             footer: "Definitions provided by dictionaryapi.dev"
                         });
                 } else {
-                    return await this.reply("error", "Could not get definition for word `" + this.escape_c(this.args.word.value) + "`.");
+                    return await this.reply("error", "There are no definitions for `" + this.escape_c(this.args.word.value) + "`.");
                 }
             } else {
                 return await this.reply("error", "Could not get definition.");
