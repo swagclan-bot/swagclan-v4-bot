@@ -9,7 +9,7 @@ import fetch from "node-fetch"
 import path from "path"
 import oauth2 from "client-oauth2"
 
-import lichess from "../class/lichess/index.js"
+import lichess from "../../lib/lichess/index.js"
 
 import credentials from "../../.credentials.js"
 

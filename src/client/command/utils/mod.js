@@ -13,8 +13,8 @@ import { promises as fs } from "fs"
 
 import { promisify } from "util"
 
-import hyperscape from "../../../class/hyperscape/index.js"
-import lichess from "../../../class/lichess/index.js"
+import hyperscape from "../../../../lib/hyperscape/index.js"
+import lichess from "../../../../lib/lichess/index.js"
 
 import { p, is } from "../../../util/plural.js"
 import ChunkArr from "../../../util/chunk.js"

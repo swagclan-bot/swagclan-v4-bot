@@ -5,7 +5,7 @@ import { BotModule, ModuleCommand, MessageMatcher, CommandVersion, CommandArgume
 import fetch from "node-fetch"
 import FormData from "form-data"
 
-import lichess from "../../../class/lichess/index.js"
+import lichess from "../../../../lib/lichess/index.js"
 
 import config from "../../../../.config.js"
 
@@ -732,8 +732,8 @@ export default new BotModule({
 
 											if (challenge.destUser) {
 												await this.reply("success", "Match started between " + masked(challenge.challenger) + " and " + masked(challenge.destUser) + ", spectate at " + challenge.url, {
-													text: "<@" + message.author.id + ">"
-												});
+                                                    text: "<@" + message.author.id + ">"
+                                                });
 											} else {
 												await this.reply("success", "Match started with " + masked(challenge.challenger) + ", spectate at " + challenge.url, {
 													text: "<@" + message.author.id + ">"
@@ -762,7 +762,11 @@ export default new BotModule({
                                 }, { timeout: 90000 });
                                 
                                 challenge.once("ended", async () => {
-                                    await this.edit("success", "Match between " + masked(challenge.challenger) + " and " + masked(challenge.destUser) + " ended, post-match analysis at " + challenge.url);
+                                    await this.edit("success", "Match between " + masked(challenge.challenger) + " and " + masked(challenge.destUser) + " ended, post-match analysis at " + challenge.url, {
+                                        image: {
+                                            url: "https://lichess1.org/game/export/gif/" + challenge.id + ".gif"
+                                        }
+                                    });
 
                                     reset_reactions();
                                 });
