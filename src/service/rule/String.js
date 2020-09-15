@@ -1,6 +1,7 @@
 import { CustomCommandRuleGroup, CustomCommandRule } from "./CustomCommandRule.js"
 
 import randomstring from "randomstring"
+import replaceAll from "../../util/replaceall.js"
 
 export default new CustomCommandRuleGroup({
     name: "String",
@@ -161,7 +162,7 @@ export default new CustomCommandRuleGroup({
             description: "Replace all occurances of a string inside a string with a different string.",
             params: ["string", "string", "string"],
             callback: function ReplaceAll(substr, string, rep) {
-                return string.replaceAll(substr, rep);
+                return replaceAll(string, substr, rep);
             },
             fallback: "",
             returns: "string"

@@ -179,6 +179,8 @@ export class CustomCommandRule {
             try {
                 await this._callback.call(ctx, ...parsed_args);
             } catch (e) {
+                console.error(e);
+                
                 if (~e.toString().indexOf("DiscordAPIError") && !~e.toString().indexOf("empty message")) {
                     console.error(ctx.guild.id, ctx.command.id, e);
                 }
@@ -193,6 +195,8 @@ export class CustomCommandRule {
                     return this.fallback;
                 }
             } catch (e) {
+                console.error(e);
+
                 if (~e.toString().indexOf("DiscordAPIError") && !~e.toString().indexOf("empty message")) {
                     console.error(ctx.guild.id, ctx.command.id, e);
                 }
