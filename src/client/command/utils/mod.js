@@ -1228,10 +1228,10 @@ export default new BotModule({
 		example: "https://i.imgur.com/8QYUEFG.gif",
         callback: async function UrbanDictionaryDefinition(message) {
             try {
-                const list = urban.getDefinitions(this.args.word.value);
+                const definitions = await urban.getDefinitions(this.args.word.value);
 
-                await this.createPages("success", "Here " + is(json.list.length) + " the top " + p(json.list.length, "definition") + " for `" + this.escape_c(this.args.word.value) + "` ",
-                    json.list.map(item => {
+                await this.createPages("success", "Here " + is(definitions.length) + " the top " + p(definitions.length, "definition") + " for `" + this.escape_c(this.args.word.value) + "` ",
+                    definitions.map(item => {
                         const definition = this.escape(item.definition).replace(/\[.+?\]/g, word => {
                             const term = word.substring(1, word.length - 1);
 
@@ -1263,7 +1263,7 @@ export default new BotModule({
 
                         return {
                             title: "\"" + item.word + "\" - " + item.author + " (" + new Date(item.written_on).toLocaleDateString() + ")",
-                            body: def + "\n\n" + "👍 " + item.thumbs_up + "  👎 " + item.thumbs_down
+                            body: def + "\n\n" + "👍 `" + item.thumbs_up + "`  👎 `" + item.thumbs_down + "`"
                         }
                 }), {
                     per: 1
