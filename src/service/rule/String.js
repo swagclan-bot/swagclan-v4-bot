@@ -154,6 +154,17 @@ export default new CustomCommandRuleGroup({
             },
             fallback: "",
             returns: "string"
+        }),
+        new CustomCommandRule({
+            id: "1258b8c4-5a16-45e7-a8be-972bf019df2c",
+            name: "Replace % in % with %",
+            description: "Replace all occurances of a string inside a string with a different string.",
+            params: ["string", "string", "string"],
+            callback: function ReplaceAll(substr, string, rep) {
+                return string.replaceAll(substr, rep);
+            },
+            fallback: "",
+            returns: "string"
         })
     ]
 });
