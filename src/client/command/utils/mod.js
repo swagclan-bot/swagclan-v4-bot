@@ -1219,60 +1219,110 @@ export default new BotModule({
             new CommandVersion(["urban", "udict"], [
                 new CommandArgument({
                     name: "word",
-                    description: "The word to get the definition of.",
+                    description: "The word to get the definition of. Omit to get a random definition.",
                     emoji: "✒",
-                    types: [ArgumentType.Text]
+                    types: [ArgumentType.Text],
+                    optional: true
                 })
             ])
         ],
 		example: "https://i.imgur.com/8QYUEFG.gif",
         callback: async function UrbanDictionaryDefinition(message) {
-            try {
-                const definitions = await urban.getDefinitions(this.args.word.value);
+            if (this.args.word) {
+                try {
+                    const definitions = await urban.getDefinitions(this.args.word.value);
 
-                await this.createPages("success", "Here " + is(definitions.length) + " the top " + p(definitions.length, "definition") + " for `" + this.escape_c(this.args.word.value) + "` ",
-                    definitions.map(item => {
-                        const definition = this.escape(item.definition).replace(/\[.+?\]/g, word => {
-                            const term = word.substring(1, word.length - 1);
+                    await this.createPages("success", "Here " + is(definitions.length) + " the top " + p(definitions.length, "definition") + " for `" + this.escape_c(this.args.word.value) + "` ",
+                        definitions.map(item => {
+                            const definition = this.escape(item.definition).replace(/\[.+?\]/g, word => {
+                                const term = word.substring(1, word.length - 1);
 
-                            return "[**" + term + "**](https://www.urbandictionary.com/define.php?term=" + encodeURIComponent(term) + ")"
-                        });
+                                return "[**" + term + "**](https://www.urbandictionary.com/define.php?term=" + encodeURIComponent(term) + ")"
+                            });
 
-                        const example = ("_" + this.escape(item.example) + "_").replace(/\[.+?\]/g, word => {
-                            const term = word.substring(1, word.length - 1);
+                            const example = ("_" + this.escape(item.example) + "_").replace(/\[.+?\]/g, word => {
+                                const term = word.substring(1, word.length - 1);
 
-                            return "[**" + term + "**](https://www.urbandictionary.com/define.php?term=" + encodeURIComponent(term) + ")"
-                        });
+                                return "[**" + term + "**](https://www.urbandictionary.com/define.php?term=" + encodeURIComponent(term) + ")"
+                            });
 
-                        let def = definition + "\n\n" + example;
+                            let def = definition + "\n\n" + example;
 
-                        if (def.length > 900) {
-                            def = def.substr(0, 900);
-                            
-                            if (def.length > definition.length + 4) {
-                                def += "_";
+                            if (def.length > 900) {
+                                def = def.substr(0, 900);
+                                
+                                if (def.length > definition.length + 4) {
+                                    def += "_";
+                                }
+
+                                def += "...";
+
+                                def = def.replace(/ ?\[[^\]]+\]\([^\)_]+_(?=(\.\.\.))/, "_");
+                                def = def.replace(/ ?\[[^\]]+\]\([^\)_]+(?=(\.\.\.))/, "");
                             }
+                            
+                            def += "\n\n[Read on Urban Dictionary](" + item.permalink + ")";
 
-                            def += "...";
+                            return {
+                                title: "\"" + item.word + "\" - " + item.author + " (" + new Date(item.written_on).toLocaleDateString() + ")",
+                                body: def + "\n\n" + "👍 `" + item.thumbs_up + "`  👎 `" + item.thumbs_down + "`"
+                            }
+                    }), {
+                        per: 1
+                    });
+                } catch (e) {
+                    if (e.status === 404) {
+                        return await this.reply("error", "Could not find any definitions for `" + this.escape_c(this.args.word.value) + "`.");
+                    } else {
+                        return await this.reply("error", "Could not get definitions. Please try again later.");
+                    }
+                }
+            } else {
+                try {
+                    const item = await urban.getRandom();
 
-                            def = def.replace(/ ?\[[^\]]+\]\([^\)_]+_(?=(\.\.\.))/, "_");
-                            def = def.replace(/ ?\[[^\]]+\]\([^\)_]+(?=(\.\.\.))/, "");
-                        }
+                    const definition = this.escape(item.definition).replace(/\[.+?\]/g, word => {
+                        const term = word.substring(1, word.length - 1);
+
+                        return "[**" + term + "**](https://www.urbandictionary.com/define.php?term=" + encodeURIComponent(term) + ")"
+                    });
+
+                    const example = ("_" + this.escape(item.example) + "_").replace(/\[.+?\]/g, word => {
+                        const term = word.substring(1, word.length - 1);
+
+                        return "[**" + term + "**](https://www.urbandictionary.com/define.php?term=" + encodeURIComponent(term) + ")"
+                    });
+
+                    let def = definition + "\n\n" + example;
+
+                    if (def.length > 900) {
+                        def = def.substr(0, 900);
                         
-                        def += "\n\n[Read on Urban Dictionary](" + item.permalink + ")";
+                        if (def.length > definition.length + 4) {
+                            def += "_";
+                        }
 
-                        return {
+                        def += "...";
+
+                        def = def.replace(/ ?\[[^\]]+\]\([^\)_]+_(?=(\.\.\.))/, "_");
+                        def = def.replace(/ ?\[[^\]]+\]\([^\)_]+(?=(\.\.\.))/, "");
+                    }
+                    
+                    def += "\n\n[Read on Urban Dictionary](" + item.permalink + ")";
+
+
+                    await this.reply("success", "", {
+                        fields: [{
                             title: "\"" + item.word + "\" - " + item.author + " (" + new Date(item.written_on).toLocaleDateString() + ")",
                             body: def + "\n\n" + "👍 `" + item.thumbs_up + "`  👎 `" + item.thumbs_down + "`"
-                        }
-                }), {
-                    per: 1
-                });
-            } catch (e) {
-                if (e.status === 404) {
-                    return await this.reply("error", "Could not find a definition for `" + this.escape_c(this.args.word.value) + "`.");
-                } else {
-					return await this.reply("error", "Could not get definition. Please try again later.");
+                        }]
+                    });
+                } catch (e) {
+                    if (e.status === 404) {
+                        return await this.reply("error", "Could not find any definitions for `" + this.escape_c(this.args.word.value) + "`.");
+                    } else {
+                        return await this.reply("error", "Could not get definitions. Please try again later.");
+                    }
                 }
             }
         }
