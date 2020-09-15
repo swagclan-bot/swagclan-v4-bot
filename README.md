@@ -31,7 +31,6 @@ export default {
     client_id: "",
     client_secret: "",
     ipinfo: "",
-    rapidapi: "",
     lichess_id: "",
     lichess_secret: ""
 }
@@ -44,7 +43,6 @@ and enter in your credentials for each API that you have access to. Commands tha
 * `client_id` is the ID of your discord application.
 * `client_secret` is the secret of your discord application.
 * `ipinfo` is your API access token for https://ipinfo.io/ (Used for IP Locate commad)
-* `rapidapi` is your API access token for https://rapidapi.com/ (Used for Urban Dictionary command)
 * `lichess_id` is the ID of your lichess application created at https://lichess.org/account/oauth/app. (Used for lichess integration)
 * `lichess_secret` is the secret for your lichess application created at https://lichess.org/account/oauth/app. (Used for lichess integration)
 
