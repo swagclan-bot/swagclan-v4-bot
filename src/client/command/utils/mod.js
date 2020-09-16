@@ -1271,7 +1271,7 @@ export default new BotModule({
                         per: 1
                     });
                 } catch (e) {
-                    if (e.status === 404) {
+                    if (e.code === 404) {
                         return await this.reply("error", "Could not find any definitions for `" + this.escape_c(this.args.word.value) + "`.");
                     } else {
                         return await this.reply("error", "Could not get definitions. Please try again later.");
