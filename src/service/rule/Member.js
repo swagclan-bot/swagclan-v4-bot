@@ -180,6 +180,54 @@ export default new CustomCommandRuleGroup({
             returns: "void"
         }),
         new CustomCommandRule({
+            id: "828ef551-330e-4261-84b4-a661d6427e6f",
+            name: "Server mute %",
+            description: "Mute a member's mic in voice channels.",
+            params: ["member"],
+            callback: async function ServerMute(member) {
+                if (member.voice) {
+                    member.voice.setMute(true);
+                }
+            },
+            returns: "void"
+        }),
+        new CustomCommandRule({
+            id: "a44424cb-8cef-401a-bd1f-cebc91c2d78c",
+            name: "Server deafen %",
+            description: "Deafen a member in voice channels.",
+            params: ["member"],
+            callback: async function ServerDeafen(member) {
+                if (member.voice) {
+                    member.voice.setDeaf(true);
+                }
+            },
+            returns: "void"
+        }),
+        new CustomCommandRule({
+            id: "6da2ef86-0801-4fef-971b-206e00f14789",
+            name: "Server unmute %",
+            description: "Unmute a member's mic in voice channels.",
+            params: ["member"],
+            callback: async function ServerUnmute(member) {
+                if (member.voice) {
+                    member.voice.setMute(false);
+                }
+            },
+            returns: "void"
+        }),
+        new CustomCommandRule({
+            id: "2cc38c32-4a50-4f2c-be37-3b602cb92906",
+            name: "Server undeafen %",
+            description: "Undeafen a member in voice channels.",
+            params: ["member"],
+            callback: async function ServerUndeafen(member) {
+                if (member.voice) {
+                    member.voice.setDeaf(false);
+                }
+            },
+            returns: "void"
+        }),
+        new CustomCommandRule({
             id: "4542c410-2f53-4549-8bb9-7c1a15774fc0",
             name: "Last message of %",
             description: "Get the last message of a member in the channel.",

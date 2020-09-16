@@ -5,7 +5,8 @@
     "main": "SwagClan.js",
     "scripts": {
         "start": "node bootstrap.js",
-        "debug": "node bootstrap.js --debug"
+        "debug": "node bootstrap.js --debug",
+        "chessgif": "node lib/chessgif/server.js"
     },
     "keywords": [],
     "author": "",
