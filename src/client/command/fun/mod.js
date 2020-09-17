@@ -649,201 +649,208 @@ export default new BotModule({
                     optional: true,
                     default: "random"
                 })
+            ]),
+            new CommandVersion(["lichess", "challenge", "chess"], [
+                new CommandSyntax("variants")
             ])
         ],
 		example: "https://i.imgur.com/DUQJIAN.gif",
         callback: async function LichessChallenge(message) {
-			const service = this.client.AccountService;
-            const account = await service.getAccount(message.author);
+			if (this.args.variants) {
+                return await this.reply("success", "Possible variants: `" + lichess.variants.join(", ") + "`");
+            } else {
+                const service = this.client.AccountService;
+                const account = await service.getAccount(message.author);
 
-            const user_account = this.args.user.type === ArgumentType.Mention ? await service.getAccount(this.args.user.value.user) : null;
-            const dest_id = this.args.user.type === ArgumentType.Mention ? user_account.connections.lichess?.id : this.args.user.value;
-            
-            if (this.args.control) {
-                if (/^\d+d$/.test(this.args.control.value)) {
-                    const days = parseInt(this.args.control.value.match(/\d+/));
+                const user_account = this.args.user.type === ArgumentType.Mention ? await service.getAccount(this.args.user.value.user) : null;
+                const dest_id = this.args.user.type === ArgumentType.Mention ? user_account.connections.lichess?.id : this.args.user.value;
+                
+                if (this.args.control) {
+                    if (/^\d+d$/.test(this.args.control.value)) {
+                        const days = parseInt(this.args.control.value.match(/\d+/));
 
-                    if (days < 1 || days > 15) {
-                        return await this.reply("error", "Correspondence days must be between `1` and `15`, inclusive.")
-                    }
-                } else {
-                    const control = this.args.control.value.split("+").map(_ => parseInt(_));
-
-                    if (control[0] < 1 || control[0] > 180) {
-                        return await this.reply("error", "The time limit must be between `1` and `180`, inclusive.");
-                    }
-
-                    if (control[1] > 60) {
-                        return await this.reply("error", "The time increment must be between `1` and `60`, inclusive.");
-                    }
-                }
-            }
-
-            if (account.connections.lichess) {
-                try {
-                    if (dest_id) {
-                        const challenger = new lichess.Client(await account.connections.lichess.token());
-        
-                        challenger.on("ready", async () => {
-                            await this.reply("info", "Challenging **" + this.escape(dest_id) + "**..");
-
-                            const user = await challenger.getUser(dest_id);
-                            
-                            if (account.connections.lichess.id === dest_id) {
-                                return await this.edit("error", "You can not challenge yourself.");
-                            }
-
-                            const masked = user => "[@" + user.name + "](" + lichess.Client.BASE_URL + "/@/" + user.id + ") (" + user.rating + ")";
-
-                            try {
-								const controls = {
-									"blitz": "5+0",
-									"rapid": "10+0",
-									"bullet": "1+0",
-									"classical": "30+0"
-                                };
-								
-                                const challenge = await user.challenge({
-                                    ...(this.args.control && this.args.control.value !== "unlimited" ? (
-                                        /^\d+d$/.test(this.args.control.value) ? {
-                                            days: parseInt(this.args.control.value.match(/\d+/))
-                                        } : (() => {
-											const show = controls[this.args.control.value] || this.args.control.value;
-											
-                                            const control = show.split("+").map(_ => _[1] === "/" ? _ : parseInt(_));
-                                            
-                                            return {
-                                                time: control[0] === "1/2" ? 30 : control[0] === "1/4" ? 15 : control[0] * 60,
-                                                increment: control[1] || 0
-                                            }
-                                        })()
-                                    ) : {}),
-                                    variant: lichess.variants[this.args.variant.value.toLowerCase()] || "standard"
-                                });
-
-                                const reset_reactions = () => this.replies?.[this.replies.length - 1]?.reactions?.removeAll();
-								
-								challenge.any({
-									"started": async () => {
-										const { [challenge.challenger.name]: status } = await challenger.getStatus([challenge.challenger.name]);
-
-										if (!status.online) {
-											await this.delete();
-
-											if (challenge.destUser) {
-												await this.reply("success", "Match started between " + masked(challenge.challenger) + " and " + masked(challenge.destUser) + ", spectate at " + challenge.url, {
-                                                    text: "<@" + message.author.id + ">"
-                                                });
-											} else {
-												await this.reply("success", "Match started with " + masked(challenge.challenger) + ", spectate at " + challenge.url, {
-													text: "<@" + message.author.id + ">"
-												});
-											}
-										} else {
-											if (challenge.destUser) {
-												await this.edit("success", "Match started between " + masked(challenge.challenger) + " and " + masked(challenge.destUser) + ", spectate at " + challenge.url);
-											} else {
-												await this.edit("success", "Match started with " + masked(challenge.challenger) + ", spectate at " + challenge.url);
-											}
-										}
-
-										reset_reactions();
-									},
-									"declined": async () => {
-										await this.edit("success", masked(challenge.destUser) + " declined challenge against " + masked(challenge.challenger));
-
-										reset_reactions();
-									},
-									"cancelled": async () => {
-										await this.edit("success", "Challenge between " + masked(challenge.challenger) + " and " + masked(challenge.destUser) + " was cancelled.");
-										
-										reset_reactions();
-									}
-                                }, { timeout: 90000 });
-                                
-                                challenge.once("ended", async () => {
-                                    await this.edit("success", "Match between " + masked(challenge.challenger) + " and " + masked(challenge.destUser) + " ended, post-match analysis at " + challenge.url, {
-                                        image: {
-                                            url: "https://lichess1.org/game/export/gif/" + challenge.id + ".gif"
-                                        }
-                                    });
-
-                                    reset_reactions();
-                                });
-
-                                if (challenge.destUser) {
-									const variant = challenge.variant.key.replace(/([A-Z])/g, " $1").toLowerCase();
-									const speed = challenge.speed.replace(/([A-Z])/g, " $1").toLowerCase();
-                                    await this.edit("success", "Created " + variant + " " + speed + (challenge.timeControl.show ? " (" + challenge.timeControl.show + ")" : "") + " challenge at " + challenge.url + " against " + masked(challenge.destUser));
-                                    
-                                    const msg = this.replies[this.replies.length - 1];
-
-                                    await msg.react("❌");
-
-                                    const collector = msg.createReactionCollector((reaction, user) => {
-                                        return reaction.emoji.name === "❌" && (user.id === user_account?.id) || user.id === message.author.id;
-                                    }, { time: 900000, max: 1 }); // 15 minutes
-
-                                    collector.on("collect", async (reaction, user) => {
-                                        if (user.id === message.author.id) {
-                                            try {
-                                                await challenge.cancel();
-                                            } catch (e) {
-                                                if (user_account) {
-                                                    try {
-                                                        await challenge.decline(await user_account.connections.lichess.token());
-
-                                                        return await this.edit("success", "Challenge against " + masked(challenge.destUser) + " was cancelled.");
-                                                    } catch (e) {  };
-                                                }
-
-                                                return await this.edit("error", "Could not cancel challenge, go to " + challenge.url + " to cancel manually.");
-                                            }
-                                            
-                                            await this.edit("success", "Challenge between " + masked(challenge.challenger) + " and " + masked(challenge.destUser) + " was cancelled.");
-                                        } else {
-                                            await challenge.decline(await user_account.connections.lichess.token());
-                                        }
-                                    });
-
-                                    collector.on("end", async () => {
-                                        reset_reactions();
-                                    });
-                                } else {
-                                    await this.edit("success", "Created open challenge at " + challenge.url + ", waiting for first user to join.");
-                                }
-                            } catch (e) {
-                                if (e.status === 429) {
-                                    return await this.edit("error", "Could not challenge user, please wait a few minutes.");
-                                } else if (e.status === 401) {
-                                    delete account.connections.lichess;
-            
-                                    await account.save();
-                                } else if (e.status === 404) {
-                                    return await this.edit("error", "Could not find user.");
-                                } else {
-                                    return await this.edit("error", "Could not challenge user, please try again later");
-                                }
-                            }
-                        });
+                        if (days < 1 || days > 15) {
+                            return await this.reply("error", "Correspondence days must be between `1` and `15`, inclusive.")
+                        }
                     } else {
-                        if (this.args.user.type === ArgumentType.Mention) {
-                            return await this.edit("error", "That user does not have a lichess account connected.");
-                        } else {
-                            return await this.edit("error", "Could not find user.");
+                        const control = this.args.control.value.split("+").map(_ => parseInt(_));
+
+                        if (control[0] < 1 || control[0] > 180) {
+                            return await this.reply("error", "The time limit must be between `1` and `180`, inclusive.");
+                        }
+
+                        if (control[1] > 60) {
+                            return await this.reply("error", "The time increment must be between `1` and `60`, inclusive.");
                         }
                     }
-                } catch (e) {
-                    if (e.status === 429) {
-                        return await this.edit("error", "Could not challenge user, please wait a few minutes.");
-                    } else if (e.status === 404) {
-                        return await this.edit("error", "Could not find user.");
-                    } else {
-                        return await this.edit("error", "Could not challenge user, please try again later");
-                    }
                 }
-            } else {
-                return await this.reply("error", "You do not have a lichess account connected. [Click here to link your account](" + process.env.BASE_API + "/account/connections/lichess)");
+
+                if (account.connections.lichess) {
+                    try {
+                        if (dest_id) {
+                            const challenger = new lichess.Client(await account.connections.lichess.token());
+            
+                            challenger.on("ready", async () => {
+                                await this.reply("info", "Challenging **" + this.escape(dest_id) + "**..");
+
+                                const user = await challenger.getUser(dest_id);
+                                
+                                if (account.connections.lichess.id === dest_id) {
+                                    return await this.edit("error", "You can not challenge yourself.");
+                                }
+
+                                const masked = user => "[@" + user.name + "](" + lichess.Client.BASE_URL + "/@/" + user.id + ") (" + user.rating + ")";
+
+                                try {
+                                    const controls = {
+                                        "blitz": "5+0",
+                                        "rapid": "10+0",
+                                        "bullet": "1+0",
+                                        "classical": "30+0"
+                                    };
+                                    
+                                    const challenge = await user.challenge({
+                                        ...(this.args.control && this.args.control.value !== "unlimited" ? (
+                                            /^\d+d$/.test(this.args.control.value) ? {
+                                                days: parseInt(this.args.control.value.match(/\d+/))
+                                            } : (() => {
+                                                const show = controls[this.args.control.value] || this.args.control.value;
+                                                
+                                                const control = show.split("+").map(_ => _[1] === "/" ? _ : parseInt(_));
+                                                
+                                                return {
+                                                    time: control[0] === "1/2" ? 30 : control[0] === "1/4" ? 15 : control[0] * 60,
+                                                    increment: control[1] || 0
+                                                }
+                                            })()
+                                        ) : {}),
+                                        variant: lichess.variants[this.args.variant.value.toLowerCase()] || "standard"
+                                    });
+
+                                    const reset_reactions = () => this.replies?.[this.replies.length - 1]?.reactions?.removeAll();
+                                    
+                                    challenge.any({
+                                        "started": async () => {
+                                            const { [challenge.challenger.name]: status } = await challenger.getStatus([challenge.challenger.name]);
+
+                                            if (!status.online) {
+                                                await this.delete();
+
+                                                if (challenge.destUser) {
+                                                    await this.reply("success", "Match started between " + masked(challenge.challenger) + " and " + masked(challenge.destUser) + ", spectate at " + challenge.url, {
+                                                        text: "<@" + message.author.id + ">"
+                                                    });
+                                                } else {
+                                                    await this.reply("success", "Match started with " + masked(challenge.challenger) + ", spectate at " + challenge.url, {
+                                                        text: "<@" + message.author.id + ">"
+                                                    });
+                                                }
+                                            } else {
+                                                if (challenge.destUser) {
+                                                    await this.edit("success", "Match started between " + masked(challenge.challenger) + " and " + masked(challenge.destUser) + ", spectate at " + challenge.url);
+                                                } else {
+                                                    await this.edit("success", "Match started with " + masked(challenge.challenger) + ", spectate at " + challenge.url);
+                                                }
+                                            }
+
+                                            reset_reactions();
+                                        },
+                                        "declined": async () => {
+                                            await this.edit("success", masked(challenge.destUser) + " declined challenge against " + masked(challenge.challenger));
+
+                                            reset_reactions();
+                                        },
+                                        "cancelled": async () => {
+                                            await this.edit("success", "Challenge between " + masked(challenge.challenger) + " and " + masked(challenge.destUser) + " was cancelled.");
+                                            
+                                            reset_reactions();
+                                        }
+                                    }, { timeout: 90000 });
+                                    
+                                    challenge.once("ended", async () => {
+                                        await this.edit("success", "Match between " + masked(challenge.challenger) + " and " + masked(challenge.destUser) + " ended, post-match analysis at " + challenge.url, {
+                                            image: {
+                                                url: "https://lichess1.org/game/export/gif/" + challenge.id + ".gif"
+                                            }
+                                        });
+
+                                        reset_reactions();
+                                    });
+
+                                    if (challenge.destUser) {
+                                        const variant = challenge.variant.key.replace(/([A-Z])/g, " $1").toLowerCase();
+                                        const speed = challenge.speed.replace(/([A-Z])/g, " $1").toLowerCase();
+                                        await this.edit("success", "Created " + variant + " " + speed + (challenge.timeControl.show ? " (" + challenge.timeControl.show + ")" : "") + " challenge at " + challenge.url + " against " + masked(challenge.destUser));
+                                        
+                                        const msg = this.replies[this.replies.length - 1];
+
+                                        await msg.react("❌");
+
+                                        const collector = msg.createReactionCollector((reaction, user) => {
+                                            return reaction.emoji.name === "❌" && (user.id === user_account?.id) || user.id === message.author.id;
+                                        }, { time: 900000, max: 1 }); // 15 minutes
+
+                                        collector.on("collect", async (reaction, user) => {
+                                            if (user.id === message.author.id) {
+                                                try {
+                                                    await challenge.cancel();
+                                                } catch (e) {
+                                                    if (user_account) {
+                                                        try {
+                                                            await challenge.decline(await user_account.connections.lichess.token());
+
+                                                            return await this.edit("success", "Challenge against " + masked(challenge.destUser) + " was cancelled.");
+                                                        } catch (e) {  };
+                                                    }
+
+                                                    return await this.edit("error", "Could not cancel challenge, go to " + challenge.url + " to cancel manually.");
+                                                }
+                                                
+                                                await this.edit("success", "Challenge between " + masked(challenge.challenger) + " and " + masked(challenge.destUser) + " was cancelled.");
+                                            } else {
+                                                await challenge.decline(await user_account.connections.lichess.token());
+                                            }
+                                        });
+
+                                        collector.on("end", async () => {
+                                            reset_reactions();
+                                        });
+                                    } else {
+                                        await this.edit("success", "Created open challenge at " + challenge.url + ", waiting for first user to join.");
+                                    }
+                                } catch (e) {
+                                    if (e.status === 429) {
+                                        return await this.edit("error", "Could not challenge user, please wait a few minutes.");
+                                    } else if (e.status === 401) {
+                                        delete account.connections.lichess;
+                
+                                        await account.save();
+                                    } else if (e.status === 404) {
+                                        return await this.edit("error", "Could not find user.");
+                                    } else {
+                                        return await this.edit("error", "Could not challenge user, please try again later");
+                                    }
+                                }
+                            });
+                        } else {
+                            if (this.args.user.type === ArgumentType.Mention) {
+                                return await this.edit("error", "That user does not have a lichess account connected.");
+                            } else {
+                                return await this.edit("error", "Could not find user.");
+                            }
+                        }
+                    } catch (e) {
+                        if (e.status === 429) {
+                            return await this.edit("error", "Could not challenge user, please wait a few minutes.");
+                        } else if (e.status === 404) {
+                            return await this.edit("error", "Could not find user.");
+                        } else {
+                            return await this.edit("error", "Could not challenge user, please try again later");
+                        }
+                    }
+                } else {
+                    return await this.reply("error", "You do not have a lichess account connected. [Click here to link your account](" + process.env.BASE_API + "/account/connections/lichess)");
+                }
             }
         }
     })],
