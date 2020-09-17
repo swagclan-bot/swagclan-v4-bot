@@ -237,25 +237,6 @@ export default async function api(client) {
         }
     });
 
-    if (process.env.ENVIRONMENT === "production") {
-        server.use(ratelimit({
-            windowMs: 60000,
-            max: 60,
-            message: {
-                error: {
-                    code: 429,
-                    message: "Too many requests."
-                }
-            }
-        }));
-    }
-
-    if (process.env.ENVIRONMENT === "development") {
-        server.use(async (req, res, next) => {
-            setTimeout(next, (Math.random() + 1) * 150);
-        });
-    }
-
     server.get("/", async (req, res) => {
         res.status(200).json({
             environment: process.env.ENVIRONMENT,

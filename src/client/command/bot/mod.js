@@ -317,7 +317,7 @@ export default new BotModule({
             ],
 			example: "https://i.imgur.com/HLPCUPb.gif",
             callback: async function GenerateInvite(message) {
-                this.reply("success", "`https://discord.com/oauth2/authorize?client_id=" + credentials.client_id + "&scope=bot&permissions=809639952`")
+                this.reply("success", "https://discord.com/oauth2/authorize?client_id=" + credentials.client_id + "&scope=bot&permissions=" + config.permissions)
             }
         }),
         new ModuleCommand({

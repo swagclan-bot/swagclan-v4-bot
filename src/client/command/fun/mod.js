@@ -616,7 +616,7 @@ export default new BotModule({
                         description: "A lichess variant.",
                         examples: ["standard", "chess960", "antichess", "threeCheck"],
                         validate: async function isVariant(message, text) {
-                            return ~["standard", "chess960", "crazyhouse", "antichess", "atomic", "horde", "kingofthehill", "racingkings", "threecheck"].indexOf(text.toLowerCase())
+                            return ~lichess.variants[text.toLowerCase()];
                         }
                     })],
                     default: "standard"
@@ -718,7 +718,7 @@ export default new BotModule({
                                             }
                                         })()
                                     ) : {}),
-                                    variant: lichess.variants[lichess.variants.indexOf(this.args.variant.value.toLowerCase())] || "standard"
+                                    variant: lichess.variants[this.args.variant.value.toLowerCase()] || "standard"
                                 });
 
                                 const reset_reactions = () => this.replies?.[this.replies.length - 1]?.reactions?.removeAll();
