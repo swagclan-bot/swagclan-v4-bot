@@ -7,6 +7,8 @@ import FormData from "form-data"
 
 import lichess from "../../../../lib/lichess/index.js"
 
+import { camelCaseToWords } from "../../../util/camelcase.js"
+
 import config from "../../../../.config.js"
 
 function pad_left(pad, len, str) {
@@ -657,7 +659,7 @@ export default new BotModule({
 		example: "https://i.imgur.com/DUQJIAN.gif",
         callback: async function LichessChallenge(message) {
 			if (this.args.variants) {
-                return await this.reply("success", "Possible variants: `" + lichess.variants.join(", ") + "`");
+                return await this.reply("success", "Possible variants: `" + Object.values(lichess.variants).map(v => v.toLowerCase()).join(", ") + "`");
             } else {
                 const service = this.client.AccountService;
                 const account = await service.getAccount(message.author);
@@ -778,8 +780,8 @@ export default new BotModule({
                                     });
 
                                     if (challenge.destUser) {
-                                        const variant = challenge.variant.key.replace(/([A-Z])/g, " $1").toLowerCase();
-                                        const speed = challenge.speed.replace(/([A-Z])/g, " $1").toLowerCase();
+                                        const variant = camelCaseToWords(challenge.variant.key);
+                                        const speed = camelCaseToWords(challenge.speed);
                                         await this.edit("success", "Created " + variant + " " + speed + (challenge.timeControl.show ? " (" + challenge.timeControl.show + ")" : "") + " challenge at " + challenge.url + " against " + masked(challenge.destUser));
                                         
                                         const msg = this.replies[this.replies.length - 1];
