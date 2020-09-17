@@ -44,7 +44,7 @@ export default async function api(client) {
 
     process.on("uncaughtException", async err => {
         if (err.code === "EADDRINUSE") {
-            console.error("Unable to start API server, port in use.");
+            console.error("Failed to start API server, port in use.");
         } else {
             throw err;
         }
