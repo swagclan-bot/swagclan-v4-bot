@@ -601,6 +601,9 @@ export default new BotModule({
         emoji: "<:lichess:" + config.emoji.lichess + ">",
         versions: [
             new CommandVersion(["lichess", "challenge", "chess"], [
+                new CommandSyntax("variants")
+            ]),
+            new CommandVersion(["lichess", "challenge", "chess"], [
                 new CommandArgument({
                     name: "user",
                     description: "The user to challenge on lichess.",
@@ -649,9 +652,6 @@ export default new BotModule({
                     optional: true,
                     default: "random"
                 })
-            ]),
-            new CommandVersion(["lichess", "challenge", "chess"], [
-                new CommandSyntax("variants")
             ])
         ],
 		example: "https://i.imgur.com/DUQJIAN.gif",
