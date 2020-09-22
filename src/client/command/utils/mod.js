@@ -13,6 +13,7 @@ import { promises as fs } from "fs"
 
 import { promisify } from "util"
 
+import diabotical from "../../../../lib/diabotical/index.js"
 import hyperscape from "../../../../lib/hyperscape/index.js"
 import lichess from "../../../../lib/lichess/index.js"
 import urban from "../../../../lib/urban/index.js"
@@ -1002,6 +1003,16 @@ export default new BotModule({
                         success = cgame.move(moves[cur_move], { sloppy: true });
 
                         cur_move = ++cur_move <= moves.length ? cur_move : moves.length;
+                    } else if (reaction.emoji.name === "⏪") {
+                        while (cur_move > 0) {
+                            success = cgame.undo();
+
+                            --cur_move;
+                        }
+                    } else if (reaction.emoji.name === "⏩") {
+                        for (; cur_move < moves.length; cur_move++) {
+                            success = cgame.move(moves[cur_move], { sloppy: true });
+                        }
                     }
                     
                     if (success) {
@@ -1011,11 +1022,16 @@ export default new BotModule({
 
                 const msg = await display_board(sloppy_moves[0]);
 
+                msg.react("⏪");
                 msg.react("◀");
                 msg.react("▶");
+                msg.react("⏩");
 
                 const collector = msg.createReactionCollector((reaction, user) => { // Wait for ◀ and ▶ emoji reactions to change page.
-                    return (reaction.emoji.name === "◀" || reaction.emoji.name === "▶") && user.id === this.message.author.id;
+                    return (reaction.emoji.name === "◀" ||
+                        reaction.emoji.name === "▶" ||
+                        reaction.emoji.name === "⏪" ||
+                        reaction.emoji.name === "⏩") && user.id === this.message.author.id;
                 }, { idle: 60000, dispose: true });
 
                 collector.on("collect", update_move);
@@ -1322,6 +1338,64 @@ export default new BotModule({
                         return await this.reply("error", "Could not find any definitions for `" + this.escape_c(this.args.word.value) + "`.");
                     } else {
                         return await this.reply("error", "Could not get definitions. Please try again later.");
+                    }
+                }
+            }
+        }
+    }),
+    new ModuleCommand({
+        name: "Diabotical stats",
+        description: "Get stats for a player on diabotical.",
+        emoji: "<:diabotical:" + config.emoji.diabotical + ">",
+        versions: [
+            new CommandVersion(["diabotical", "diab", "dbt"], [
+                new CommandArgument({
+                    name: "player",
+                    description: "The player to get the stats of.",
+                    emoji: "🏷",
+                    types: [ArgumentType.Text],
+                    optional: false
+                }),
+                new CommandSyntax("matches", true)
+            ])
+        ],
+        callback: async function DiaboticalStats(message) {
+            this.reply("info", "Loading stats..");
+
+            if (this.args.player) {
+                if (this.args.matches) {
+                    
+                } else {
+                    try {
+                        const player = await diabotical.getPlayer(this.args.player.value);
+                        const stats = await diabotical.getStats(this.args.player.value);
+
+                        const alltime = stats.alltime.overview.all;
+
+                        return await this.edit("success", "Found player **" + this.escape(player.name) + "** " + (player.country ? ":flag_" + player.country + ":" : "") + ".", {
+                            fields: [
+                                {
+                                    title: "All time",
+                                    body: `
+**Frags**: \`${fmt(alltime.frags)}\`
+**Assists**:  \`${fmt(alltime.assists)}\`
+**Deaths**:  \`${fmt(alltime.deaths)}\`
+**Matches played**: \`${fmt(alltime.match_count)}\`
+**Winrate**: \`${(alltime.match_lost / alltime.match_count * 100).toFixed(2)}%\`
+**Most played mode**:
+`.trim(),
+                                }
+                            ],
+                            thumbnail: {
+                                url: player.avatarURL
+                            }
+                        });
+                    } catch (e) {
+                        if (e.code === 404) {
+                            this.edit("error", "Couldn't find stats for **" + this.args.player.value + "**.");
+                        } else {
+                            this.edit("error", "Couldn't get stats for **" + this.args.player.value + "**, please try again later.");
+                        }
                     }
                 }
             }

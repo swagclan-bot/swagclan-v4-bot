@@ -204,6 +204,18 @@ export default new CustomCommandRuleGroup({
             returns: "void"
         }),
         new CustomCommandRule({
+            id: "5af52049-dd0f-47ad-b99b-195147ce8704",
+            name: "Disconnect %",
+            description: "Disconnect a member from a voice channel.",
+            params: ["member"],
+            callback: async function Disconnect(member) {
+                if (member.voice && member.voice.connection) {
+                    member.voice.connection.disconnect();
+                }
+            },
+            returns: "void"
+        }),
+        new CustomCommandRule({
             id: "6da2ef86-0801-4fef-971b-206e00f14789",
             name: "Server unmute %",
             description: "Unmute a member's mic in voice channels.",
