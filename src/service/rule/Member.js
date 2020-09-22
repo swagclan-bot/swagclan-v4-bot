@@ -209,8 +209,8 @@ export default new CustomCommandRuleGroup({
             description: "Disconnect a member from a voice channel.",
             params: ["member"],
             callback: async function Disconnect(member) {
-                if (member.voice && member.voice.connection) {
-                    member.voice.connection.disconnect();
+                if (member.voice) {
+                    member.voice.kick();
                 }
             },
             returns: "void"
