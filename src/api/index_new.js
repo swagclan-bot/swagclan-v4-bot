@@ -5,6 +5,9 @@ import ratelimit from "express-rate-limit"
 import cors from "cors"
 
 import assetRouter from "./routes/assets.js"
+import basicRouter from "./routes/basic.js"
+import oauthRouter from "./routes/oauth.js"
+import accountRouter from "./routes/auth/account.js"
 
 import errors from "./controllers/errors.js"
 
@@ -19,6 +22,10 @@ export default async function api(client) {
     }));
     
     app.use("/asset", assetRouter);
+
+    app.use("/", basicRouter);
+    app.use("/", accountRouter);
+    app.use("/auth", oauthRouter);
 
     if (process.env.ENVIRONMENT === "production") {
         server.use(ratelimit({
@@ -46,6 +53,7 @@ export default async function api(client) {
         if (err.code === "EADDRINUSE") {
             console.error("Failed to start API server, port in use.");
         } else {
+            console.error("Failed to start API server.");
             throw err;
         }
     });

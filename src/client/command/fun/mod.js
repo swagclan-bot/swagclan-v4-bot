@@ -767,7 +767,7 @@ export default new BotModule({
                                             
                                             reset_reactions();
                                         }
-                                    }, { timeout: 90000 });
+                                    }, { timeout: 5400000 });
                                     
                                     challenge.once("ended", async () => {
                                         await this.edit("success", "Match between " + masked(challenge.challenger) + " and " + masked(challenge.destUser) + " ended, post-match analysis at " + challenge.url, {
@@ -790,7 +790,7 @@ export default new BotModule({
 
                                         const collector = msg.createReactionCollector((reaction, user) => {
                                             return reaction.emoji.name === "❌" && (user.id === user_account?.id) || user.id === message.author.id;
-                                        }, { time: 900000, max: 1 }); // 15 minutes
+                                        }, { time: 95400000, max: 1 }); // 90 minutes.
 
                                         collector.on("collect", async (reaction, user) => {
                                             if (user.id === message.author.id) {
