@@ -26,14 +26,14 @@ export default async (options) => {
 	
 	const real_log = console.log;
 
-    console.log = (...log) => { 
+    console.log = (...log) => {
+        const log_id = randomstring.generate({
+            length: 20,
+            charset: "hex",
+            capitalization: "lowercase"
+        });
+
         if (!runtime_config["disable-output"]) {
-            const log_id = randomstring.generate({
-                length: 20,
-                charset: "hex",
-                capitalization: "lowercase"
-            });
-            
             process.stdout.write("\r\x1b[K");
 
             const format = utils.format(...log);
