@@ -3,12 +3,12 @@ import yargs from "yargs"
 export default yargs
     .option("debug", {
         type: "boolean",
-        description: "Whether or not to run in debug mode or not.",
+        description: "Run in debug mode.",
         default: false
     })
     .option("lichessdev", {
         type: "boolean",
-        description: "Whether or not to use a local development version of lichess.",
+        description: "Use a local development version of lichess.",
         default: false
     })
     .option("suppress", {
@@ -16,9 +16,9 @@ export default yargs
         description: "Suppress an error message.",
         default: []
     })
-    .option("newapi", {
+    .option("old-api", {
         type: "boolean",
-        description: "Whether or not to use the new API refactor.",
+        description: "Use the old API.",
         default: false
     })
     .argv;

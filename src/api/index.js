@@ -232,6 +232,22 @@ server.get("/auth/discord/callback", async (req, res) => {
     }
 });
 
+if (process.env.ENVIRONMENT === "production") {
+    server.use(ratelimit({
+        windowMs: 60000,
+        max: 60,
+        message: {
+            error: errors.APIError.E429
+        }
+    }));
+}
+
+if (process.env.ENVIRONMENT === "development") {
+    server.use(async (req, res, next) => {
+        setTimeout(next, (Math.random() + 1) * 150);
+    });
+}
+
 server.get("/", async (req, res) => {
     res.status(200).json({
         environment: process.env.ENVIRONMENT,
@@ -358,7 +374,7 @@ server.get("/account/connections/:connection/callback", async (req, res) => {
  * @param {any} guild The guild to resolve.
  */
 function resolve_basic_guild_object(guild) {
-    const cache_guild = client.guilds.cache.get(guild.id);
+    const cache_guild = client.guilds.resolve(guild.id);
 
     const iconURL = guild.icon ? ("https://cdn.discordapp.com/icons/" + 
         guild.id + "/" +
@@ -469,10 +485,10 @@ function resolve_guild_object(guild, member) {
  * @returns {Boolean}
  */
 function is_manageable(req, res, next) {
-    const cache_guild = client.guilds.cache.get(req.params.id);
+    const cache_guild = client.guilds.resolve(req.params.id);
 
     if (cache_guild) {
-        const member = cache_guild.members.cache.get(req.auth.user.id);
+        const member = cache_guild.members.resolve(req.auth.user.id);
 
         if (member && member.hasPermission("MANAGE_GUILD")) {
             next();
@@ -487,7 +503,7 @@ function is_manageable(req, res, next) {
 server.get("/guilds", async (req, res) => {
     try {
         const guilds = (await req.auth.getGuilds()).filter(guild => {
-            const cache_guild = client.guilds.cache.get(guild.id);
+            const cache_guild = client.guilds.resolve(guild.id);
 
             return req.query.manageable !== "true" || cache_guild && (guild.permissions & 0x20) === 0x20 // MANAGE_GUILD
         }).map(resolve_basic_guild_object);
@@ -501,14 +517,14 @@ server.get("/guilds", async (req, res) => {
 });
 
 server.get("/guilds/:id", is_manageable, async (req, res) => {
-    const cache_guild = client.guilds.cache.get(req.params.id);
-    const member = cache_guild.members.cache.get(req.auth.user.id);
+    const cache_guild = client.guilds.resolve(req.params.id);
+    const member = cache_guild.members.resolve(req.auth.user.id);
 
     res.status(200).json(resolve_guild_object(cache_guild, member));
 });
 
 server.get("/guilds/:id/channels", is_manageable, async (req, res) => {
-    const cache_guild = client.guilds.cache.get(req.params.id);
+    const cache_guild = client.guilds.resolve(req.params.id);
 
     const channels = [...cache_guild.channels.cache.values()].filter(channel => {
         return !channel.deleted;
@@ -518,7 +534,7 @@ server.get("/guilds/:id/channels", is_manageable, async (req, res) => {
 });
 
 server.get("/guilds/:id/channels/:channel_id", is_manageable, async (req, res) => {
-    const cache_guild = client.guilds.cache.get(req.params.id);
+    const cache_guild = client.guilds.resolve(req.params.id);
 
     const channel = cache_guild.channels.resolve(req.params.channel_id)
 
@@ -526,7 +542,7 @@ server.get("/guilds/:id/channels/:channel_id", is_manageable, async (req, res) =
 });
 
 server.get("/guilds/:id/commands", is_manageable, async (req, res) => {
-    const cache_guild = client.guilds.cache.get(req.params.id);
+    const cache_guild = client.guilds.resolve(req.params.id);
 
     const service = client.CustomCommandService;
     let guild_commands = await service.getCustomCommands(cache_guild);
@@ -535,7 +551,7 @@ server.get("/guilds/:id/commands", is_manageable, async (req, res) => {
 });
 
 server.post("/guilds/:id/commands", is_manageable, async (req, res) => {
-    const cache_guild = client.guilds.cache.get(req.params.id);
+    const cache_guild = client.guilds.resolve(req.params.id);
 
     if (!post_command_schema.validate(req.body).error) {
         const service = client.CustomCommandService;
@@ -558,7 +574,7 @@ server.post("/guilds/:id/commands", is_manageable, async (req, res) => {
 });
 
 server.get("/guilds/:id/commands/:command_id", is_manageable, async (req, res) => {
-    const cache_guild = client.guilds.cache.get(req.params.id);
+    const cache_guild = client.guilds.resolve(req.params.id);
 
     const service = client.CustomCommandService;
     let guild_commands = await service.getCustomCommands(cache_guild);
@@ -573,7 +589,7 @@ server.get("/guilds/:id/commands/:command_id", is_manageable, async (req, res) =
 });
 
 server.delete("/guilds/:id/commands/:command_id", is_manageable, async (req, res) => {
-    const cache_guild = client.guilds.cache.get(req.params.id);
+    const cache_guild = client.guilds.resolve(req.params.id);
 
     const service = client.CustomCommandService;
     let guild_commands = await service.getCustomCommands(cache_guild);
@@ -592,7 +608,7 @@ server.delete("/guilds/:id/commands/:command_id", is_manageable, async (req, res
 });
 
 server.put("/guilds/:id/commands/:command_id", is_manageable, async (req, res) => {
-    const cache_guild = client.guilds.cache.get(req.params.id);
+    const cache_guild = client.guilds.resolve(req.params.id);
 
     if (!command_schema.validate(req.body).error) {
         const service = client.CustomCommandService;
@@ -625,7 +641,7 @@ server.put("/guilds/:id/commands/:command_id", is_manageable, async (req, res) =
 });
 
 server.get("/guilds/:id/commands/:command_id/timeouts", is_manageable, async (req, res) => {
-    const cache_guild = client.guilds.cache.get(req.params.id);
+    const cache_guild = client.guilds.resolve(req.params.id);
 
     const service = client.CustomCommandService;
     let guild_commands = await service.getCustomCommands(cache_guild);
@@ -667,7 +683,7 @@ function create_stream(req, object, events) {
 }
 
 server.get("/guilds/:id/commands/:command_id/timeouts/stream", is_manageable, async (req, res) => {
-    const cache_guild = client.guilds.cache.get(req.params.id);
+    const cache_guild = client.guilds.resolve(req.params.id);
 
     const service = client.CustomCommandService;
     let guild_commands = await service.getCustomCommands(cache_guild);
@@ -707,7 +723,7 @@ server.get("/guilds/:id/commands/:command_id/timeouts/stream", is_manageable, as
 });
 
 server.delete("/guilds/:id/commands/:command_id/timeouts", is_manageable, async (req, res) => {
-    const cache_guild = client.guilds.cache.get(req.params.id);
+    const cache_guild = client.guilds.resolve(req.params.id);
 
     const service = client.CustomCommandService;
     let guild_commands = await service.getCustomCommands(cache_guild);
@@ -724,7 +740,7 @@ server.delete("/guilds/:id/commands/:command_id/timeouts", is_manageable, async 
 });
 
 server.delete("/guilds/:id/commands/:command_id/timeouts/:user_id", is_manageable, async (req, res) => {
-    const cache_guild = client.guilds.cache.get(req.params.id);
+    const cache_guild = client.guilds.resolve(req.params.id);
 
     const service = client.CustomCommandService;
     let guild_commands = await service.getCustomCommands(cache_guild);
@@ -741,16 +757,14 @@ server.delete("/guilds/:id/commands/:command_id/timeouts/:user_id", is_manageabl
 });
 
 server.get("/guilds/:id/settings", is_manageable, async (req, res) => {
-    const cache_guild = client.guilds.cache.get(req.params.id);
-
-    const service = client.SettingsService;
-    let guild_settings = await service.getSettings(cache_guild);
+    const cache_guild = client.guilds.resolve(req.params.id);
+    let guild_settings = await client.SettingsService.getSettings(cache_guild);
     
     res.status(200).json(Object.fromEntries(guild_settings.settings.entries()));
 });
 
 server.patch("/guilds/:id/settings", is_manageable, async (req, res) => {
-    const cache_guild = client.guilds.cache.get(req.params.id);
+    const cache_guild = client.guilds.resolve(req.params.id);
 
     const service = client.SettingsService;
     const guild_settings = await service.getSettings(cache_guild);
@@ -780,7 +794,7 @@ server.patch("/guilds/:id/settings", is_manageable, async (req, res) => {
 });
 
 server.get("/guilds/:id/settings/history", is_manageable, async (req, res) => {
-    const cache_guild = client.guilds.cache.get(req.params.id);
+    const cache_guild = client.guilds.resolve(req.params.id);
 
     const service = client.SettingsService;
     const guild_settings = await service.getSettings(cache_guild);
@@ -789,7 +803,7 @@ server.get("/guilds/:id/settings/history", is_manageable, async (req, res) => {
 });
 
 server.get("/guilds/:id/storage", is_manageable, async (req, res) => {
-    const cache_guild = client.guilds.cache.get(req.params.id);
+    const cache_guild = client.guilds.resolve(req.params.id);
 
     const service = client.StorageService;
     const guild_storage = await service.getStorage(cache_guild);
@@ -805,7 +819,7 @@ server.get("/guilds/:id/storage", is_manageable, async (req, res) => {
 });
 
 server.get("/guilds/:id/storage/stream", is_manageable, async (req, res) => {
-    const cache_guild = client.guilds.cache.get(req.params.id);
+    const cache_guild = client.guilds.resolve(req.params.id);
 
     const service = client.StorageService;
     const guild_storage = await service.getStorage(cache_guild);
@@ -875,7 +889,7 @@ server.get("/guilds/:id/storage/stream", is_manageable, async (req, res) => {
 });
 
 server.post("/guilds/:id/storage/collections", is_manageable, async (req, res) => {
-    const cache_guild = client.guilds.cache.get(req.params.id);
+    const cache_guild = client.guilds.resolve(req.params.id);
 
     const service = client.StorageService;
     const guild_storage = await service.getStorage(cache_guild);
@@ -916,7 +930,7 @@ server.post("/guilds/:id/storage/collections", is_manageable, async (req, res) =
 });
 
 server.delete("/guilds/:id/storage/collections", is_manageable, async (req, res) => {
-    const cache_guild = client.guilds.cache.get(req.params.id);
+    const cache_guild = client.guilds.resolve(req.params.id);
 
     const service = client.StorageService;
     const guild_storage = await service.getStorage(cache_guild);
@@ -933,7 +947,7 @@ server.delete("/guilds/:id/storage/collections", is_manageable, async (req, res)
 });
 
 server.get("/guilds/:id/storage/collections/:collection_name", is_manageable, async (req, res) => {
-    const cache_guild = client.guilds.cache.get(req.params.id);
+    const cache_guild = client.guilds.resolve(req.params.id);
 
     const service = client.StorageService;
     const guild_storage = await service.getStorage(cache_guild);
@@ -952,7 +966,7 @@ server.get("/guilds/:id/storage/collections/:collection_name", is_manageable, as
 });
 
 server.delete("/guilds/:id/storage/collections/:collection_name", is_manageable, async (req, res) => {
-    const cache_guild = client.guilds.cache.get(req.params.id);
+    const cache_guild = client.guilds.resolve(req.params.id);
 
     const service = client.StorageService;
     const guild_storage = await service.getStorage(cache_guild);
@@ -975,7 +989,7 @@ server.delete("/guilds/:id/storage/collections/:collection_name", is_manageable,
 });
 
 server.delete("/guilds/:id/storage/collections/:collection_name/items", is_manageable, async (req, res) => {
-    const cache_guild = client.guilds.cache.get(req.params.id);
+    const cache_guild = client.guilds.resolve(req.params.id);
 
     const service = client.StorageService;
     const guild_storage = await service.getStorage(cache_guild);
@@ -998,7 +1012,7 @@ server.delete("/guilds/:id/storage/collections/:collection_name/items", is_manag
 });
 
 server.put("/guilds/:id/storage/collections/:collection_name/items/:item_name", is_manageable, async (req, res) => {
-    const cache_guild = client.guilds.cache.get(req.params.id);
+    const cache_guild = client.guilds.resolve(req.params.id);
 
     const service = client.StorageService;
     const guild_storage = await service.getStorage(cache_guild);
@@ -1045,7 +1059,7 @@ server.put("/guilds/:id/storage/collections/:collection_name/items/:item_name", 
 });
 
 server.delete("/guilds/:id/storage/collections/:collection_name/items/:item_name", is_manageable, async (req, res) => {
-    const cache_guild = client.guilds.cache.get(req.params.id);
+    const cache_guild = client.guilds.resolve(req.params.id);
 
     const service = client.StorageService;
     const guild_storage = await service.getStorage(cache_guild);

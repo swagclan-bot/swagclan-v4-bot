@@ -119,12 +119,12 @@ if (process.env.ENVIRONMENT === "production") {
                 const res = await fetch("https://restcountries.eu/rest/v2/all");
                 const json = await res.json();
 
-                const g = client.guilds.cache.get("557265103226142730"); // alpha cat discord
+                const g = client.guilds.resolve("557265103226142730"); // alpha cat discord
 
                 if (g) {
                     const guild = await g.fetch();
 
-                    const channel = guild.channels.cache.get("709132608180584528"); // pray channel
+                    const channel = guild.channels.resolve("709132608180584528"); // pray channel
 
                     if (channel) {
                         if (res.status === 200) {

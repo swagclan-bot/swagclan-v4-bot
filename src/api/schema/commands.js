@@ -48,19 +48,19 @@ const MAX_ACTIONS = 10;
 const MAX_TIMEOUT = 86400000;
 
 export const parameter_schema = joi.object().keys({
-    type: joi.string().allow(PARAMETER_TYPES).required(),
+    type: joi.string().allow(...PARAMETER_TYPES).required(),
     name: joi.string().max(MAX_PARAMETER_NAME).required()
 });
 
 export const variable_schema = joi.object().keys({
-    type: joi.string().allow(VARIABLE_TYPES).required(),
+    type: joi.string().allow(...VARIABLE_TYPES).required(),
     name: joi.string().required().max(MAX_VARIABLE_NAME)
 });
 
 export const input_schema = joi.object().keys({
     type: joi.string().allow("input").required(),
     value: joi.string().max(MAX_INPUT).required()
-}),
+});
 
 export const ctx_var_schema = joi.object().keys({
     type: joi.string().allow("ctx_var").required(),
@@ -82,7 +82,7 @@ export const post_command_schema = joi.object().keys({
     name: joi.string().required().min(MIN_NAME).max(MAX_NAME),
     description: joi.string().min(0).allow("").max(MAX_DESCRIPTION),
     triggers: joi.array().required().items(joi.object().keys({
-		type: joi.string().allow(TRIGGER_TYPES),
+		type: joi.string().allow(...TRIGGER_TYPES),
 		name: joi.string().max(MAX_TRIGGER_NAME)
 	})).max(MAX_TRIGGERS),
     parameters: joi.object().required().pattern(/^/, parameter_schema).max(MAX_PARAMETERS),

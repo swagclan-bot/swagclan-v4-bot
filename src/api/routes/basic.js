@@ -10,7 +10,7 @@ router.get("/status", BasicController.BotStatus);
 router.get("/invite", BasicController.CreateInvite);
 router.get("/guilds/count", BasicController.GuildCount);
 
-router.get("/definition", BasicController.SettingsDefinition);
+router.get("/definitions", BasicController.SettingsDefinitions);
 router.get("/modules", BasicController.LoadedModules);
 router.get("/rules", BasicController.CommandRules);
 

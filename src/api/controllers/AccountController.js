@@ -22,7 +22,7 @@ export async function AccountInfo(req, res) {
         };
     }));
 
-    res.status(200).json(account);s 
+    res.status(200).json(account); 
 }
 
 /**

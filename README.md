@@ -86,6 +86,17 @@ You can run `git pull` to update the bot to the latest version. If you have chan
 * `help` - Display a help message.
 * `exit` - Exit the process.
 
+### Commandline arguments
+You can apply some command-line arguments to change the behaviour of the bot.
+* `--debug` - Run the bot in debug mode, i.e. more messages to further diagnose problems and the health of the bot.
+* `--lichessdev` - Use a local development version of lichess. (You can run a local lichess server with [this repository](https://github.com/ornicar/lila).)
+* `--suppress <error>` - Suppress error messages that contain this string, can be used multiple times to suppress different error messages. (Not recommended.)
+* `--old-api` - Use the old API structure. (Temporary, likely to go.)
+
+If you are running with `npm`, i.e. `npm start` or `npm run debug`, you can pass arguments with a preceding `--`, e.g. `npm start -- --lichessdev`
+
+If you are running with `node`, i.e. `node bootstrap.js`, you can pass arguments normally, e.g. `node bootstrap.js --suppress UnhandledPromiseRejectionWarning --old-api`
+
 ### Emojis
 Some emojis will be missing if you run this bot yourself, so you will have to set them up yourself. Upload all images in [assets](/assets) as emojis into a server (keep the names), and input the IDs of each of them into `.config.js`. You can get the ID by typing the emoji into a text channel but with a backslash before it, i.e `\:lichess:`, and post the message. This will replace the emoji with something like `<:lichess:730936886557933650>`. The number is the ID of the emoji.
 

@@ -39,6 +39,7 @@
         "superbytes": "^1.0.2",
         "systeminformation": "^4.26.9",
         "uuid": "^8.2.0",
+        "ws": "^7.3.1",
         "yargs": "^15.4.1"
     },
     "type": "module"

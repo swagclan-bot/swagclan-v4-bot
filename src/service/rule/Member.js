@@ -279,7 +279,7 @@ export default new CustomCommandRuleGroup({
             description: "Check whether a member has a role.",
             params: ["member", "role"],
             callback: function MemberHasRole(member, role) {
-                return member.roles.cache.get(role.id);
+                return member.roles.resolve(role.id);
             },
             fallback: false,
             returns: "boolean"
