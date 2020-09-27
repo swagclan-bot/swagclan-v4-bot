@@ -109,7 +109,7 @@ class PrivilegeClass {
 		const pathname = path.resolve(this.service.path, this.name + ".json");
 		
 		try {
-            const read = await fs.readFile(pathname);
+            const read = await fs.readFile(pathname, "utf8");
             const json = JSON.parse(read.toString());
 
             if (json.users) {
