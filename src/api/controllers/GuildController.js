@@ -31,7 +31,7 @@ export function channel_object(channel) {
  * @param {any} guild The guild to resolve.
  */
 export function api_guild_object(guild) {
-    const cache_guild = client.guilds.resolve(guild);
+    const cache_guild = client.guilds.resolve(guild.id);
 
     const iconURL = guild.icon ? ("https://cdn.discordapp.com/icons/" + 
         guild.id + "/" +
@@ -44,16 +44,16 @@ export function api_guild_object(guild) {
         icon: guild.icon,
         is_owner: guild.owner,
         permissions: guild.permissions,
-        created: guild.createdTimestamp,
         dashboard_available: !!cache_guild,
         premium: {
             active: true,
             until: 1595821348733
         },
         ...(cache_guild ? {
+            created: cache_guild.createdTimestamp,
             count: {
                 members: cache_guild.memberCount,
-                bots: cache_guild.guild.members.cache.filter(member => member.user?.bot).size,
+                bots: cache_guild.members.cache.filter(member => member.user?.bot).size,
                 channels: cache_guild.channels.cache.size,
                 rooms: cache_guild.channels.cache.filter(channel => channel.type === "voice").size,
                 categories: cache_guild.channels.cache.filter(channel => channel.type === "category").size,
