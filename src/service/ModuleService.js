@@ -1141,7 +1141,7 @@ export class CommandVersion {
         const parsed_args = {};
 
         for (let arg of this.arguments) {
-            if (arg.default) {
+            if (typeof arg.default !== "undefined") {
                 parsed_args[arg.name] = await arg.parse(message, arg.default);
             } else {
                 parsed_args[arg.name] = null;

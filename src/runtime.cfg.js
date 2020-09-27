@@ -16,4 +16,9 @@ export default yargs
         description: "Suppress an error message.",
         default: []
     })
+    .option("newapi", {
+        type: "boolean",
+        description: "Whether or not to use the new API refactor.",
+        default: false
+    })
     .argv;

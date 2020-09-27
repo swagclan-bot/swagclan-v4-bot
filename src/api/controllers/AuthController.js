@@ -15,7 +15,7 @@ export function RedirectDiscord(req, res) {
  * @param {express.Request} req
  * @param {express.Response} res
  */
-export function DiscordCallback(req, res) {
+export async function DiscordCallback(req, res) {
     try {
         const user = await oauthSchema.discord.code.getToken(req.originalUrl);
 

@@ -6,6 +6,8 @@ import client from "../../client/index.js"
 import credentials from "../../../.credentials.js"
 import config from "../../../.config.js"
 
+import { user_object } from "./UserController.js"
+
 const versions = await sys.versions();
 
 /**

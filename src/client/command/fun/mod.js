@@ -621,7 +621,7 @@ export default new BotModule({
                         description: "A lichess variant.",
                         examples: ["standard", "chess960", "antichess", "threeCheck"],
                         validate: async function isVariant(message, text) {
-                            return ~lichess.variants[text.toLowerCase()];
+                            return !!lichess.variants[text.toLowerCase()];
                         }
                     })],
                     default: "standard"
@@ -635,7 +635,7 @@ export default new BotModule({
                             name: "Time Control",
                             description: "A chess time control setting.",
                             examples: ["5+3", "10+0", "2d", "bullet", "blitz", "classical"],
-                            validate: /^((((1\/2)|(1\/4)|\d+)(\+\d+)?)|(\d+d)|(blitz)|(rapid)|(bullet)|(classical)(unlimited))$/
+                            validate: /^(((1\/2)|(1\/4)|\d+)(\+\d+)|(\d+d)|(blitz)|(rapid)|(bullet)|(classical)(unlimited))$/
                         })
                     ],
                     optional: true,

@@ -2,7 +2,7 @@ import express from "express"
 
 import client from "../../../client/index.js"
 
-import accountController from "../controllers/Accountcontroller.js"
+import accountController from "../../controllers/AccountController.js"
 import connectionsRouter from "./connections.js"
 import userRouter from "./user.js"
 

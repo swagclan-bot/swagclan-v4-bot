@@ -1,6 +1,6 @@
 import express from "express"
 
-import AuthController from "../controllers/auth.js"
+import AuthController from "../controllers/AuthController.js"
 
 // Router for basic bot information.
 const router = express.Router();

@@ -9,7 +9,7 @@ import basicRouter from "./routes/basic.js"
 import oauthRouter from "./routes/oauth.js"
 import accountRouter from "./routes/auth/account.js"
 
-import errors from "./controllers/errors.js"
+import errors from "./schema/Errors.js"
 
 export default async function api(client) {
     const app = express();
