@@ -8,6 +8,8 @@ import express from "express"
 import fetch from "node-fetch"
 import path from "path"
 
+import oauth from "../api/schema/OAuth.js"
+
 import { promises as fs } from "fs"
 
 /**
@@ -251,20 +253,10 @@ export class SessionService extends Service {
 
                     next();
                 } else {
-                    res.status(401).json({
-                        error: {
-                            code: 401,
-                            message: "Invalid authorisation."
-                        }
-                    });
+                    res.redirect(oauth.discord.code.getUri());
                 }
             } else {
-                res.status(401).json({
-                    error: {
-                        code: 401,
-                        message: "Invalid authorisation."
-                    }
-                });
+                res.redirect(oauth.discord.code.getUri());
             }
         }
     }
