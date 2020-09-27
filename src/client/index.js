@@ -32,7 +32,7 @@ export default client;
 
 console.info("Process started" + (runtime_config.debug ? " in debug" : "") + " and client initialised, runtime ID: " + runtime_id);
 
-if (process.env.BASE_API !== "https://api.thechimp.store") {
+if (!runtime_config["no-update"] && process.env.BASE_API !== "https://api.thechimp.store") {
     console.info("Checking for updates..");
 
     const latest_stable = await client.getLatest();
@@ -48,7 +48,9 @@ if (process.env.BASE_API !== "https://api.thechimp.store") {
     }
 }
 
-client.TerminalService.begin();
+if (!runtime_config["disable-terminal"]) {
+    client.TerminalService.begin();
+}
 
 await client.login(credentials.token);
 

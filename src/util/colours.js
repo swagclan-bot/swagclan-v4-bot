@@ -20,30 +20,32 @@ import runtime_id from "../runtime.id.js"
 export default async (options) => {
     // await mkdirp("logs");
 
-    const log_stream = fs.createWriteStream("logs.txt", {
+    const log_stream = fs.createWriteStream(runtime_config["log-file"], {
         flags: "a"
     });
 	
 	const real_log = console.log;
 
-    console.log = (...log) => {
-        const log_id = randomstring.generate({
-            length: 20,
-            charset: "hex",
-            capitalization: "lowercase"
-        });
-		
-		process.stdout.write("\r\x1b[K");
+    console.log = (...log) => { 
+        if (!runtime_config["disable-output"]) {
+            const log_id = randomstring.generate({
+                length: 20,
+                charset: "hex",
+                capitalization: "lowercase"
+            });
+            
+            process.stdout.write("\r\x1b[K");
 
-        const format = utils.format(...log);
-        const stripped = format.replace(/\x1b\[[0-9]+m/g, "");
+            const format = utils.format(...log);
+            const stripped = format.replace(/\x1b\[[0-9]+m/g, "");
 
-        process.stdout.write("[" + new Date().toISOString() + "] " + format + "\n" + "SWAGCLAN > ".blue);
+            process.stdout.write("[" + new Date().toISOString() + "] " + format + "\n" + "SWAGCLAN > ".blue);
 
-        log_stream.write("{" + log_id + "} [" + new Date().toISOString() + "] " + stripped + "\n");
-		
-		process.emit("log");
-
+            log_stream.write("{" + log_id + "} [" + new Date().toISOString() + "] " + stripped + "\n");
+            
+            process.emit("log");
+        }
+        
         return log_id;
     }
 
