@@ -45,19 +45,19 @@ export function api_guild_object(guild) {
         is_owner: guild.owner,
         permissions: guild.permissions,
         created: guild.createdTimestamp,
-        dashboard_available: !!req.guild,
+        dashboard_available: !!cache_guild,
         premium: {
             active: true,
             until: 1595821348733
         },
-        ...(req.guild ? {
+        ...(cache_guild ? {
             count: {
-                members: req.guild.memberCount,
-                bots: req.guild.members.cache.filter(member => member.user?.bot).size,
-                channels: req.guild.channels.cache.size,
-                rooms: req.guild.channels.cache.filter(channel => channel.type === "voice").size,
-                categories: req.guild.channels.cache.filter(channel => channel.type === "category").size,
-                roles: req.guild.channels.cache.size
+                members: cache_guild.memberCount,
+                bots: cache_guild.guild.members.cache.filter(member => member.user?.bot).size,
+                channels: cache_guild.channels.cache.size,
+                rooms: cache_guild.channels.cache.filter(channel => channel.type === "voice").size,
+                categories: cache_guild.channels.cache.filter(channel => channel.type === "category").size,
+                roles: cache_guild.channels.cache.size
             }
         } : {})
     }
