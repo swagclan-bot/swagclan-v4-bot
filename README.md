@@ -91,11 +91,11 @@ You can apply some command-line arguments to change the behaviour of the bot.
 * `--debug` - Run the bot in debug mode, i.e. more messages to further diagnose problems and the health of the bot.
 * `--lichessdev` - Use a local development version of lichess. (You can run a local lichess server with [this repository](https://github.com/ornicar/lila).)
 * `--suppress <error>` - Suppress error messages that contain this string, can be used multiple times to suppress different error messages. (Not recommended.)
-* `--no-update` - Disable update-checking. (Not recommended.)
-* `--disable-output` - Disable all console messages.
-* `--disable-terminal` - Disable swagclan terminal interface.
-* `--log-file <file>` - The log file to output console messages to.
-* `--old-api` - Use the old API structure. (Temporary, likely to go.)
+* `--noupdate` - Disable update-checking. (Not recommended.)
+* `--disableoutput` - Disable all console messages.
+* `--disableterminal` - Disable swagclan terminal interface.
+* `--logfile <file>` - The log file to output console messages to.
+* `--oldapi` - Use the old API structure. (Temporary, likely to go.)
 
 If you are running with `npm`, i.e. `npm start` or `npm run debug`, you can pass arguments with a preceding `--`, e.g. `npm start -- --lichessdev`
 

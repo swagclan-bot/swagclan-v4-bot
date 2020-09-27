@@ -20,7 +20,7 @@ import runtime_id from "../runtime.id.js"
 export default async (options) => {
     // await mkdirp("logs");
 
-    const log_stream = fs.createWriteStream(runtime_config["log-file"], {
+    const log_stream = fs.createWriteStream(runtime_config.logfile, {
         flags: "a"
     });
 	
@@ -33,7 +33,7 @@ export default async (options) => {
             capitalization: "lowercase"
         });
 
-        if (!runtime_config["disable-output"]) {
+        if (!runtime_config.disableoutput) {
             process.stdout.write("\r\x1b[K");
 
             const format = utils.format(...log);

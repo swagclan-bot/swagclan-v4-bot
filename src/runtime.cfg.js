@@ -14,24 +14,24 @@ export default yargs
         description: "Suppress an error message.",
         default: []
     })
-    .option("no-update", {
+    .option("noupdate", {
         type: "boolean",
         description: "Disable update-checking."
     })
-    .option("disable-output", {
+    .option("disableoutput", {
         type: "boolean",
         description: "Disable all console messages."
     })
-    .option("disable-terminal", {
+    .option("disableterminal", {
         type: "boolean",
         description: "Disable terminal interface."
     })
-    .option("log-file", {
+    .option("logfile", {
         type: "string",
         description: "The log file to output console messages to.",
         default: "logs.txt"
     })
-    .option("old-api", {
+    .option("oldapi", {
         type: "boolean",
         description: "Use the old API."
     })
