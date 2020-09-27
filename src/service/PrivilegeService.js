@@ -110,7 +110,7 @@ class PrivilegeClass {
 		
 		try {
             const read = await fs.readFile(pathname, "utf8");
-            const json = JSON.parse(read.toString());
+            const json = JSON.parse(read);
 
             if (json.users) {
                 this.users = new discord.Collection([
@@ -127,7 +127,7 @@ class PrivilegeClass {
             }
 		} catch (e) {
 			if (e.code === "ENOENT") {
-				await fs.writeFile(pathname, "{users:{},guilds:{}}");
+				await fs.writeFile(pathname, "{\"users\":{},\"guilds\":{}}");
 			} else {
 				throw e;
 			}
