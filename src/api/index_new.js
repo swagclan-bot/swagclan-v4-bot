@@ -62,8 +62,8 @@ if (process.env.ENVIRONMENT === "development") {
 app.use("/asset", assetRouter);
 
 app.use("/", basicRouter);
-app.use("/", accountRouter);
 app.use("/auth", oauthRouter);
+app.use("/", accountRouter);
 
 app.get("*", errors.Not_Found);
 
