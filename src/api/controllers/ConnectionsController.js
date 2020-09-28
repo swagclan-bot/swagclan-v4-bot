@@ -8,11 +8,11 @@ import oauth from "../schema/OAuth.js"
  * @param {express.Response} res
  */
 export async function RedirectAccountConnection(req, res) {
-    if (!req.auth) {
+    if (!req.session) {
         return res.redirect(oauth.discord.code.getUri());
     }
 
-    const account = await client.AccountService.getAccount(req.auth.user.id);
+    const account = await client.AccountService.getAccount(req.session.user.id);
 
     const uri = account.getURI(req.params.connection);
 
@@ -28,11 +28,11 @@ export async function RedirectAccountConnection(req, res) {
  * @param {express.Response} res
  */
 export async function LinkAccountConnection(req, res) {
-    if (!req.auth) {
+    if (!req.session) {
         return res.redirect(oauth.discord.code.getUri());
     }
 
-    const account = await client.AccountService.getAccount(req.auth.user.id);
+    const account = await client.AccountService.getAccount(req.session.user.id);
 
     if (await account.authorise(req.params.connection, req.originalUrl)) {
         res.redirect(process.env.BASE_WEB + "/account");
@@ -46,11 +46,11 @@ export async function LinkAccountConnection(req, res) {
  * @param {express.Response} res
  */
 export async function DeleteAccountConnection(req, res) {
-    if (!req.auth) {
+    if (!req.session) {
         return res.redirect(oauth.discord.code.getUri());
     }
     
-    const account = await client.AccountService.getAccount(req.auth.user.id);
+    const account = await client.AccountService.getAccount(req.session.user.id);
 
     delete account.connections[req.params.connection];
 

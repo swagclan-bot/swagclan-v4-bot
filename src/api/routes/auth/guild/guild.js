@@ -1,6 +1,8 @@
 import express from "express"
 
+import UserController from "../../../controllers/UserController.js"
 import GuildController from "../../../controllers/GuildController.js"
+
 import Errors from "../../../schema/Errors.js"
 
 import channelsRouter from "./channels.js"
@@ -12,6 +14,8 @@ import client from "../../../../client/index.js"
 
 const router = express.Router();
 
+router.get("/", UserController.GetGuilds);
+
 /**
  * Check if a guild is manageable.
  * @param {discord.Guild} guild The guild to check if manageable.
@@ -22,7 +26,7 @@ function is_manageable(req, res, next) {
     const cache_guild = client.guilds.resolve(req.params.guild_id);
 
     if (cache_guild) {
-        const member = cache_guild.members.resolve(req.auth.user.id);
+        const member = cache_guild.members.resolve(req.session.user.id);
 
         if (member && member.hasPermission("MANAGE_GUILD")) {
             req.guild = cache_guild;

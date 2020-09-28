@@ -301,7 +301,7 @@ server.use(dynAuth.handle());
 
 server.post("/logout", async (req, res) => {
     try {
-        await req.auth.logout();
+        await req.session.logout();
 
         res.status(200).json(true);
     } catch (e) {
@@ -312,12 +312,12 @@ server.post("/logout", async (req, res) => {
 });
 
 server.get("/me", async (req, res) => {
-    res.status(200).json(req.auth.user);
+    res.status(200).json(req.session.user);
 });
 
 server.get("/account", async (req, res) => {
     const service = client.AccountService;
-    const account = await service.getAccount(req.auth.user.id);
+    const account = await service.getAccount(req.session.user.id);
 
     let json = account.toJSON();
 
@@ -336,7 +336,7 @@ server.get("/account", async (req, res) => {
 
 server.get("/account/connections/:connection", async (req, res) => {
     const service = client.AccountService;
-    const account = await service.getAccount(req.auth.user.id);
+    const account = await service.getAccount(req.session.user.id);
 
     const uri = account.getURI(req.params.connection);
 
@@ -349,7 +349,7 @@ server.get("/account/connections/:connection", async (req, res) => {
 
 server.delete("/account/connections/:connection", async (req, res) => {
     const service = client.AccountService;
-    const account = await service.getAccount(req.auth.user.id);
+    const account = await service.getAccount(req.session.user.id);
 
     delete account.connections[req.params.connection];
 
@@ -360,7 +360,7 @@ server.delete("/account/connections/:connection", async (req, res) => {
 
 server.get("/account/connections/:connection/callback", async (req, res) => {
     const service = client.AccountService;
-    const account = await service.getAccount(req.auth.user.id);
+    const account = await service.getAccount(req.session.user.id);
 
     if (await account.authorise(req.params.connection, req.originalUrl)) {
         res.redirect(process.env.BASE_WEB + "/account");
@@ -488,7 +488,7 @@ function is_manageable(req, res, next) {
     const cache_guild = client.guilds.resolve(req.params.id);
 
     if (cache_guild) {
-        const member = cache_guild.members.resolve(req.auth.user.id);
+        const member = cache_guild.members.resolve(req.session.user.id);
 
         if (member && member.hasPermission("MANAGE_GUILD")) {
             next();
@@ -502,7 +502,7 @@ function is_manageable(req, res, next) {
 
 server.get("/guilds", async (req, res) => {
     try {
-        const guilds = (await req.auth.getGuilds()).filter(guild => {
+        const guilds = (await req.session.getGuilds()).filter(guild => {
             const cache_guild = client.guilds.resolve(guild.id);
 
             return req.query.manageable !== "true" || cache_guild && (guild.permissions & 0x20) === 0x20 // MANAGE_GUILD
@@ -518,7 +518,7 @@ server.get("/guilds", async (req, res) => {
 
 server.get("/guilds/:id", is_manageable, async (req, res) => {
     const cache_guild = client.guilds.resolve(req.params.id);
-    const member = cache_guild.members.resolve(req.auth.user.id);
+    const member = cache_guild.members.resolve(req.session.user.id);
 
     res.status(200).json(resolve_guild_object(cache_guild, member));
 });

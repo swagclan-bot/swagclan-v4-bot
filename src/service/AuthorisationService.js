@@ -162,7 +162,7 @@ export class AuthorisationService extends Service {
                 const auth = await this.getUser(req.headers.authorization);
 
                 if (auth) {
-                    req.auth = auth;
+                    req.session = auth;
 
                     next();
                 } else {

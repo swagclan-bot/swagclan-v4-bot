@@ -2,9 +2,11 @@ import express from "express"
 
 import UserController from "../../controllers/UserController.js"
 
+import guildRouter from "./guild/guild.js"
+
 const router = express.Router();
 
 router.get("/me", UserController.GetUser);
-router.get("/guilds", UserController.GetGuilds);
+router.use("/guilds", guildRouter);
 
 export default router;

@@ -8,7 +8,7 @@ import client from "../../client/index.js"
  */
 export async function AccountInfo(req, res) {
     const service = client.AccountService;
-    const account = await service.getAccount(req.auth.user.id);
+    const account = await service.getAccount(req.session.user.id);
 
     let json = account.toJSON();
 
@@ -30,7 +30,7 @@ export async function AccountInfo(req, res) {
  * @param {express.Response} res
  */
 export async function GetUser(req, res) {
-    res.status(200).json(req.auth.user);
+    res.status(200).json(req.session.user);
 }
 
 /**
@@ -39,7 +39,7 @@ export async function GetUser(req, res) {
  */
 export async function Logout(req, res) {
     try {
-        await req.auth.logout();
+        await req.session.logout();
 
         res.status(200).json(true);
     } catch (e) {

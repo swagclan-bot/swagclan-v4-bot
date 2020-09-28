@@ -247,15 +247,15 @@ export class SessionService extends Service {
          */
         return async (req, res, next) => {
             if (req.cookies.sid) {
-                req.auth = await this.get(req.cookies.sid);
+                req.session = await this.get(req.cookies.sid);
 
-                if (req.auth) {
-                    await req.auth.getUser();
+                if (req.session) {
+                    await req.session.getUser();
                 } else {
-                    req.auth = null;
+                    req.session = null;
                 }
             } else {
-                req.auth = null;
+                req.session = null;
             }
             
             next();

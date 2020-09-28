@@ -20,7 +20,7 @@ export function user_object(user) {
  * @param {express.Response} res
  */
 export async function GetUser(req, res) {
-    res.status(200).json(req.auth.user);
+    res.status(200).json(req.session.user);
 }
 
 /**
@@ -29,7 +29,7 @@ export async function GetUser(req, res) {
  */
 export async function GetGuilds(req, res) {
     try {
-        const guilds = (await req.auth.getGuilds()).filter(guild => {
+        const guilds = (await req.session.getGuilds()).filter(guild => {
             const cache_guild = client.guilds.resolve(guild.id);
 
             return req.query.manageable !== "true" || cache_guild && (guild.permissions & 0x20) === 0x20; // MANAGE_GUILD

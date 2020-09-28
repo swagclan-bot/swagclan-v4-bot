@@ -93,7 +93,7 @@ export function perspective_guild_object(guild, perspective) {
  * @param {express.Response} res
  */
 export async function GetGuild(req, res) {
-    const member = req.guild.members.resolve(req.auth.user.id);
+    const member = req.guild.members.resolve(req.session.user.id);
 
     res.status(200).json(perspective_guild_object(req.guild, member));
 }
@@ -103,7 +103,7 @@ export async function GetGuild(req, res) {
  * @param {express.Response} res
  */
 export async function GetChannels(req, res) {
-    const member = req.guild.members.resolve(req.auth.user.id);
+    const member = req.guild.members.resolve(req.session.user.id);
     
     const channels = [...req.guild.channels.cache.values()].filter(channel => {
         return !channel.deleted &&
@@ -119,7 +119,7 @@ export async function GetChannels(req, res) {
  * @param {express.Response} res
  */
 export async function GetChannel(req, res) {
-    const member = req.guild.members.resolve(req.auth.user.id);
+    const member = req.guild.members.resolve(req.session.user.id);
 
     if (!channel.deleted && channel.permissionsFor(member).has(Permissions.FLAGS.VIEW_CHANNEL)) {
         const channel = req.guild.channels.resolve(req.params.channel_id);

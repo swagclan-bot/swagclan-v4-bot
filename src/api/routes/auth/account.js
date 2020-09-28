@@ -5,7 +5,6 @@ import client from "../../../client/index.js"
 import accountController from "../../controllers/AccountController.js"
 import connectionsRouter from "./connections.js"
 import userRouter from "./user.js"
-import guildRouter from "./guild/guild.js"
 
 import Errors from "../../schema/Errors.js"
 
@@ -17,7 +16,7 @@ router.use(client.SessionService.handle());
 router.use("/account/connections", connectionsRouter);
 
 router.use(async function (req, res, next) {
-    if (!res.auth) {
+    if (!req.session) {
         Errors.Forbidden(req, res);
     } else {
         next();
@@ -29,6 +28,5 @@ router.get("/account", accountController.AccountInfo);
 router.post("/logout", accountController.Logout);
 
 router.use("/", userRouter);
-router.use("/guilds", guildRouter);
 
 export default router;
