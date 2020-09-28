@@ -2,6 +2,8 @@ import express from "express"
 
 import { Permissions } from "discord.js"
 
+import { CustomCommand } from "../../service/CustomCommandService.js"
+
 import Errors from "../schema/Errors.js"
 
 import client from "../../client/index.js"
