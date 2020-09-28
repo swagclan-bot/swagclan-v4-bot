@@ -414,7 +414,7 @@ export async function StreamStorage(req, res) {
     if (guild_storage) {
         res.status(200)
 
-        create_stream(req, res, command, {
+        create_stream(req, res, guild_storage, {
             clear() {
                 return {
                     op: "clear"
