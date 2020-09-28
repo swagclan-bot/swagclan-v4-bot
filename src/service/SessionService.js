@@ -9,6 +9,7 @@ import fetch from "node-fetch"
 import path from "path"
 
 import oauth from "../api/schema/OAuth.js"
+import Errors from "../api/schema/Errors.js"
 
 import { promises as fs } from "fs"
 
@@ -250,14 +251,14 @@ export class SessionService extends Service {
 
                 if (req.auth) {
                     await req.auth.getUser();
-
-                    next();
                 } else {
-                    res.redirect(oauth.discord.code.getUri());
+                    req.auth = null;
                 }
             } else {
-                res.redirect(oauth.discord.code.getUri());
+                req.auth = null;
             }
+            
+            next();
         }
     }
 
