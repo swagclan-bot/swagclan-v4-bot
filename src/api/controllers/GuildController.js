@@ -151,7 +151,7 @@ export async function CreateCommand(req, res) {
         req.body.id = guild_commands.meta.count.toString();
         req.body.created_at = Date.now();
 
-        const command = new CustomCommand(guild_commands, req.bdy);
+        const command = new CustomCommand(guild_commands, req.body);
 
         guild_commands.commands.set(guild_commands.meta.count.toString(), command);
         guild_commands.meta.count++;
@@ -205,7 +205,7 @@ export async function DeleteCommand(req, res) {
  * @param {express.Response} res
  */
 export async function UpdateCommand(req, res) {
-    if (!command_schemas.put_command_schema.validate(req.body).error) {
+    if (!command_schemas.patch_command_schema.validate(req.body).error) {
         const guild_commands = await client.CustomCommandService.getCustomCommands(req.guild)
 
         const command = guild_commands.commands.get(req.params.command_id);

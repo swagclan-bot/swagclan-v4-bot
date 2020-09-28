@@ -149,7 +149,11 @@ export default new BotModule({
             try {
 				return await this.reply("success", "User avatar for <@" + user.id + ">.", {
 					image: {
-						url: user.avatarURL({ format: this.args.format.value, dynamic: this.args.format.value === "gif" })
+						url: user.displayAvatarURL({
+                            format: this.args.format.value,
+                            dynamic: this.args.format.value === "gif",
+                            size: 512
+                        })
 					}
 				});
 			} catch (e) {

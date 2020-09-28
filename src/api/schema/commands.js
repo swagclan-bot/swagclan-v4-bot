@@ -80,10 +80,10 @@ export const expression_schema = joi.any().allow(input_schema, ctx_var_schema, a
 
 export const post_command_schema = joi.object().keys({
     name: joi.string().required().min(MIN_NAME).max(MAX_NAME),
-    description: joi.string().min(0).allow("").max(MAX_DESCRIPTION),
+    description: joi.string().required().min(0).allow("").max(MAX_DESCRIPTION),
     triggers: joi.array().required().items(joi.object().keys({
-		type: joi.string().allow(...TRIGGER_TYPES),
-		name: joi.string().max(MAX_TRIGGER_NAME)
+		type: joi.string().required().allow(...TRIGGER_TYPES),
+		name: joi.string().required().max(MAX_TRIGGER_NAME)
 	})).max(MAX_TRIGGERS),
     parameters: joi.object().required().pattern(/^/, parameter_schema).max(MAX_PARAMETERS),
     variables: joi.object().required().pattern(/^/, variable_schema).max(MAX_VARIABLES),

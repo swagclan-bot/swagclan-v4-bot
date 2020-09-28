@@ -8,7 +8,7 @@ router.get("/", GuildController.GetCommands);
 router.post("", GuildController.CreateCommand);
 router.get("/:command_id", GuildController.GetCommand);
 router.delete("/:command_id", GuildController.DeleteCommand);
-router.put("/:command_id", GuildController.UpdateCommand);
+router.patch("/:command_id", GuildController.UpdateCommand);
 router.get("/:command_id/timeouts", GuildController.GetCommandTimeouts);
 router.get("/:command_id/timeouts/stream", GuildController.StreamTimeouts);
 router.delete("/:command_id/timeouts", GuildController.ClearTimeouts);
