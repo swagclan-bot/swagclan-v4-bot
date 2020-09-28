@@ -7,8 +7,7 @@ import client from "../../client/index.js"
  * @param {express.Response} res
  */
 export async function RedirectAccountConnection(req, res) {
-    const service = client.AccountService;
-    const account = await service.getAccount(req.auth.user.id);
+    const account = await client.AccountService.getAccount(req.auth.user.id);
 
     const uri = account.getURI(req.params.connection);
 
@@ -24,8 +23,7 @@ export async function RedirectAccountConnection(req, res) {
  * @param {express.Response} res
  */
 export async function LinkAccountConnection(req, res) {
-    const service = client.AccountService;
-    const account = await service.getAccount(req.auth.user.id);
+    const account = await client.AccountService.getAccount(req.auth.user.id);
 
     if (await account.authorise(req.params.connection, req.originalUrl)) {
         res.redirect(process.env.BASE_WEB + "/account");
@@ -39,8 +37,7 @@ export async function LinkAccountConnection(req, res) {
  * @param {express.Response} res
  */
 export async function DeleteAccountConnection(req, res) {
-    const service = client.AccountService;
-    const account = await service.getAccount(req.auth.user.id);
+    const account = await client.AccountService.getAccount(req.auth.user.id);
 
     delete account.connections[req.params.connection];
 
