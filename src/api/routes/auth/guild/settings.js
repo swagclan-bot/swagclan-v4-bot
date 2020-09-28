@@ -2,6 +2,7 @@ import express from "express"
 
 import GuildController from "../../../controllers/GuildController.js"
 
+// Router for guild settings.
 const router = express.Router();
 
 router.get("/", GuildController.GetSettings);

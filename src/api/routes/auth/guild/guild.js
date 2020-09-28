@@ -5,13 +5,13 @@ import GuildController from "../../../controllers/GuildController.js"
 
 import Errors from "../../../schema/Errors.js"
 
-import channelsRouter from "./channels.js"
 import commandsRouter from "./commands.js"
 import settingsRouter from "./settings.js"
 import storageRouter from "./storage.js"
 
 import client from "../../../../client/index.js"
 
+// Router for guild information.
 const router = express.Router();
 
 router.get("/", UserController.GetGuilds);
@@ -44,7 +44,9 @@ router.use("/:guild_id", is_manageable);
 
 router.get("/:guild_id", GuildController.GetGuild);
 
-router.use("/:guild_id/channels", channelsRouter);
+router.get("/:guild_id/channels", GuildController.GetChannels);
+router.get("/:guild_id/channels/:channel_id", GuildController.GetChannel);
+
 router.use("/:guild_id/commands", commandsRouter);
 router.use("/:guild_id/settings", settingsRouter);
 router.use("/:guild_id/storage", storageRouter);
