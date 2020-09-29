@@ -139,19 +139,19 @@ export default new CustomCommandRuleGroup({
             returns: "date"
         }),
         new CustomCommandRule({
-            id: "6f936571-ef22-49ce-9010-5fdb42ba04ac",
-            name: "Date from %",
-            description: "Create a date from a date string or from a timestamp.",
-            params: ["any"],
-            callback: function DateFrom(date) {
-                return new Date(date);
+            id: "63cc55241-c54b-4f76-92f5-553eda3208f2",
+            name: "Date",
+            description: "The current date (UTC + 0).",
+            params: [],
+            callback: function GetNow() {
+                return new Date();
             },
-            fallback: new Date(),
+            fallback: null,
             returns: "date"
         }),
         new CustomCommandRule({
             id: "2d32fc02-3eed-4be7-bc97-ed8b888e3759",
-            name: "Date from %",
+            name: "Date %",
             description: "Create a date from a date string or from a timestamp.",
             params: ["any"],
             callback: function DateFrom(date) {
