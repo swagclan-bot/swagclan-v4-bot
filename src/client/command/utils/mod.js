@@ -43,7 +43,7 @@ async function get_last_image(channel) {
     }
 
     // Sort all messages in channel by when they were created, probably slow.
-    const messages_sorted = channel.messages.cache.sorted((messagea, messageb) => messageb.createdTimestamp - messagea.createdTimestamp).first(20);
+    const messages_sorted = channel.messages.cache.filter(message => !message.deleted).sorted((messagea, messageb) => messageb.createdTimestamp - messagea.createdTimestamp).first(20);
 
     const last_message = messages_sorted.find(val => {
         if (get_message_embed_image(val)) {
