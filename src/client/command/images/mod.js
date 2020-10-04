@@ -446,23 +446,23 @@ export default new BotModule({
                         optional: true
                     }),
                     new CommandArgument({
-                        name: "🔽",
+                        name: "y",
                         description: "The y of the boundary starting position.",
-                        emoji: "⛓",
+                        emoji: "🔽",
                         types: [ArgumentType.UnsignedInteger],
                         optional: true
                     }),
                     new CommandArgument({
-                        name: "📏",
+                        name: "width",
                         description: "The width of the boundary starting position.",
-                        emoji: "⛓",
+                        emoji: "📏",
                         types: [ArgumentType.UnsignedInteger],
                         optional: true
                     }),
                     new CommandArgument({
-                        name: "📏",
+                        name: "height",
                         description: "The height of the boundary starting position.",
-                        emoji: "⛓",
+                        emoji: "📏",
                         types: [ArgumentType.UnsignedInteger],
                         optional: true
                     })
