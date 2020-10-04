@@ -1,8 +1,9 @@
 // Imports
 import { CommandInterface, BotModule, ModuleCommand, MessageMatcher, CommandVersion, CommandArgument, CommandSyntax, ArgumentType } from "../../../service/ModuleService.js"
-import { SettingsService } from "../../../service/SettingsService.js"
 
 import { p, is } from "../../../util/plural.js"
+
+import client from "../../index.js"
 
 export default new BotModule({
     name: "Server",
@@ -51,8 +52,7 @@ export default new BotModule({
             ],
 			example: "https://i.imgur.com/bA6Sil2.gif",
             callback: async function ModifyServerSettings(message) {
-                /** @type {SettingsService} */
-                const settings_service = message.client.SettingsService;
+                const settings_service = client.SettingsService;
 
                 const guild_settings = await settings_service.getSettings(message.guild);
                 const definitions = settings_service.definitions;

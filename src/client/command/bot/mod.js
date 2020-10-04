@@ -1,5 +1,5 @@
 // Imports
-import { SwagClan } from "../../../class/SwagClan.js"
+
 import { BotModule, ModuleCommand, MessageMatcher, CommandVersion, CommandArgument, CommandSyntax, ArgumentType } from "../../../service/ModuleService.js"
 
 import { p, is } from "../../../util/plural.js"
@@ -13,6 +13,8 @@ import config from "../../../../.config.js"
 import credentials from "../../../../.credentials.js"
 
 import runtime_id from "../../../runtime.id.js"
+
+import client from "../../index.js"
 
 const fmt = num => numeral(num).format("0,0");
 
@@ -65,9 +67,6 @@ export default new BotModule({
             ],
 			example: "https://i.imgur.com/LRJr9BQ.gif",
             callback: async function DisplayHelp(message) {
-                /** @type {SwagClan} */
-                const client = message.client;
-
                 const modules = client.ModuleService.modules;
                 const custom = await client.CustomCommandService.getCustomCommands(message.guild);
                 const privilege = client.PrivilegeService;
@@ -240,7 +239,7 @@ export default new BotModule({
                 const os = await sys.osInfo();
                 const versions = await sys.versions();
                 
-                const num_modules = message.client.ModuleService.modules.size;
+                const num_modules = client.ModuleService.modules.size;
     
                 return await this.edit("success", "There " + is(num_modules) + " currently " + p(num_modules, "module") + " loaded.", {
                     fields: [
@@ -291,7 +290,7 @@ export default new BotModule({
             ],
 			example: "https://i.imgur.com/tCRsoY0.gif",
             callback: async function SweepMessages(message) {
-                const sweeper = message.client.SweeperService.getSweeper(message.channel);
+                const sweeper = client.SweeperService.getSweeper(message.channel);
 
                 await sweeper.sweep();
             }
@@ -348,9 +347,6 @@ export default new BotModule({
                 ])
             ],
             callback: async function Modules(message) {
-                /** @type {SwagClan} */
-                const client = this.client;
-
                 const service = client.ModuleService;
                 const settings = client.SettingsService.guilds.get(message.guild.id).settings;
 
@@ -466,7 +462,7 @@ export default new BotModule({
 				new CommandVersion(["admins"], [])
 			],
 			callback: async function ViewAdmins(message) {
-				const service = message.client.PrivilegeService;
+				const service = client.PrivilegeService;
 				const admins = service.admins.users;
 				
 				if (this.args.who) {
@@ -531,7 +527,7 @@ export default new BotModule({
 				new CommandVersion(["blacklist"], [])
 			],
 			callback: async function ViewBlacklist(message) {
-				const service = message.client.PrivilegeService;
+				const service = client.PrivilegeService;
 				const blacklist = service.blacklist.users;
 				
 				if (this.args.who) {
@@ -578,13 +574,13 @@ export default new BotModule({
             emoji: "📩",
             matches: [
                 async function MatchClientMention(message) {
-                    const user_regex = new RegExp("^<@!?" + message.client.user.id + ">$");
+                    const user_regex = new RegExp("^<@!?" + client.user.id + ">$");
 
                     return user_regex.test(message.content);
                 }
             ],
             callback: async function ReplyBasicInformation(message) {
-                const settings_service = message.client.SettingsService;
+                const settings_service = client.SettingsService;
                 const guild_settings = await settings_service.getSettings(message.guild);
                 const definitions = settings_service.definitions;
 

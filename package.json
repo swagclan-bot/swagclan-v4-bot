@@ -12,6 +12,7 @@
     "author": "",
     "license": "ISC",
     "dependencies": {
+        "@discordjs/opus": "^0.3.2",
         "body-parser": "^1.19.0",
         "chess.js": "^0.11.0",
         "client-oauth2": "^4.3.2",
@@ -26,21 +27,25 @@
         "form-data": "^3.0.0",
         "form-urlencoded": "^4.2.1",
         "fuse.js": "^6.4.1",
+        "googleapis": "^60.0.1",
         "humanize-duration": "^3.23.1",
+        "iso8601-duration": "^1.2.0",
         "joi": "^17.1.1",
         "mkdir": "0.0.2",
         "mkdirp": "^1.0.4",
         "ndjson": "^2.0.0",
-        "node-fetch": "^2.6.0",
+        "node-fetch": "^2.6.1",
         "numeral": "^2.0.6",
         "randomstring": "^1.1.5",
         "sharp": "^0.25.4",
         "simple-oauth2": "^4.1.0",
+        "spotify-web-api-node": "^4.0.0",
         "superbytes": "^1.0.2",
         "systeminformation": "^4.26.9",
         "uuid": "^8.2.0",
         "ws": "^7.3.1",
-        "yargs": "^15.4.1"
+        "yargs": "^15.4.1",
+        "ytdl-core": "^3.3.0"
     },
     "type": "module"
 }

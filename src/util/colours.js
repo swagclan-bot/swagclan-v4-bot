@@ -17,7 +17,7 @@ import runtime_id from "../runtime.id.js"
 /**
  * @param {ConsoleColoursOptions} options The options for the console colours.
  */
-export default async (options) => {
+export default async (options = {}) => {
     // await mkdirp("logs");
 
     const log_stream = fs.createWriteStream(runtime_config.logfile, {

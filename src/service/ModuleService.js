@@ -1542,13 +1542,51 @@ export class ArgumentType {
      * An integer.
      * @type {ArgumentType}
      */
-    static Integer = new ArgumentType({
+    static UnsignedInteger = new ArgumentType({
         name: "Integer",
-        description: "A whole number.",
+        description: "A whole positive number.",
         examples: ["50"],
         validate: /^\d+$/,
         parse: async function (message, text) {
             return parseInt(text);
+        }
+    });
+    
+    /**
+     * An integer range.
+     * @type {ArgumentType}
+     */
+    static UnsignedIntegerRange = new ArgumentType({
+        name: "Integer Range",
+        description: "A range of positive numbers.",
+        examples: ["7-20"],
+        validate: /^\d+\-\d+$/,
+        parse: async function (message, text) {
+            const parts = text.match(/\d+/);
+
+            const min = parseInt(parts[0]);
+            const max = parseInt(parts[1]);
+
+            return { min, max };
+        }
+    });
+    
+    /**
+     * An integer range.
+     * @type {ArgumentType}
+     */
+    static IntegerRange = new ArgumentType({
+        name: "Integer Range",
+        description: "A range of positive numbers.",
+        examples: ["7-20"],
+        validate: /^\-?\d+\-\-?\d+$/,
+        parse: async function (message, text) {
+            const parts = text.match(/\-?\d+/);
+
+            const min = parseInt(parts[0]);
+            const max = parseInt(parts[1]);
+
+            return { min, max };
         }
     });
     
@@ -1664,7 +1702,7 @@ export class ArgumentType {
      * A negative or positive number.
      * @type {ArgumentType}
      */
-    static SignedInteger = new ArgumentType({
+    static Integer = new ArgumentType({
         name: "Integer",
         description: "A whole number.",
         examples: ["95"], 
@@ -1822,7 +1860,7 @@ export class ModuleService extends Service {
         const filename = path.resolve(this.path, name, "mod.js");
 
         if (this.get(name)) {
-            throw "Module already loaded";
+            throw new Error("Module already loaded");
         }
 
         const refresh_id = Math.random().toString(36).substr(2);

@@ -24,6 +24,8 @@ import ChunkArr from "../../../util/chunk.js"
 import credentials from "../../../../.credentials.js"
 import config from "../../../../.config.js"
 
+import client from "../../index.js"
+
 const dnslookup = promisify(dns.lookup);
 const fmt = num => numeral(num).format("0,0");
 
@@ -137,8 +139,7 @@ export default new BotModule({
                     description: "The image format to get the avatar in",
                     emoji: "🖼",
                     types: [ArgumentType.ImageFormat],
-                    optional: true,
-                    default: "png"
+                    optional: true
                 })
             ])
         ],
@@ -147,13 +148,17 @@ export default new BotModule({
             const user = this.args.user?.value?.user || message.author;
 
             try {
+                const avatarURL = this.args.format ? user.displayAvatarURL({
+                    format: this.args.format.value,
+                    size: 512
+                }) : user.displayAvatarURL({
+                    dynamic: true,
+                    size: 512
+                })
+
 				return await this.reply("success", "User avatar for <@" + user.id + ">.", {
 					image: {
-						url: user.displayAvatarURL({
-                            format: this.args.format.value,
-                            dynamic: this.args.format.value === "gif",
-                            size: 512
-                        })
+						url: avatarURL
 					}
 				});
 			} catch (e) {
@@ -518,8 +523,6 @@ export default new BotModule({
                             }]
                         });
 
-                        message.client.sweepmanager.addCommandCall(re, null);
-
                         await this.edit("success", "Successfully enlarged Image.");
                     } else {
                         return await this.edit("error", "Resulting image was too large.");
@@ -849,7 +852,7 @@ export default new BotModule({
         ],
 		example: "https://i.imgur.com/P1GEO5b.gif",
         callback: async function GetLichessUser(message) {
-			const service = this.client.AccountService;
+			const service = client.AccountService;
 
 			const account = this.args.user?.type === ArgumentType.Mention ?
 				await service.getAccount(this.args.user.value.user) :

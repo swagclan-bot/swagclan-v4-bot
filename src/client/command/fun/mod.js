@@ -11,6 +11,8 @@ import { camelCaseToWords } from "../../../util/camelcase.js"
 
 import config from "../../../../.config.js"
 
+import client from "../../index.js"
+
 function pad_left(pad, len, str) {
     return pad.repeat(len - str.length >= 0 ? len - str.length : 0) + str;
 }
@@ -81,7 +83,7 @@ export default new BotModule({
             const reply = this.replies[this.replies.length - 1];
 
             const collector = reply.createReactionCollector((reaction, user) => {
-                return (reaction.emoji.name === "1️⃣" || reaction.emoji.name === "2️⃣") && user.id !== message.client.user.id;
+                return (reaction.emoji.name === "1️⃣" || reaction.emoji.name === "2️⃣") && user.id !== client.user.id;
             }, { idle: 86400000, dispose: true });
 
             const update_percentages = (reaction, user, add) => {
@@ -661,7 +663,7 @@ export default new BotModule({
 			if (this.args.variants) {
                 return await this.reply("success", "Possible variants: `" + Object.values(lichess.variants).map(v => v.toLowerCase()).join(", ") + "`");
             } else {
-                const service = this.client.AccountService;
+                const service = client.AccountService;
                 const account = await service.getAccount(message.author);
 
                 const user_account = this.args.user.type === ArgumentType.Mention ? await service.getAccount(this.args.user.value.user) : null;

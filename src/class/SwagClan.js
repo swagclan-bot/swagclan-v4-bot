@@ -15,7 +15,7 @@ import { SettingsService } from "../service/SettingsService.js"
 import { StorageService } from "../service/StorageService.js"
 import { SweeperService } from "../service/SweeperService.js"
 import { TerminalService } from "../service/TerminalService.js"
-import { VoiceService } from "../service/VoiceService.js"
+import { MusicService } from "../service/MusicService.js"
 
 import runtime_id from "../runtime.id.js"
 
@@ -112,9 +112,9 @@ export class SwagClan extends discord.Client {
         
         /**
          * The service dedicated to managing bot voice states.
-         * @type {VoiceService}
+         * @type {MusicService}
          */
-        this.VoiceService = new VoiceService(this);
+        this.MusicService = new MusicService(this);
 
         /**
          * The ID of the current runtime.
