@@ -1142,7 +1142,7 @@ export class CommandVersion {
 
         for (let arg of this.arguments) {
             if (typeof arg.default !== "undefined") {
-                parsed_args[arg.name] = await arg.parse(message, arg.default);
+                parsed_args[arg.name] = await arg.parse(message, arg.default.toString());
             } else {
                 parsed_args[arg.name] = null;
             }
@@ -1415,12 +1415,12 @@ export class CommandSyntax extends CommandArgument {
 }
 
 /**
- * @typedef ArgumentType
- * @param {String} name The name of the type.
- * @param {String} description The description of the type.
- * @param {Array<String>} examples Examples of inputs.
- * @param {ArgumentTypeValidate|RegExp|String} validate The arguments to match;
-*  @param {ArgumentTypeParse} [parse] How to parse the argument type.
+ * @typedef ArgumentTypeInfo
+ * @property {String} name The name of the type.
+ * @property {String} description The description of the type.
+ * @property {Array<String>} examples Examples of inputs.
+ * @property {ArgumentTypeValidate|RegExp|String} validate The arguments to match;
+*  @property {ArgumentTypeParse} [parse] How to parse the argument type.
  */
 
 /**
@@ -1594,11 +1594,27 @@ export class ArgumentType {
      * An image url.
      * @type {ArgumentType}
      */
+    static Scalar = new ArgumentType({
+        name: "Scalar",
+        description: "What to multiply something by.",
+        examples: ["x4", "6", "x4.8"],
+        validate: /^x?\-?\d+(\.\d+)?$/,
+        parse: async function (message, text) {
+            const number = text.match(/\-?\d+(\.\d+)?/)[0];
+
+            return parseFloat(number);
+        }
+    })
+    
+    /**
+     * An image url.
+     * @type {ArgumentType}
+     */
     static ImageURL = new ArgumentType({
         name: "Image URL",
         description: "An image url.",
         examples: ["i.imgur.com"],
-        validate: /^https?:\/\/.*\.(?:png|jpg)$/i
+        validate: /^https?:\/\/([a-z0-9\-]+\.)+[a-z]+(?:\/[^\/#?]+)+\.(png|jpe?g|gif|svg|webp|tiff)((\?|\#).+)?$/i
     });
 
     /**
@@ -1672,7 +1688,7 @@ export class ArgumentType {
         name: "Image Format",
         description: "A discord-supported image format (webp, jpeg, png and gif).",
         examples: ["jpeg"],
-        validate: /^(webp)|((jpe?)|(pn)g)|(gif)$/i
+        validate: /^png|jpe?g|gif|svg|webp|tiff$/i
     });
 
     /**
@@ -1736,7 +1752,7 @@ export class ArgumentType {
 
     /**
      * Instantiate an ArgumentType object.
-     * @param {ArgumentType} type The information for the type.
+     * @param {ArgumentTypeInfo} type The information for the type.
      */
     constructor(type) {
         /**

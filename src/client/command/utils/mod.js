@@ -9,6 +9,7 @@ import randomstring from "randomstring"
 import child_process from "child_process"
 import chess from "chess.js"
 import Fuse from "fuse.js"
+import discord from "discord.js"
 import { promises as fs } from "fs"
 
 import { promisify } from "util"
@@ -33,6 +34,45 @@ const ddos = {};
 
 const evals = {};
 
+
+/** @param {discord.TextChannel} channel */
+async function get_last_image(channel) {
+    function get_message_embed_image(message) {
+        // Reverse embed list to get the last embed with the image instead of the first.
+        return message.embeds.reverse().find(embed => embed.image?.url)?.image?.url;
+    }
+
+    // Sort all messages in channel by when they were created, probably slow.
+    const messages_sorted = channel.messages.cache.sorted((messagea, messageb) => messageb.createdTimestamp - messagea.createdTimestamp).last(20);
+
+    const last_message = messages_sorted.find(val => {
+        if (get_message_embed_image(val)) {
+            return true;
+        }
+        
+        // Check attachments in image.
+        if (val.attachments.last()?.attachment) {
+            return true;
+        }
+
+        // Check image URLs in image.
+        if (val.content.match(ArgumentType.ImageURL._validate)) {
+            return true;
+        }
+
+        return false;
+    });
+
+    if (last_message) {
+        // Return the image that was found, whether in an embed or as an attachment.
+        return get_message_embed_image(last_message) ||
+            last_message.attachments.first()?.attachment ||
+            last_message.content.match(RegExp(ArgumentType.ImageURL._validate, "g"))?.reverse()?.[0];
+    }
+
+    return null;
+}
+
 export default new BotModule({
     name: "Utils",
     description: "A module for information and other utilities.",
@@ -52,7 +92,7 @@ export default new BotModule({
                 })
             ])
         ],
-		example: "https://i.imgur.com/iEB12aR.gif",
+        example: "https://i.imgur.com/iEB12aR.gif",
         callback: async function GetUserInformation(message) {
             let member = this.args.user?.value || message.member;
 
@@ -85,7 +125,7 @@ export default new BotModule({
         versions: [
             new CommandVersion(["serverinfo", "server"], [])
         ],
-		example: "https://i.imgur.com/2FSFkr3.gif",
+        example: "https://i.imgur.com/2FSFkr3.gif",
         callback: async function GetServerInformation(message) {
             await message.guild.fetch();
 
@@ -143,27 +183,28 @@ export default new BotModule({
                 })
             ])
         ],
-		example: "https://i.imgur.com/0NTIIuu.gif",
+        example: "https://i.imgur.com/0NTIIuu.gif",
         callback: async function GetUserAvatar(message) {
             const user = this.args.user?.value?.user || message.author;
 
             try {
                 const avatarURL = this.args.format ? user.displayAvatarURL({
                     format: this.args.format.value,
+                    dynamic: false,
                     size: 512
                 }) : user.displayAvatarURL({
                     dynamic: true,
                     size: 512
                 })
 
-				return await this.reply("success", "User avatar for <@" + user.id + ">.", {
-					image: {
-						url: avatarURL
-					}
-				});
-			} catch (e) {
-				return await this.reply("error", "Could not get user avatar in that format.");
-			}
+                return await this.reply("success", "User avatar for <@" + user.id + ">.", {
+                    image: {
+                        url: avatarURL
+                    }
+                });
+            } catch (e) {
+                return await this.reply("error", "Could not get user avatar in that format.");
+            }
         }
     }), new ModuleCommand({
         name: "Minecraft Server",
@@ -179,7 +220,7 @@ export default new BotModule({
                 })
             ])
         ],
-		example: "https://i.imgur.com/lrwVDxW.gif",
+        example: "https://i.imgur.com/lrwVDxW.gif",
         callback: async function GetMinecraftServerInformation(message) {
             await this.reply("success", "Loading information for server with ip `" + this.args.ip.value + "`");
 
@@ -237,7 +278,7 @@ export default new BotModule({
                 })
             ])
         ],
-		example: "https://i.imgur.com/9g9MLpV.gif",
+        example: "https://i.imgur.com/9g9MLpV.gif",
         callback: async function GetMinecraftUserInformation(message) {
             await this.reply("success", "Loading user information for `" + this.escape_c(this.args.username.value) + "`..");
 
@@ -291,7 +332,7 @@ export default new BotModule({
                 })
             ])
         ],
-		example: "https://i.imgur.com/3KWMiIC.gif",
+        example: "https://i.imgur.com/3KWMiIC.gif",
         callback: async function ResolveDomain(message) {
             try {
                 const dnsres = await dnslookup(this.args.domain.value);
@@ -322,60 +363,60 @@ export default new BotModule({
                 })
             ])
         ],
-		example: "https://i.imgur.com/qTWAl4k.gif",
+        example: "https://i.imgur.com/qTWAl4k.gif",
         callback: async function GeolocateIP(message) {
-			if (credentials.ipinfo) {
-				await this.reply("success", "Loading IP location information..");
+            if (credentials.ipinfo) {
+                await this.reply("success", "Loading IP location information..");
 
-				let ip = this.args.ip.value;
+                let ip = this.args.ip.value;
 
-				if (this.args.ip.type.name === "Domain") {
-					try {
-						const dnsres = await dnslookup(ip);
-						
-						ip = dnsres.address;
-					} catch (e) {
-						if (e.code === "ENOTFOUND") {
-							return await this.edit("error", "Could not resolve domain.");
-						}
+                if (this.args.ip.type.name === "Domain") {
+                    try {
+                        const dnsres = await dnslookup(ip);
+                        
+                        ip = dnsres.address;
+                    } catch (e) {
+                        if (e.code === "ENOTFOUND") {
+                            return await this.edit("error", "Could not resolve domain.");
+                        }
 
-						throw e;
-					}
-				}
-			
-				const locate = await fetch("http://ipinfo.io/" + encodeURIComponent(ip) + "?token=" + credentials.ipinfo);
+                        throw e;
+                    }
+                }
+            
+                const locate = await fetch("http://ipinfo.io/" + encodeURIComponent(ip) + "?token=" + credentials.ipinfo);
 
-				if (locate.status === 200) {
-					const json = await locate.json();
+                if (locate.status === 200) {
+                    const json = await locate.json();
 
-					if (!json.bogon) {
-						return await this.edit("success", "Location information for `" + json.ip + "`.", {
-							fields: [
-								{
-									title: "Location",
-									body: [json.postal, json.city, json.region, json.country].filter(_ => _).join(", ")
-								},
-								{
-									title: "Latitude/Longitude",
-									body: "`" + json.loc + "`"
-								},
-								{
-									title: "Organisation",
-									body: json.org
-								}
-							],
-							footer: "Provided by ipinfo.io"
-						});
-					} else {
-						return await this.edit("error", "Could not locate ip.");
-					}
-				} else {
-					return await this.edit("error", "Could not locate ip.");
-				}
-			} else {
-				console.error("ipinfo API key isn't set up for this bot.");
-				return await this.reply("error", "IP locate isn't set up for this bot, ask the bot administrator to set it up.");
-			}
+                    if (!json.bogon) {
+                        return await this.edit("success", "Location information for `" + json.ip + "`.", {
+                            fields: [
+                                {
+                                    title: "Location",
+                                    body: [json.postal, json.city, json.region, json.country].filter(_ => _).join(", ")
+                                },
+                                {
+                                    title: "Latitude/Longitude",
+                                    body: "`" + json.loc + "`"
+                                },
+                                {
+                                    title: "Organisation",
+                                    body: json.org
+                                }
+                            ],
+                            footer: "Provided by ipinfo.io"
+                        });
+                    } else {
+                        return await this.edit("error", "Could not locate ip.");
+                    }
+                } else {
+                    return await this.edit("error", "Could not locate ip.");
+                }
+            } else {
+                console.error("ipinfo API key isn't set up for this bot.");
+                return await this.reply("error", "IP locate isn't set up for this bot, ask the bot administrator to set it up.");
+            }
         }
     }), new ModuleCommand({
         name: "Steam User",
@@ -396,7 +437,7 @@ export default new BotModule({
                 })
             ])
         ],
-		example: "https://i.imgur.com/K27oU5B.gif",
+        example: "https://i.imgur.com/K27oU5B.gif",
         callback: async function GetSteamUser(message) {
             await this.reply("success", "Loading steam user information..");
 
@@ -462,7 +503,7 @@ export default new BotModule({
                     name: "scale",
                     description: "The scale factor to enlarge the image by.",
                     emoji: "⏫",
-                    types: [ArgumentType.Integer],
+                    types: [ArgumentType.Scalar],
                     optional: true,
                     default: 4
                 })
@@ -479,7 +520,7 @@ export default new BotModule({
                     name: "scalex",
                     description: "The scale factor to enlarge the image by horizontally.",
                     emoji: "⏩",
-                    types: [ArgumentType.Integer],
+                    types: [ArgumentType.Scalar],
                     optional: true,
                     default: 4
                 }),
@@ -487,51 +528,59 @@ export default new BotModule({
                     name: "scaley",
                     description: "The scale factor to enlarge the image by vertically.",
                     emoji: "⏫",
-                    types: [ArgumentType.Integer],
+                    types: [ArgumentType.Scalar],
                     optional: true,
                     default: 4
                 })
             ])
         ],
-		example: "https://i.imgur.com/Sf6kXlB.gif",
+        example: "https://i.imgur.com/Sf6kXlB.gif",
         callback: async function EnlargeImage(message) {
-            await this.reply("success", "Enlarging image..");
-
-            let image = message.attachments.first()?.attachment || this.args.url?.value;
+            let image = this.args.url?.value || message.attachments.first()?.attachment || await get_last_image(message.channel);
 
             let scalex = this.args.scalex?.value || this.args.scale?.value || 4;
             let scaley = this.args.scaley?.value || this.args.scale?.value || 4;
 
-            try {
-                const sh = sharp(await (await fetch(image)).buffer());
-                const meta = await sh.metadata();
-
-                sh.resize(Math.round(meta.width * scalex), Math.round(meta.height * scaley), {
-                    fit: "fill"
-                });
-
-                const buf = await sh.toBuffer();
-
+            if (image) {
                 try {
-                    if (Buffer.byteLength(buf) < 8589934592) {
-                        await this.edit("success", "Uploading image..");
-
-                        const re = await message.channel.send("", {
-                            files: [{
-                                attachment: buf,
-                                name: "image." + meta.format
-                            }]
-                        });
-
-                        await this.edit("success", "Successfully enlarged Image.");
-                    } else {
-                        return await this.edit("error", "Resulting image was too large.");
+                    await this.reply("success", "Enlarging image..");
+                    
+                    const sh = sharp(await (await fetch(image)).buffer());
+                    const meta = await sh.metadata();
+    
+                    sh.resize(Math.round(meta.width * scalex), Math.round(meta.height * scaley), {
+                        fit: "fill"
+                    });
+    
+                    const buf = await sh.toBuffer();
+    
+                    try {
+                        if (Buffer.byteLength(buf) < 8388608) { // 8 MB
+                            const meta = await sh.metadata();
+                            
+                            await this.edit("success", "Uploading image..");
+    
+                            await message.channel.send("", {
+                                files: [{
+                                    attachment: buf,
+                                    name: "image." + meta.format
+                                }]
+                            });
+    
+                            await this.edit("success", "Successfully enlarged Image.");
+                        } else {
+                            return await this.edit("error", "Resulting image was too large.");
+                        }
+                    } catch (e) {
+                        return await this.edit("error", "Could not upload image.");
                     }
                 } catch (e) {
+                    console.log(e);
 
+                    return await this.edit("error", "Could not load image.");
                 }
-            } catch (e) {
-                return await this.edit("error", "Could not load image.");
+            } else {
+                return await this.edit("error", "No image provided.");
             }
         }
     }), new ModuleCommand({
@@ -548,7 +597,7 @@ export default new BotModule({
                 })
             ])
         ],
-		example: "https://i.imgur.com/ZHfsYfx.gif",
+        example: "https://i.imgur.com/ZHfsYfx.gif",
         callback: async function SendFakeDDoS(message) {
             if (ddos[message.guild.id]) {
                 return await this.reply("error", "Please wait for the current attack to finish.");
@@ -850,79 +899,79 @@ export default new BotModule({
                 })
             ])
         ],
-		example: "https://i.imgur.com/P1GEO5b.gif",
+        example: "https://i.imgur.com/P1GEO5b.gif",
         callback: async function GetLichessUser(message) {
-			const service = client.AccountService;
+            const service = client.AccountService;
 
-			const account = this.args.user?.type === ArgumentType.Mention ?
-				await service.getAccount(this.args.user.value.user) :
-				await service.getAccount(message.author);
+            const account = this.args.user?.type === ArgumentType.Mention ?
+                await service.getAccount(this.args.user.value.user) :
+                await service.getAccount(message.author);
 
-			const username = this.args.user?.type === ArgumentType.Any ? this.args.user.value : null;
+            const username = this.args.user?.type === ArgumentType.Any ? this.args.user.value : null;
 
-			if (!username && !account.connections.lichess) {
-				if (!this.args.user) {
-					return await this.reply("error", "You do not have a lichess account connected. [Click here to link your account](" + process.env.BASE_API + "/account/connections/lichess)");
-				} else {
-					return await this.reply("error", "That user does not have a lichess account connected.");
-				}
-			}
+            if (!username && !account.connections.lichess) {
+                if (!this.args.user) {
+                    return await this.reply("error", "You do not have a lichess account connected. [Click here to link your account](" + process.env.BASE_API + "/account/connections/lichess)");
+                } else {
+                    return await this.reply("error", "That user does not have a lichess account connected.");
+                }
+            }
 
-			try {
-				const client = new lichess.Client(await account.connections.lichess?.token());
-				const user = await client.getUser(username);
+            try {
+                const client = new lichess.Client(await account.connections.lichess?.token());
+                const user = await client.getUser(username);
 
-				return await this.reply("success", "User profile for [@" + user.username + "](" + lichess.Client.BASE_URL + "/@/" + user.id + ").", {
-					fields: [
-						{
-							title: "Join Date",
-							body: new Date(user.createdAt).toISOString(),
-							inline: true
-						},
-						{
-							title: p(user.followers, "follower"),
-							body: "Following: " + user.following,
-							inline: true
-						},
-						{
-							title: "Ratings",
-							body: `
+                return await this.reply("success", "User profile for [@" + user.username + "](" + lichess.Client.BASE_URL + "/@/" + user.id + ").", {
+                    fields: [
+                        {
+                            title: "Join Date",
+                            body: new Date(user.createdAt).toISOString(),
+                            inline: true
+                        },
+                        {
+                            title: p(user.followers, "follower"),
+                            body: "Following: " + user.following,
+                            inline: true
+                        },
+                        {
+                            title: "Ratings",
+                            body: `
 **Blitz:** ${user.perfs.blitz.rating}
 **Bullet:** ${user.perfs.bullet.rating}
 **Correspondence:** ${user.perfs.correspondence.rating}
 **Classical:** ${user.perfs.classical.rating}
 **Rapid:** ${user.perfs.rapid.rating}
 `.trim()
-						},
-						...(user.profile?.links ? [{
-							title: "Social links",
-							body: user.profile.links.map(link => /^https?\:\/\//.test(link) ? link : "https://" + link).join("\n"),
-							inline: true
-						}] : []),
-						...(user.profile?.country ? [{
-							title: "Country",
-							body: user.profile.country,
-							inline: true
-						}] : [])
-					]
-				});
-			} catch (e) {
-				if (e.status === 429) {
-					return await this.reply("error", "Could not get user, please wait a few minutes.");
-				} else if (e.status === 404 || e.status === 401) {
-					if (!username && !this.args.user) {
-						delete account.connections.lichess;
+                        },
+                        ...(user.profile?.links ? [{
+                            title: "Social links",
+                            body: user.profile.links.map(link => /^https?\:\/\//.test(link) ? link : "https://" + link).join("\n"),
+                            inline: true
+                        }] : []),
+                        ...(user.profile?.country ? [{
+                            title: "Country",
+                            body: user.profile.country,
+                            inline: true
+                        }] : [])
+                    ]
+                });
+            } catch (e) {
+                if (e.status === 429) {
+                    return await this.reply("error", "Could not get user, please wait a few minutes.");
+                } else if (e.status === 404 || e.status === 401) {
+                    if (!username && !this.args.user) {
+                        delete account.connections.lichess;
 
-						await account.save();
-					} else {
-						return await this.reply("error", "Could not find user.");
-					}
-				} else {
-					console.log(e);
+                        await account.save();
+                    } else {
+                        return await this.reply("error", "Could not find user.");
+                    }
+                } else {
+                    console.log(e);
 
-					return await this.reply("error", "Could not get user, please try again later");
-				}
-			}
+                    return await this.reply("error", "Could not get user, please try again later");
+                }
+            }
         }
     }),
     new ModuleCommand({
@@ -1123,8 +1172,8 @@ export default new BotModule({
         }
     }),
     new ModuleCommand({
-    	name: "Apex Legends",
-    	descriptions: "Get statistics for a user on Apex Legends.",
+        name: "Apex Legends",
+        descriptions: "Get statistics for a user on Apex Legends.",
         emoji: "<:apex:" + config.emoji.apex + ">",
         versions: [],
         callback: async function GetApexStats(message) {
@@ -1147,7 +1196,7 @@ export default new BotModule({
                 })
             ])
         ],
-		example: "https://i.imgur.com/IEE5RsU.gif",
+        example: "https://i.imgur.com/IEE5RsU.gif",
         callback: async function DictionaryDefinition(message) {
             const res = await fetch("https://api.dictionaryapi.dev/api/v1/entries/en/" + encodeURIComponent(this.args.word.value));
 
@@ -1208,7 +1257,7 @@ export default new BotModule({
                 if (json.title !== "No Definitions Found") {
                     if (json[0].phonetics) {
                         const first = json[0].phonetics[0].text;
-						
+                        
                         const pron = await fetch("https://iawll6of90.execute-api.us-east-1.amazonaws.com/production", {
                             method: "POST",
                             headers: {
@@ -1232,7 +1281,7 @@ export default new BotModule({
             }
         },
         hidden: true,
-		beta: true
+        beta: true
     }),
     new ModuleCommand({
         name: "Urban Dictionary",
@@ -1249,7 +1298,7 @@ export default new BotModule({
                 })
             ])
         ],
-		example: "https://i.imgur.com/8QYUEFG.gif",
+        example: "https://i.imgur.com/8QYUEFG.gif",
         callback: async function UrbanDictionaryDefinition(message) {
             if (this.args.word) {
                 try {
@@ -1412,7 +1461,7 @@ export default new BotModule({
         name: "Hyperscape",
         description: "Get stats for a player on hyperscape.",
         emoji: "<:hyperscape:" + config.emoji.hyperscape + ">",
-		example: "https://i.imgur.com/RcunoVk.gif",
+        example: "https://i.imgur.com/RcunoVk.gif",
         versions: [
             new CommandVersion(["hyperscape", "hsstats", "hs"], [
                 new CommandArgument({
@@ -1749,7 +1798,7 @@ ${format_compare_stat("fusions_per_match", "Fusions per match", true, true)}
             ])
         ],
         delay: 15000,
-		example: "https://i.imgur.com/mqdubgi.gif",
+        example: "https://i.imgur.com/mqdubgi.gif",
         callback: async function SecureJavascript(message) {
             try {
                 if (evals[message.guild.id]) {
