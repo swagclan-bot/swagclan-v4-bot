@@ -1446,7 +1446,7 @@ export class CommandSyntax extends CommandArgument {
  */
 export class ArgumentType {
     static Rest = new ArgumentType({
-        name: "Rest",
+        name: "Message",
         description: "The rest of the message.",
         examples: [],
         validate: /^(\s|\S)+$/
@@ -1549,6 +1549,20 @@ export class ArgumentType {
         validate: /^\d+$/,
         parse: async function (message, text) {
             return parseInt(text);
+        }
+    });
+    
+    /**
+     * A floating point number.
+     * @type {ArgumentType}
+     */
+    static Float = new ArgumentType({
+        name: "Float",
+        description: "A floating point number.",
+        examples: ["95.32", "5.92"], 
+        validate: /^-?\d+\.\d+$/,
+        parse: async function (message, text) {
+            return parseFloat(text);
         }
     });
     

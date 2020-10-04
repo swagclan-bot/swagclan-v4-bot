@@ -1,7 +1,14 @@
 // Imports
 import { BotModule, ModuleCommand, MessageMatcher, CommandVersion, CommandArgument, CommandSyntax, ArgumentType } from "../../../service/ModuleService.js"
+import Jimp from "jimp"
 import sharp from "sharp"
 import fetch from "node-fetch"
+import configure from "@jimp/custom"
+import fisheyePlugin from "@jimp/plugin-fisheye"
+
+configure({
+    plugins: [fisheyePlugin]
+}, Jimp)
 
 /** @param {discord.TextChannel} channel */
 async function get_last_image(channel) {
@@ -41,13 +48,32 @@ async function get_last_image(channel) {
     return null;
 }
 
-async function apply_effects(image, callback) {
-    const sh = sharp(await (await fetch(image)).buffer());
+async function get_image(image) {
+    const original = await (await fetch(image)).buffer();
+
+    const sh = sharp(original);
     const meta = await sh.metadata();
 
-    callback(meta, sh);
+    if (meta.format === "webp" || meta.format === "svg") {
+        return await sh.toFormat("png").toBuffer();
+    }
 
-    const buffer = await sh.toBuffer();
+    return await sh.toBuffer();
+}
+
+async function apply_effects(image, callback) {
+    const img = await Jimp.read(await get_image(image));
+
+    const meta = {
+        width: img.getWidth(),
+        height: img.getHeight(),
+        ext: img.getExtension(),
+        mime: img.getMIME()
+    }
+
+    await callback(meta, img);
+
+    const buffer = await img.getBufferAsync(Jimp.AUTO);
 
     return {
         meta,
@@ -117,6 +143,8 @@ export default new BotModule({
 
                 if (image) {
                     try {
+                        await this.reply("info", "Enlarging image..");
+
                         const img = await apply_effects(image, (meta, img) => {
                             img.resize(Math.round(meta.width * scalex), Math.round(meta.height * scaley), {
                                 fit: "fill"
@@ -130,7 +158,7 @@ export default new BotModule({
                                 await message.channel.send("", {
                                     files: [{
                                         attachment: img.buffer,
-                                        name: "image." + img.meta.format
+                                        name: "image." + img.meta.ext
                                     }]
                                 });
 
@@ -185,11 +213,13 @@ export default new BotModule({
 
                 if (image) {
                     try {
+                        await this.reply("info", "Flipping image..");
+
                         const img = await apply_effects(image, (meta, img) => {
                             if (this.args.axis.value === "y") {
-                                img.flop();
+                                img.flip(true, false);
                             } else {
-                                img.flip();
+                                img.flip(false, true);
                             }
                         });
                         
@@ -200,7 +230,7 @@ export default new BotModule({
                                 await message.channel.send("", {
                                     files: [{
                                         attachment: img.buffer,
-                                        name: "image." + img.meta.format
+                                        name: "image." + img.meta.ext
                                     }]
                                 });
 
@@ -222,27 +252,29 @@ export default new BotModule({
             }
         }),
         new ModuleCommand({
-            name: "Negate",
-            description: "Negate the colours of the last image, an attached image or a linked image.",
+            name: "Invert",
+            description: "Invert the colours of the last image, an attached image or a linked image.",
             emoji: "🖼",
             versions: [
-                new CommandVersion(["negate"], [
+                new CommandVersion(["invert", "negate"], [
                     new CommandArgument({
                         name: "url",
-                        description: "The URL of the image to negate.",
+                        description: "The URL of the image to invert.",
                         emoji: "⛓",
                         types: [ArgumentType.ImageURL],
                         optional: true
                     })
                 ]),
             ],
-            callback: async function NegateImage(message) {
+            callback: async function InvertImage(message) {
                 let image = this.args.url?.value || message.attachments.first()?.attachment || await get_last_image(message.channel);
 
                 if (image) {
                     try {
+                        await this.reply("info", "Inverting image..");
+
                         const img = await apply_effects(image, (meta, img) => {
-                            img.negate();
+                            img.invert();
                         });
                         
                         try {
@@ -252,11 +284,11 @@ export default new BotModule({
                                 await message.channel.send("", {
                                     files: [{
                                         attachment: img.buffer,
-                                        name: "image." + img.meta.format
+                                        name: "image." + img.meta.ext
                                     }]
                                 });
 
-                                await this.edit("success", "Successfully negated image.");
+                                await this.edit("success", "Successfully inverted image.");
                             } else {
                                 return await this.edit("error", "Resulting image was too large.");
                             }
@@ -281,7 +313,7 @@ export default new BotModule({
                 new CommandVersion(["rotate", "rot"], [
                     new CommandArgument({
                         name: "url",
-                        description: "The URL of the image to negate.",
+                        description: "The URL of the image to rotate.",
                         emoji: "⛓",
                         types: [ArgumentType.ImageURL],
                         optional: true
@@ -301,15 +333,10 @@ export default new BotModule({
 
                 if (image) {
                     try {
+                        await this.reply("info", "Rotating image..");
+
                         const img = await apply_effects(image, (meta, img) => {
-                            img.rotate(this.args.degrees.value, {
-                                background: {
-                                    r: 0,
-                                    g: 0,
-                                    b: 0,
-                                    alpha: 0
-                                }
-                            });
+                            img.rotate(this.args.degrees.value);
                         });
                         
                         try {
@@ -319,11 +346,215 @@ export default new BotModule({
                                 await message.channel.send("", {
                                     files: [{
                                         attachment: img.buffer,
-                                        name: "image." + img.meta.format
+                                        name: "image." + img.meta.ext
                                     }]
                                 });
 
                                 await this.edit("success", "Successfully rotated image.");
+                            } else {
+                                return await this.edit("error", "Resulting image was too large.");
+                            }
+                        } catch (e) {
+                            console.log(e);
+
+                            return await this.edit("error", "Could not upload image.");
+                        }
+                    } catch (e) {
+                        console.log(e);
+
+                        return await this.edit("error", "Could not load image.");
+                    }
+                } else {
+                    return await this.edit("error", "No image provided.");
+                }
+            }
+        }),
+        new ModuleCommand({
+            name: "Greyscale",
+            description: "Convert the last image, an attached image or a linked image to greyscale.",
+            emoji: "🖼",
+            versions: [
+                new CommandVersion(["greyscale", "grey"], [
+                    new CommandArgument({
+                        name: "url",
+                        description: "The URL of the image to greyscale.",
+                        emoji: "⛓",
+                        types: [ArgumentType.ImageURL],
+                        optional: true
+                    })
+                ]),
+            ],
+            callback: async function GreyscaleImage(message) {
+                let image = this.args.url?.value || message.attachments.first()?.attachment || await get_last_image(message.channel);
+
+                if (image) {
+                    try {
+                        await this.reply("info", "Greyscaling image..");
+
+                        const img = await apply_effects(image, (meta, img) => {
+                            img.greyscale();
+                        });
+                        
+                        try {
+                            if (Buffer.byteLength(img.buffer) < 8388608) { // 8 MB
+                                await this.edit("success", "Uploading image..");
+
+                                await message.channel.send("", {
+                                    files: [{
+                                        attachment: img.buffer,
+                                        name: "image." + img.meta.ext
+                                    }]
+                                });
+
+                                await this.edit("success", "Successfully greyscaled image.");
+                            } else {
+                                return await this.edit("error", "Resulting image was too large.");
+                            }
+                        } catch (e) {
+                            console.log(e);
+
+                            return await this.edit("error", "Could not upload image.");
+                        }
+                    } catch (e) {
+                        console.log(e);
+
+                        return await this.edit("error", "Could not load image.");
+                    }
+                } else {
+                    return await this.edit("error", "No image provided.");
+                }
+            }
+        }),
+        new ModuleCommand({
+            name: "Crop",
+            description: "Crop the last image, an attached image or a linked image to a given boundary.",
+            emoji: "🖼",
+            versions: [
+                new CommandVersion(["crop"], [
+                    new CommandArgument({
+                        name: "url",
+                        description: "The URL of the image to crop.",
+                        emoji: "⛓",
+                        types: [ArgumentType.ImageURL],
+                        optional: true
+                    }),
+                    new CommandArgument({
+                        name: "x",
+                        description: "The x of the boundary starting position.",
+                        emoji: "▶",
+                        types: [ArgumentType.UnsignedInteger],
+                        optional: true
+                    }),
+                    new CommandArgument({
+                        name: "🔽",
+                        description: "The y of the boundary starting position.",
+                        emoji: "⛓",
+                        types: [ArgumentType.UnsignedInteger],
+                        optional: true
+                    }),
+                    new CommandArgument({
+                        name: "📏",
+                        description: "The width of the boundary starting position.",
+                        emoji: "⛓",
+                        types: [ArgumentType.UnsignedInteger],
+                        optional: true
+                    }),
+                    new CommandArgument({
+                        name: "📏",
+                        description: "The height of the boundary starting position.",
+                        emoji: "⛓",
+                        types: [ArgumentType.UnsignedInteger],
+                        optional: true
+                    })
+                ]),
+            ],
+            callback: async function CropImage(message) {
+                let image = this.args.url?.value || message.attachments.first()?.attachment || await get_last_image(message.channel);
+
+                if (image) {
+                    try {
+                        await this.reply("info", "Cropping image..");
+
+                        const img = await apply_effects(image, (meta, img) => {
+                            img.crop(this.args.x.value, this.args.y.value, this.args.width.value, this.args.height.value);
+                        });
+                        
+                        try {
+                            if (Buffer.byteLength(img.buffer) < 8388608) { // 8 MB
+                                await this.edit("success", "Uploading image..");
+
+                                await message.channel.send("", {
+                                    files: [{
+                                        attachment: img.buffer,
+                                        name: "image." + img.meta.ext
+                                    }]
+                                });
+
+                                await this.edit("success", "Successfully cropped image.");
+                            } else {
+                                return await this.edit("error", "Resulting image was too large.");
+                            }
+                        } catch (e) {
+                            console.log(e);
+
+                            return await this.edit("error", "Could not upload image.");
+                        }
+                    } catch (e) {
+                        console.log(e);
+
+                        return await this.edit("error", "Could not load image.");
+                    }
+                } else {
+                    return await this.edit("error", "No image provided.");
+                }
+            }
+        }),
+        new ModuleCommand({
+            name: "Fisheye",
+            description: "Create a fisheye effect on the last image, an attached image or a linked image.",
+            emoji: "🖼",
+            versions: [
+                new CommandVersion(["fisheye"], [
+                    new CommandArgument({
+                        name: "url",
+                        description: "The URL of the image to fisheye.",
+                        emoji: "⛓",
+                        types: [ArgumentType.ImageURL],
+                        optional: true
+                    }),
+                    new CommandArgument({
+                        name: "radius",
+                        description: "The fisheye radius.",
+                        emoji: "📏",
+                        types: [ArgumentType.Float],
+                        optional: true,
+                        default: 1.6
+                    })
+                ]),
+            ],
+            callback: async function FisheyeImage(message) {
+                let image = this.args.url?.value || message.attachments.first()?.attachment || await get_last_image(message.channel);
+
+                if (image) {
+                    try {
+                        await this.reply("info", "Applying fisheye to image..");
+
+                        const img = await apply_effects(image, (meta, img) => {
+                            img.fisheye({ r: this.args.radius.value })
+                        });
+                        
+                        try {
+                            if (Buffer.byteLength(img.buffer) < 8388608) { // 8 MB
+                                await this.edit("success", "Uploading image..");
+
+                                await message.channel.send("", {
+                                    files: [{
+                                        attachment: img.buffer,
+                                        name: "image." + img.meta.ext
+                                    }]
+                                });
+
+                                await this.edit("success", "Successfully created fisheye effect on image.");
                             } else {
                                 return await this.edit("error", "Resulting image was too large.");
                             }

@@ -1,7 +1,6 @@
 // Imports
 import { BotModule, ModuleCommand, MessageMatcher, CommandVersion, CommandArgument, CommandSyntax, ArgumentType } from "../../../service/ModuleService.js"
 import dns from "dns"
-import sharp from "sharp"
 import numeral from "numeral"
 import fetch from "node-fetch"
 import path from "path"
