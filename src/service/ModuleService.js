@@ -1539,7 +1539,7 @@ export class ArgumentType {
     });
 
     /**
-     * An integer.
+     * A positive integer.
      * @type {ArgumentType}
      */
     static UnsignedInteger = new ArgumentType({
@@ -1553,7 +1553,21 @@ export class ArgumentType {
     });
     
     /**
-     * An integer range.
+     * A negative or positive number.
+     * @type {ArgumentType}
+     */
+    static Integer = new ArgumentType({
+        name: "Integer",
+        description: "A whole number.",
+        examples: ["95"], 
+        validate: /^-?\d+$/,
+        parse: async function (message, text) {
+            return parseInt(text);
+        }
+    });
+    
+    /**
+     * An positive integer range.
      * @type {ArgumentType}
      */
     static UnsignedIntegerRange = new ArgumentType({
@@ -1572,7 +1586,7 @@ export class ArgumentType {
     });
     
     /**
-     * An integer range.
+     * A negative or positive integer range.
      * @type {ArgumentType}
      */
     static IntegerRange = new ArgumentType({
@@ -1712,20 +1726,6 @@ export class ArgumentType {
         description: "An IPv4 or IPv6 IP address.",
         examples: ["127.0.0.1"],
         validate: /^((^\s*((([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]))\s*$)|(^\s*((([0-9A-Fa-f]{1,4}:){7}([0-9A-Fa-f]{1,4}|:))|(([0-9A-Fa-f]{1,4}:){6}(:[0-9A-Fa-f]{1,4}|((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3})|:))|(([0-9A-Fa-f]{1,4}:){5}(((:[0-9A-Fa-f]{1,4}){1,2})|:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3})|:))|(([0-9A-Fa-f]{1,4}:){4}(((:[0-9A-Fa-f]{1,4}){1,3})|((:[0-9A-Fa-f]{1,4})?:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){3}(((:[0-9A-Fa-f]{1,4}){1,4})|((:[0-9A-Fa-f]{1,4}){0,2}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){2}(((:[0-9A-Fa-f]{1,4}){1,5})|((:[0-9A-Fa-f]{1,4}){0,3}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){1}(((:[0-9A-Fa-f]{1,4}){1,6})|((:[0-9A-Fa-f]{1,4}){0,4}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(:(((:[0-9A-Fa-f]{1,4}){1,7})|((:[0-9A-Fa-f]{1,4}){0,5}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:)))(%.+)?\s*$))/
-    });
-
-    /**
-     * A negative or positive number.
-     * @type {ArgumentType}
-     */
-    static Integer = new ArgumentType({
-        name: "Integer",
-        description: "A whole number.",
-        examples: ["95"], 
-        validate: /^-?\d+$/,
-        parse: async function (message, text) {
-            return parseInt(text);
-        }
     });
 
     /**

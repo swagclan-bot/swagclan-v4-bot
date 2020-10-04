@@ -34,48 +34,9 @@ const ddos = {};
 
 const evals = {};
 
-
-/** @param {discord.TextChannel} channel */
-async function get_last_image(channel) {
-    function get_message_embed_image(message) {
-        // Reverse embed list to get the last embed with the image instead of the first.
-        return message.embeds.reverse().find(embed => embed.image?.url)?.image?.url;
-    }
-
-    // Sort all messages in channel by when they were created, probably slow.
-    const messages_sorted = channel.messages.cache.filter(message => !message.deleted).sorted((messagea, messageb) => messageb.createdTimestamp - messagea.createdTimestamp).first(20);
-
-    const last_message = messages_sorted.find(val => {
-        if (get_message_embed_image(val)) {
-            return true;
-        }
-        
-        // Check attachments in image.
-        if (val.attachments.last()?.attachment) {
-            return true;
-        }
-
-        // Check image URLs in image.
-        if (val.content.match(ArgumentType.ImageURL._validate)) {
-            return true;
-        }
-
-        return false;
-    });
-
-    if (last_message) {
-        // Return the image that was found, whether in an embed or as an attachment.
-        return get_message_embed_image(last_message) ||
-            last_message.attachments.first()?.attachment ||
-            last_message.content.match(RegExp(ArgumentType.ImageURL._validate, "g"))?.reverse()?.[0];
-    }
-
-    return null;
-}
-
 export default new BotModule({
     name: "Utils",
-    description: "A module for information and other utilities.",
+    description: "Information commands and other utilities.",
     emoji: "🗃",
     commands: [new ModuleCommand({
         name: "User Info",
@@ -486,104 +447,8 @@ export default new BotModule({
                 return await this.edit("error", "Could not find steam account.");
             }
         }
-    }), new ModuleCommand({
-        name: "Enlarge",
-        description: "Enlarge an attached or linked image by a given scale factor.",
-        emoji: "🖼",
-        versions: [
-            new CommandVersion(["enlarge", "scale"], [
-                new CommandArgument({
-                    name: "url",
-                    description: "The URL of the image to enlarge.",
-                    emoji: "⛓",
-                    types: [ArgumentType.ImageURL],
-                    optional: true
-                }),
-                new CommandArgument({
-                    name: "scale",
-                    description: "The scale factor to enlarge the image by.",
-                    emoji: "⏫",
-                    types: [ArgumentType.Scalar],
-                    optional: true,
-                    default: 4
-                })
-            ]),
-            new CommandVersion(["enlarge", "scale"], [
-                new CommandArgument({
-                    name: "url",
-                    description: "The URL of the image to enlarge.",
-                    emoji: "⛓",
-                    types: [ArgumentType.ImageURL],
-                    optional: true
-                }),
-                new CommandArgument({
-                    name: "scalex",
-                    description: "The scale factor to enlarge the image by horizontally.",
-                    emoji: "⏩",
-                    types: [ArgumentType.Scalar],
-                    optional: true,
-                    default: 4
-                }),
-                new CommandArgument({
-                    name: "scaley",
-                    description: "The scale factor to enlarge the image by vertically.",
-                    emoji: "⏫",
-                    types: [ArgumentType.Scalar],
-                    optional: true,
-                    default: 4
-                })
-            ])
-        ],
-        example: "https://i.imgur.com/Sf6kXlB.gif",
-        callback: async function EnlargeImage(message) {
-            let image = this.args.url?.value || message.attachments.first()?.attachment || await get_last_image(message.channel);
-
-            let scalex = this.args.scalex?.value || this.args.scale?.value || 4;
-            let scaley = this.args.scaley?.value || this.args.scale?.value || 4;
-
-            if (image) {
-                try {
-                    await this.reply("success", "Enlarging image..");
-                    
-                    const sh = sharp(await (await fetch(image)).buffer());
-                    const meta = await sh.metadata();
-    
-                    sh.resize(Math.round(meta.width * scalex), Math.round(meta.height * scaley), {
-                        fit: "fill"
-                    });
-    
-                    const buf = await sh.toBuffer();
-    
-                    try {
-                        if (Buffer.byteLength(buf) < 8388608) { // 8 MB
-                            const meta = await sh.metadata();
-                            
-                            await this.edit("success", "Uploading image..");
-    
-                            await message.channel.send("", {
-                                files: [{
-                                    attachment: buf,
-                                    name: "image." + meta.format
-                                }]
-                            });
-    
-                            await this.edit("success", "Successfully enlarged Image.");
-                        } else {
-                            return await this.edit("error", "Resulting image was too large.");
-                        }
-                    } catch (e) {
-                        return await this.edit("error", "Could not upload image.");
-                    }
-                } catch (e) {
-                    console.log(e);
-
-                    return await this.edit("error", "Could not load image.");
-                }
-            } else {
-                return await this.edit("error", "No image provided.");
-            }
-        }
-    }), new ModuleCommand({
+    }),
+    new ModuleCommand({
         name: "DDoS",
         description: "Send a DDoS attack to a user on the server.",
         emoji: "📡",
