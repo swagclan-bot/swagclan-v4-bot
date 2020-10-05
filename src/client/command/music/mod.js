@@ -119,19 +119,72 @@ export default new BotModule({
                         name: "song",
                         description: "The song to remove.",
                         emoji: "🎞",
-                        types: [ArgumentType.Text, ArgumentType.UnsignedInteger],
+                        types: [ArgumentType.UnsignedInteger, ArgumentType.Text],
                         optional: true
                     })
                 ])
             ],
-            callback: async function SkipSong(message) {
+            callback: async function RemoveSongs(message) {
                 const player = client.MusicService.getPlayer(message.guild);
 
-                if (player.queue[player.current]) {
+                if (this.args.song) {
+                    const index = this.args.song.type === ArgumentType.UnsignedInteger ?
+                        this.args.song.value - 1:
+                        player.queue.findIndex(song => ~song.data.name.toLowerCase().indexOf(this.args.song.value));
 
-                    return await this.reply("success", "Successfully skipped " + p(this.args.amount.value, "song") + ".")
-                } else {
-                    return await this.reply("success", "There is no song to skip.");
+                    const song = player.queue[index];
+
+                    if (this.args.song.type === ArgumentType.Text && !~index) {
+                        return await this.reply("error", "Song not found.");
+                    }
+
+                    if (index < 1 || index > player.queue.length) {
+                        return await this.reply("error", "Song out of range.");
+                    }
+
+                    player.queue.splice(index, 1);
+
+                    if (player.current === index) {
+                        player.skip();
+
+                        player.current--;
+                    } else if (this.current > index) {
+                        player.current--;
+                    }
+
+                    return await this.reply("success", "Removed song from queue.", {
+                        fields: [song.displaySnippet()]
+                    });
+                } else if (this.args.songs) {
+                    const song = this.args.songs.value.min;
+                    const songs = this.args.songs.value.max - this.args.songs.value.min;
+                }
+
+                const song = this.args.songs ? this.args.songs.value.min : this.args.song.value;
+                const songs = this.args.songs ? this.args.songs.value.max - this.args.songs.value.min : 1;
+
+                if (song < 1 || song + songs > player.queue.length + 1) {
+                    if (this.args.songs) {
+                        return await this.reply("error", "Songs out of range.");
+                    } else {
+                        return await this.reply("error", "Song out of range.");
+                    }
+                }
+
+                player.queue.splice(song - 1, songs);
+
+                let doSkip = player.current >= song && player.current < song + songs;
+
+                if (this.current >= song) {
+                    if (this.current < song + songs) {
+                        this.current -= (this.current - (song + 1));
+                    } else {
+                        this.current -= songs;
+                    }
+                }
+
+                if (doSkip) {
+                    player.skip();
                 }
             }
         })

@@ -1756,11 +1756,13 @@ ${format_compare_stat("fusions_per_match", "Fusions per match", true, true)}
                     "https:" + mediajson.items?.[0]?.srcset?.[0]?.src
                     : null;
 
+                const extract = pagejson.extract.length > 1024 ? pagejson.extract.substr(0, 1000) + "..." : pagejson.extract;
+
                 return await this.reply("success", "", {
                     fields: [
                         {
-                            title: pagejson.titles.display,
-                            body: pagejson.extract
+                            title: pagejson.titles.normalized,
+                            body: extract
                         }
                     ],
                     ...(image ? { thumbnail: {
