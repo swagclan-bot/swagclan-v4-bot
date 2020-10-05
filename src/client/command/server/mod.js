@@ -178,6 +178,8 @@ export default new BotModule({
 
                         return false;
                     }
+
+                    return true;
                 });
 
                 message.channel.bulkDelete(purge_messages);
