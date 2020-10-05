@@ -80,14 +80,14 @@ export default new CustomCommandRuleGroup({
                     const collection = storage.collections.get(name);
 
                     if (collection) {
-                        return collection.items.get(item).value;
+                        return collection.items.get(item)?.value;
                     } else {
                         const collection = storage.createCollection(name);
                         
                         await storage.save();
 
                         if (collection) {
-                            return collection.items.get(item).value;
+                            return collection.items.get(item)?.value;
                         }
                     }
                 }

@@ -10,6 +10,17 @@ export default new CustomCommandRuleGroup({
     colour: "#3fbf8e",
     rules: [
         new CustomCommandRule({
+            id: "9ccbf9d8-284d-420b-9e9f-f37f69c29e58",
+            name: "RegExp %",
+            description: "Create a regex pattern from a string.",
+            params: ["string"],
+            callback: function CreateRegex(str) {
+                return RegExp(str);
+            },
+            fallback: false,
+            returns: "regex"
+        }),
+        new CustomCommandRule({
             id: "c135b760-9a39-432e-9e24-e7acab21b4d1",
             name: "Join %%",
             description: "Join two strings together.",
@@ -57,7 +68,7 @@ export default new CustomCommandRuleGroup({
             id: "e20d738d-edc4-4c11-aa9f-a0cc3fa9b907",
             name: "% matches %",
             description: "Check if a string matches a regex.",
-            params: ["string", "string"],
+            params: ["string", "regex"],
             callback: function StringMatchesRegex(str, regex) {
                 try {
                     return RegExp(regex).test(str);
@@ -94,7 +105,7 @@ export default new CustomCommandRuleGroup({
             id: "04d886d6-808c-4527-9613-e50be4154c69",
             name: "Number of matches for % in %",
             description: "Get the number of occurances of a regex match inside another string.",
-            params: ["string", "string"],
+            params: ["regex", "string"],
             callback: function MatchCount(str, substr) {
                 return str.match(RegExp(substr, "g"))?.length || 0;
             },
@@ -166,6 +177,17 @@ export default new CustomCommandRuleGroup({
             },
             fallback: "",
             returns: "string"
-        })
+        }),
+        new CustomCommandRule({
+            id: "848db885-363f-4636-b283-7e6020113c02",
+            name: "Replace matches of % in % with %",
+            description: "Replace all occurances of a regex match inside a string with a different string.",
+            params: ["regex", "string", "string"],
+            callback: function ReplaceMatches(regex, str, substr) {
+                return str.replace(RegExp(regex, "g"), substr);
+            },
+            fallback: "",
+            returns: "string"
+        }),
     ]
 });

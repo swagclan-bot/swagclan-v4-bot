@@ -34,7 +34,7 @@ export default new CustomCommandRuleGroup({
             description: "Get the id of a role.",
             params: ["role"],
             callback: function IDOfRole(role) {
-                return role.id;
+                return role?.id;
             },
             fallback: "",
             returns: "string"
@@ -45,7 +45,7 @@ export default new CustomCommandRuleGroup({
             description: "Get the name of a role.",
             params: ["role"],
             callback: function NameOfRole(role) {
-                return role.name;
+                return role?.name;
             },
             fallback: "",
             returns: "string"
@@ -56,7 +56,7 @@ export default new CustomCommandRuleGroup({
             description: "Get the hex colour of a role.",
             params: ["role"],
             callback: function ColourOfRole(role) {
-                return "#" + role.color.toString(16);
+                return "#" + role?.color.toString(16);
             },
             fallback: "#000000",
             returns: "number"
@@ -67,7 +67,7 @@ export default new CustomCommandRuleGroup({
             description: "Get the colour of a role.",
             params: ["role"],
             callback: function ColourOfRole(role) {
-                return role.color;
+                return role?.color;
             },
             fallback: 0x0,
             returns: "string"
@@ -78,7 +78,7 @@ export default new CustomCommandRuleGroup({
             description: "Check if a role hoists a member into a separate member section.",
             params: ["role"],
             callback: function DoesRoleHoist(role) {
-                return role.hoist;
+                return role?.hoist;
             },
             fallback: false,
             returns: "boolean"
@@ -89,7 +89,7 @@ export default new CustomCommandRuleGroup({
             description: "Check if a role is mentionable.",
             params: ["role"],
             callback: function IsRoleMentionable(role) {
-                return role.mentionable;
+                return role?.mentionable;
             },
             fallback: false,
             returns: "boolean"
@@ -100,7 +100,7 @@ export default new CustomCommandRuleGroup({
             description: "Get the position of a role.",
             params: ["role"],
             callback: function PositionOfRole(role) {
-                return role.position;
+                return role?.position;
             },
             fallback: 0,
             returns: "string"
@@ -111,6 +111,18 @@ export default new CustomCommandRuleGroup({
             description: "Check if a role is higher than another.",
             params: ["role", "role"],
             callback: function HigherRole(role1, role2) {
+                if (!role1 && role2) {
+                    return false;
+                }
+
+                if (role1 && !role2) {
+                    return true;
+                }
+
+                if (!role1 && !role2) {
+                    return false;
+                }
+
                 return role1.comparePositionTo(role2) > 0;
             },
             fallback: false,
@@ -122,6 +134,18 @@ export default new CustomCommandRuleGroup({
             description: "Check if a role is lower than another.",
             params: ["role", "role"],
             callback: function LowerRole(role1, role2) {
+                if (!role1 && role2) {
+                    return true;
+                }
+
+                if (role1 && !role2) {
+                    return false;
+                }
+
+                if (!role1 && !role2) {
+                    return false;
+                }
+
                 return role1.comparePositionTo(role2) < 0;
             },
             fallback: false,
@@ -133,7 +157,7 @@ export default new CustomCommandRuleGroup({
             description: "Delete a role.",
             params: ["role"],
             callback: async function DeleteRole(role) {
-                if (role.deletable) {
+                if (role?.deletable) {
                     await role.delete();
                 }
             },
@@ -145,7 +169,7 @@ export default new CustomCommandRuleGroup({
             description: "Change the name of a role.",
             params: ["role", "string"],
             callback: async function SetName(role, name) {
-                if (role.editable) {
+                if (role?.editable) {
                     await role.setName(name);
                 }
             },
@@ -157,7 +181,7 @@ export default new CustomCommandRuleGroup({
             description: "Change the colour of a role.",
             params: ["role", "string"],
             callback: async function SetColour(role, colour) {
-                if (role.editable) {
+                if (role?.editable) {
                     await role.setColor(colour);
                 }
             },
@@ -169,7 +193,7 @@ export default new CustomCommandRuleGroup({
             description: "Change whether a role is hoistable.",
             params: ["role", "boolean"],
             callback: async function SetColour(role, hoistable) {
-                if (role.editable) {
+                if (role?.editable) {
                     await role.setHoistable(hoistable);
                 }
             },
@@ -181,7 +205,7 @@ export default new CustomCommandRuleGroup({
             description: "Change whether a role is mentionable",
             params: ["role", "boolean"],
             callback: async function SetColour(role, mentionable) {
-                if (role.editable) {
+                if (role?.editable) {
                     await role.setMentionable(hoistable);
                 }
             },
@@ -193,7 +217,7 @@ export default new CustomCommandRuleGroup({
             description: "When the role was first created.",
             params: ["role"],
             callback: async function GetCreated(role) {
-                return role.createdAt;
+                return role?.createdAt || new Date(0);
             },
             returns: "date"
         })

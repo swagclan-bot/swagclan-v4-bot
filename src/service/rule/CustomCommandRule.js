@@ -154,6 +154,8 @@ export class CustomCommandRule {
                         parsed_args.push(Boolean(value));
                     } else if (param === "string") {
                         parsed_args.push(value ? (value + "") : "");
+                    } else if (param === "regex") {
+                        parsed_args.push(RegExp(value ? (value + "") : ""));
                     } else if (param === "message") {
                         parsed_args.push(ctx.message.channel.messages.resolve(value));
                     } else if (param === "member") {
