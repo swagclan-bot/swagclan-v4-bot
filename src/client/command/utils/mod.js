@@ -1036,17 +1036,6 @@ export default new BotModule({
         }
     }),
     new ModuleCommand({
-        name: "Apex Legends",
-        descriptions: "Get statistics for a user on Apex Legends.",
-        emoji: "<:apex:" + config.emoji.apex + ">",
-        versions: [],
-        callback: async function GetApexStats(message) {
-
-        },
-        hidden: true,
-        beta: true
-    }),
-    new ModuleCommand({
         name: "Dictionary",
         description: "Get dictionary definitions and synonyms.",
         emoji: "📚",
@@ -1097,55 +1086,6 @@ export default new BotModule({
                 return await this.reply("error", "Could not get definition.");
             }
         }
-    }),
-    new ModuleCommand({
-        name: "Pronounce",
-        description: "Get the pronunciation of a word.",
-        emoji: "🗣",
-        versions: [
-            new CommandVersion(["pronounce"], [
-                new CommandArgument({
-                    name: "word",
-                    description: "The word to get the pronunciation of.",
-                    emoji: "✒",
-                    types: [ArgumentType.Text]
-                })
-            ])
-        ],
-        callback: async function DictionaryDefinition(message) {
-            const res = await fetch("https://api.dictionaryapi.dev/api/v1/entries/en/" + encodeURIComponent(this.args.word.value));
-
-            if (res.status === 200) {
-                const json = await res.json();
-
-                if (json.title !== "No Definitions Found") {
-                    if (json[0].phonetics) {
-                        const first = json[0].phonetics[0].text;
-                        
-                        const pron = await fetch("https://iawll6of90.execute-api.us-east-1.amazonaws.com/production", {
-                            method: "POST",
-                            headers: {
-                                "Content-Type": "application/json"
-                            },
-                            body: JSON.stringify({
-                                "text": first,
-                                "voice": "Salli"
-                            })
-                        });
-                        
-                        const body = await first.json();
-
-                        await fs.writeFile(this.args.word.value + ".mpeg", body, "base64");
-                    }
-                } else {
-                    return await this.reply("error", "Could not get pronunciation for word `" + this.escape_c(this.args.word.value) + "`.");
-                }
-            } else {
-                return await this.reply("error", "Could not get pronunciation.");
-            }
-        },
-        hidden: true,
-        beta: true
     }),
     new ModuleCommand({
         name: "Urban Dictionary",

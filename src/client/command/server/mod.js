@@ -1,5 +1,6 @@
 // Imports
 import { CommandInterface, BotModule, ModuleCommand, MessageMatcher, CommandVersion, CommandArgument, CommandSyntax, ArgumentType } from "../../../service/ModuleService.js"
+import discord from "discord.js"
 
 import { p, is } from "../../../util/plural.js"
 
@@ -10,6 +11,166 @@ export default new BotModule({
     description: "Commands for moderation and the server.",
     emoji: "🖥",
     commands: [
+        new ModuleCommand({
+            name: "Sweep",
+            description: "Sweep bot messages and their uses.",
+            emoji: "🧹",
+            versions: [
+                new CommandVersion(["sweep", "clean"], [])
+            ],
+			example: "https://i.imgur.com/tCRsoY0.gif",
+            callback: async function SweepMessages(message) {
+                const sweeper = client.SweeperService.getSweeper(message.channel);
+
+                await sweeper.sweep();
+            }
+        }),
+        new ModuleCommand({
+            name: "Purge",
+            description: "Purge messages that match certain conditions.",
+            emoji: "☠",
+            versions: [
+                new CommandVersion(["purge", "destroy"], [
+                    new CommandArgument({
+                        name: "number",
+                        description: "The number of messages to purge.",
+                        emoji: "🔢",
+                        types: [ArgumentType.UnsignedInteger]
+                    })
+                ]),
+                new CommandVersion(["purge", "destroy"], [
+                    new CommandArgument({
+                        name: "number",
+                        description: "The number of messages to purge.",
+                        emoji: "🔢",
+                        types: [ArgumentType.UnsignedInteger],
+                        optional: true
+                    }),
+                    new CommandSyntax("by", true),
+                    new CommandSyntax("from", true),
+                    new CommandSyntax("mentions", true),
+                    new CommandArgument({
+                        name: "member",
+                        description: "The member that messages to purge are by or mentions.",
+                        emoji: "👤",
+                        types: [ArgumentType.Mention]
+                    })
+                ]),
+                new CommandVersion(["purge", "destroy"], [
+                    new CommandArgument({
+                        name: "number",
+                        description: "The number of messages to purge.",
+                        emoji: "🔢",
+                        types: [ArgumentType.UnsignedInteger],
+                        optional: true
+                    }),
+                    new CommandSyntax("has"),
+                    new CommandArgument({
+                        name: "item",
+                        description: "The item that the messages to purge contain.",
+                        emoji: "🏷",
+                        types: [
+                            new ArgumentType({
+                                name: "Message Item",
+                                description: "An item in a message.",
+                                emoji: "🏷",
+                                validate: /^((file|image|url|link|embed)(, ?(file|image|url|link|embed))*)$/
+                            })
+                        ]
+                    })
+                ]),
+                new CommandVersion(["purge", "destroy"], [
+                    new CommandArgument({
+                        name: "number",
+                        description: "The number of messages to purge.",
+                        emoji: "🔢",
+                        types: [ArgumentType.UnsignedInteger],
+                        optional: true
+                    }),
+                    new CommandSyntax("startsWith", true),
+                    new CommandSyntax("endsWith", true),
+                    new CommandSyntax("exact", true),
+                    new CommandArgument({
+                        name: "text",
+                        description: "The text to purge.",
+                        emoji: "💬",
+                        types: [ArgumentType.Rest]
+                    })
+                ]),
+            ],
+            callback: async function PurgeMessages(message) {
+                await message.delete();
+
+                if (this.args.number?.value > 100) {
+                    return await this.reply("error", "You can only purge a max of 100 messages.");
+                }
+
+                const messages = await message.channel.messages.fetch({
+                    limit: (this.args.number ? this.args.number.value : 100)
+                });
+
+                const purge_messages = messages.filter(message => {
+                    if (this.args.text) {
+                        if (this.args.startsWith) {
+                            return message.content.startsWith(this.args.text.value);
+                        }
+                        
+                        if (this.args.endsWith) {
+                            return message.content.endsWith(this.args.text.value);
+                        }
+                        
+                        if (this.args.exact) {
+                            return message.content === this.args.text.value;
+                        }
+
+                        return ~message.content.indexOf(this.args.text.value);
+                    } else if (this.args.item) {
+                        const items = this.args.item.value.split(", ");
+
+                        /** @param {discord.Message} message */
+                        function message_has_images(message) {
+                            return message.attachments.filter(attachment => {
+                                return ArgumentType.ImageURL._validate.test(attachment.url);
+                            }).size || message.content.match(ArgumentType.ImageURL._validate);
+                        }
+
+                        for (let i = 0; i < items.length; i++) {
+                            const item = items[i];
+
+                            if (item === "file" && message.attachments.size > 0) {
+                                return true;
+                            }
+
+                            if (item === "image" && message_has_images(message)) {
+                                return true;
+                            }
+    
+                            if ((item === "url" || item === "link") && ArgumentType.URL._validate.test(message.content)) {
+                                return true;
+                            }
+    
+                            if ((item === "embed") && message.embeds.length) {
+                                return true;
+                            }
+                        }
+
+                        return false;
+                    } else if (this.args.member) {
+                        if (this.args.by || this.args.from) {
+                            return message.author.id === this.args.member.value.user.id;
+                        }
+
+                        if (this.args.mentions) {
+                            return message.mentions.members.get(this.args.member.value.user.id);
+                        }
+
+                        return false;
+                    }
+                });
+
+                message.channel.bulkDelete(purge_messages);
+            }
+        }),
         new ModuleCommand({
             name: "Settings",
             description: "View and modify server settings.",

@@ -211,7 +211,9 @@ server.use(async (req, res, next) => {
 });
 
 server.get("/invite", async (req, res) => {
-    res.redirect("https://discord.com/oauth2/authorize?client_id=" + credentials.client_id + "&scope=bot&permissions=" + config.permissions);
+    const permissionBits = discord.Permissions.resolve(config.permissions);
+
+    res.redirect("https://discord.com/oauth2/authorize?client_id=" + credentials.client_id + "&scope=bot&permissions=" + permissionBits);
 });
 
 server.get("/auth/discord", async (req, res) => {

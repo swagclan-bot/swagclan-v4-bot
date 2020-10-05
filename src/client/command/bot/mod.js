@@ -282,20 +282,6 @@ export default new BotModule({
             }
         }),
         new ModuleCommand({
-            name: "Sweep",
-            description: "Sweep bot messages and their uses.",
-            emoji: "🧹",
-            versions: [
-                new CommandVersion(["sweep", "clean"], [])
-            ],
-			example: "https://i.imgur.com/tCRsoY0.gif",
-            callback: async function SweepMessages(message) {
-                const sweeper = client.SweeperService.getSweeper(message.channel);
-
-                await sweeper.sweep();
-            }
-        }),
-        new ModuleCommand({
             name: "Throw",
             description: "Throw an exception to test error logging.",
             emoji: "🛑",
@@ -316,7 +302,9 @@ export default new BotModule({
             ],
 			example: "https://i.imgur.com/HLPCUPb.gif",
             callback: async function GenerateInvite(message) {
-                this.reply("success", "https://discord.com/oauth2/authorize?client_id=" + credentials.client_id + "&scope=bot&permissions=" + config.permissions)
+                const permissionBits = discord.Permissions.resolve(config.permissions);
+
+                this.reply("success", "https://discord.com/oauth2/authorize?client_id=" + credentials.client_id + "&scope=bot&permissions=" + permissionBits);
             }
         }),
         new ModuleCommand({

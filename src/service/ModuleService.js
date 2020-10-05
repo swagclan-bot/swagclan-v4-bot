@@ -1383,7 +1383,7 @@ export class CommandArgument {
      */
     async validate(message, text) {
         if (this.syntax) {
-            return this.name === text;
+            return this.name.toLowerCase() === text.toLowerCase();
         } else {
             for (let i = 0; i < this.types.length; i++) {
                 if (await this.types[i].validate(message, text)) {
@@ -1635,14 +1635,25 @@ export class ArgumentType {
     })
     
     /**
-     * An image url.
+     * An image URL.
      * @type {ArgumentType}
      */
     static ImageURL = new ArgumentType({
         name: "Image URL",
-        description: "An image url.",
+        description: "A URL to an image resource.",
         examples: ["i.imgur.com"],
-        validate: /^https?:\/\/([a-z0-9\-]+\.)+[a-z]+(?:\/[^\/#?]+)+\.(png|jpe?g|gif|svg|webp|tiff)((\?|\#).+)?$/i
+        validate: /^(([^:\/?#]+):)?(\/\/([^\/?#]*))?([^?#]*\/)?([^?#]*\.(png|jpe?g|gif|svg|webp|tiff))(\?([^#]*))?(#(.*))?$/
+    });
+
+    /**
+     * A URL.
+     * @type {ArgumentType}
+     */
+    static URL = new ArgumentType({
+        name: "URL",
+        description: "A URL.",
+        examples: ["https://google.com"],
+        validate: /^(([^:\/?#]+):)?(\/\/([^\/?#]*))?([^?#]*\/)?([^?#]*)(\?([^#]*))?(#(.*))?$/
     });
 
     /**
@@ -1653,11 +1664,11 @@ export class ArgumentType {
         name: "Boolean",
         description: "A true or false value.",
         examples: ["true"],
-        validate: /^(true|false)$/i,
+        validate: /^(true|false|on|off)$/i,
         parse: async function (message, text) {
-            if (text.toLowerCase() === "true") {
+            if (text.toLowerCase() === "true" || text.toLowerCase() === "on") {
                 return true;
-            } else if (text.toLowerCase() === "false") {
+            } else if (text.toLowerCase() === "false" || text.toLowerCase() === "off") {
                 return false;
             }
 

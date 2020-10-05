@@ -49,7 +49,9 @@ export async function BotStatus(req, res) {
  * @param {express.Response} res
  */
 export function CreateInvite(req, res) {
-    res.redirect("https://discord.com/oauth2/authorize?client_id=" + credentials.client_id + "&scope=bot&permissions=" + config.permissions);
+    const permissionBits = discord.Permissions.resolve(config.permissions);
+
+    res.redirect("https://discord.com/oauth2/authorize?client_id=" + credentials.client_id + "&scope=bot&permissions=" + permissionBits);
 }
 
 /**
