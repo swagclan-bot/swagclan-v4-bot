@@ -263,7 +263,10 @@ export default new BotModule({
                         },
                         {
                             title: "Memory",
-                            body: "Total: `" + superbytes(memory.total) + "`\nUsed: `" + superbytes(memory.used) + " (" + Math.round(memory.used / memory.total * 100) + "%)`\nFree: `" + superbytes(memory.free) + " (" + Math.round(memory.free / memory.total * 100) + "%)`",
+                            body: `
+Total: \`${superbytes(memory.total)}\`
+Used: \`${superbytes(memory.used)} (${Math.round(memory.used / memory.total * 100)}%)\`
+Free: \`${superbytes(memory.free)} (${Math.round(memory.free / memory.total * 100)}%)\``.trim(),
                             inline: true
                         },
                         {
