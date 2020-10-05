@@ -30,6 +30,7 @@ export default new BotModule({
             description: "Purge messages that match certain conditions.",
             emoji: "☠",
             versions: [
+                new CommandVersion(["purge", "destroy"], []),
                 new CommandVersion(["purge", "destroy"], [
                     new CommandArgument({
                         name: "number",
@@ -44,7 +45,8 @@ export default new BotModule({
                         description: "The number of messages to purge.",
                         emoji: "🔢",
                         types: [ArgumentType.UnsignedInteger],
-                        optional: true
+                        optional: true,
+                        default: 100
                     }),
                     new CommandSyntax("by", true),
                     new CommandSyntax("from", true),
@@ -62,7 +64,8 @@ export default new BotModule({
                         description: "The number of messages to purge.",
                         emoji: "🔢",
                         types: [ArgumentType.UnsignedInteger],
-                        optional: true
+                        optional: true,
+                        default: 100
                     }),
                     new CommandSyntax("bots", true)
                 ]),
@@ -72,7 +75,8 @@ export default new BotModule({
                         description: "The number of messages to purge.",
                         emoji: "🔢",
                         types: [ArgumentType.UnsignedInteger],
-                        optional: true
+                        optional: true,
+                        default: 100
                     }),
                     new CommandSyntax("has"),
                     new CommandArgument({
@@ -95,7 +99,8 @@ export default new BotModule({
                         description: "The number of messages to purge.",
                         emoji: "🔢",
                         types: [ArgumentType.UnsignedInteger],
-                        optional: true
+                        optional: true,
+                        default: 100
                     }),
                     new CommandSyntax("startsWith", true),
                     new CommandSyntax("endsWith", true),
@@ -109,11 +114,15 @@ export default new BotModule({
                 ]),
             ],
             callback: async function PurgeMessages(message) {
-                await message.delete();
+                if (!this.args.number) {
+                    return await this.reply("error", "Specify some conditions or a number of messages to purge.");
+                }
 
                 if (this.args.number?.value > 100) {
                     return await this.reply("error", "You can only purge a max of 100 messages.");
                 }
+                
+                await message.delete();
 
                 const messages = await message.channel.messages.fetch({
                     limit: (this.args.number ? this.args.number.value : 100)
