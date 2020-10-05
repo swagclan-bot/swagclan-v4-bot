@@ -112,18 +112,18 @@ export default new BotModule({
                 const purge_messages = messages.filter(message => {
                     if (this.args.text) {
                         if (this.args.startsWith) {
-                            return message.content.startsWith(this.args.text.value);
+                            return message.content.toLowerCase().startsWith(this.args.text.value.toLowerCase());
                         }
                         
                         if (this.args.endsWith) {
-                            return message.content.endsWith(this.args.text.value);
+                            return message.content.toLowerCase().endsWith(this.args.text.value.toLowerCase());
                         }
                         
                         if (this.args.exact) {
-                            return message.content === this.args.text.value;
+                            return message.content.toLowerCase() === this.args.text.value.toLowerCase();
                         }
 
-                        return ~message.content.indexOf(this.args.text.value);
+                        return ~message.content.toLowerCase().indexOf(this.args.text.value.toLowerCase());
                     } else if (this.args.item) {
                         const items = this.args.item.value.split(", ");
 
