@@ -64,6 +64,16 @@ export default new BotModule({
                         types: [ArgumentType.UnsignedInteger],
                         optional: true
                     }),
+                    new CommandSyntax("bots", true)
+                ]),
+                new CommandVersion(["purge", "destroy"], [
+                    new CommandArgument({
+                        name: "number",
+                        description: "The number of messages to purge.",
+                        emoji: "🔢",
+                        types: [ArgumentType.UnsignedInteger],
+                        optional: true
+                    }),
                     new CommandSyntax("has"),
                     new CommandArgument({
                         name: "item",
@@ -155,6 +165,8 @@ export default new BotModule({
                         }
 
                         return false;
+                    } else if (this.args.bots) {
+                        return message.author.bot;
                     } else if (this.args.member) {
                         if (this.args.by || this.args.from) {
                             return message.author.id === this.args.member.value.user.id;
