@@ -1,5 +1,5 @@
 export default {
-    "version": "4.6.4",
+    "version": "4.6.5",
     "last_update": "05.10.2020",
     "permissions": [
         "MANAGE_ROLES",
@@ -23,6 +23,7 @@ export default {
         "horsey": "747814569812164658",
         "javascript": "743104808520646810",
         "pawn": "753663340768919651",
-        "diabotical": "757664530447990864"
+        "diabotical": "757664530447990864",
+        "wikipedia": "762759314368364544"
     }
 }

@@ -1729,6 +1729,48 @@ ${format_compare_stat("fusions_per_match", "Fusions per match", true, true)}
             }
         },
         beta: true
+    }), 
+    new ModuleCommand({
+        name: "Wikipedia",
+        description: "Get the first 2 sentences from an article on wikipedia.",
+        emoji: "<:wikipedia:" + config.emoji.wikipedia + ">",
+        versions: [
+            new CommandVersion(["wikipedia", "wiki", "wp"], [
+                new CommandArgument({
+                    name: "article",
+                    description: "The name of the article to get.",
+                    emoji: "📜",
+                    types: [ArgumentType.Text]
+                })
+            ])
+        ],
+        callback: async function Wikipedia(message) {
+            const pageres = await fetch("https://en.wikipedia.org/api/rest_v1/page/summary/" + encodeURIComponent(this.args.article.value));
+            const mediares = await fetch("https://en.wikipedia.org/api/rest_v1/page/media-list/" + encodeURIComponent(this.args.article.value));
+
+            const pagejson = pageres.status === 200 ?  await pageres.json() : null;
+            const mediajson = mediares.status === 200 ? await mediares.json() : null;
+
+            if (pagejson) {
+                const image = mediajson.items?.[0]?.srcset?.[0]?.src ?
+                    "https:" + mediajson.items?.[0]?.srcset?.[0]?.src
+                    : null;
+
+                return await this.reply("success", "", {
+                    fields: [
+                        {
+                            title: pagejson.titles.display,
+                            body: pagejson.extract
+                        }
+                    ],
+                    ...(image ? { thumbnail: {
+                        url: image
+                    } } : {})
+                });
+            } else {
+                return await this.reply("error", "Could not wikipedia article.");
+            }
+        }
     })],
     matches: []
 });

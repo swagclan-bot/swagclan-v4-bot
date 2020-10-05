@@ -1,5 +1,6 @@
 import express from "express"
 import sys from "systeminformation"
+import discord from "discord.js"
 
 import credentials from "../../../.credentials.js"
 import config from "../../../.config.js"

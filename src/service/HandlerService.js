@@ -28,6 +28,10 @@ export class HandlerService extends Service {
         }
     }
 
+    async handleUndeafen(message) {
+        
+    }
+
     /**
      * Handle an API message to say a message was created.
      * @param {discord.Message} message The message that was created.

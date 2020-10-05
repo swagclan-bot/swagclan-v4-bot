@@ -8,6 +8,7 @@ import sys from "systeminformation"
 import numeral from "numeral"
 import human_dur from "humanize-duration"
 import superbytes from "superbytes"
+import discord from "discord.js"
 
 import config from "../../../../.config.js"
 import credentials from "../../../../.credentials.js"
@@ -301,7 +302,7 @@ Free: \`${superbytes(memory.free)} (${Math.round(memory.free / memory.total * 10
             description: "Generate an invite link to invite the bot to another server.",
             emoji: "🔐",
             versions: [
-                new CommandVersion(["invite"], [])
+                new CommandVersion(["invite", "inv"], [])
             ],
 			example: "https://i.imgur.com/HLPCUPb.gif",
             callback: async function GenerateInvite(message) {
