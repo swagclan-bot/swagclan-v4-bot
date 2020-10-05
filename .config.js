@@ -1,5 +1,5 @@
 export default {
-    "version": "4.6.3",
+    "version": "4.6.4",
     "last_update": "05.10.2020",
     "permissions": [
         "MANAGE_ROLES",
