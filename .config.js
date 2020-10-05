@@ -1,5 +1,5 @@
 export default {
-    "version": "4.6.2",
+    "version": "4.6.3",
     "last_update": "05.10.2020",
     "permissions": "809639952",
     "author": {

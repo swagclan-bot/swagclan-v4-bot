@@ -91,7 +91,7 @@ export default new BotModule({
             description: "Scale the last image, an attached image or a linked image by a given scale factor.",
             emoji: "🖼",
             versions: [
-                new CommandVersion(["enlarge", "scale"], [
+                new CommandVersion(["scale", "enlarge"], [
                     new CommandArgument({
                         name: "url",
                         description: "The URL of the image to scale.",
@@ -108,7 +108,7 @@ export default new BotModule({
                         default: 4
                     })
                 ]),
-                new CommandVersion(["enlarge", "scale"], [
+                new CommandVersion(["scale", "enlarge"], [
                     new CommandArgument({
                         name: "url",
                         description: "The URL of the image to scale.",
