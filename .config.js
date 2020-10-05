@@ -1,6 +1,6 @@
 export default {
     "version": "4.6.2",
-    "last_update": "12.09.2020",
+    "last_update": "05.10.2020",
     "permissions": "809639952",
     "author": {
         "discord": "weak eyes#4248"

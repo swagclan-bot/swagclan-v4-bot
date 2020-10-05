@@ -87,21 +87,21 @@ export default new BotModule({
     emoji: "🖼",
     commands: [
         new ModuleCommand({
-            name: "Enlarge",
-            description: "Enlarge the last image, an attached image or a linked image by a given scale factor.",
+            name: "Scale",
+            description: "Scale the last image, an attached image or a linked image by a given scale factor.",
             emoji: "🖼",
             versions: [
                 new CommandVersion(["enlarge", "scale"], [
                     new CommandArgument({
                         name: "url",
-                        description: "The URL of the image to enlarge.",
+                        description: "The URL of the image to scale.",
                         emoji: "⛓",
                         types: [ArgumentType.ImageURL],
                         optional: true
                     }),
                     new CommandArgument({
                         name: "scale",
-                        description: "The scale factor to enlarge the image by.",
+                        description: "The scale factor to scale the image by.",
                         emoji: "⏫",
                         types: [ArgumentType.Scalar],
                         optional: true,
@@ -111,14 +111,14 @@ export default new BotModule({
                 new CommandVersion(["enlarge", "scale"], [
                     new CommandArgument({
                         name: "url",
-                        description: "The URL of the image to enlarge.",
+                        description: "The URL of the image to scale.",
                         emoji: "⛓",
                         types: [ArgumentType.ImageURL],
                         optional: true
                     }),
                     new CommandArgument({
                         name: "scalex",
-                        description: "The scale factor to enlarge the image by horizontally.",
+                        description: "The scale factor to scale the image by horizontally.",
                         emoji: "⏩",
                         types: [ArgumentType.Scalar],
                         optional: true,
@@ -126,7 +126,7 @@ export default new BotModule({
                     }),
                     new CommandArgument({
                         name: "scaley",
-                        description: "The scale factor to enlarge the image by vertically.",
+                        description: "The scale factor to scale the image by vertically.",
                         emoji: "⏫",
                         types: [ArgumentType.Scalar],
                         optional: true,
@@ -135,7 +135,7 @@ export default new BotModule({
                 ])
             ],
             example: "https://i.imgur.com/Sf6kXlB.gif",
-            callback: async function EnlargeImage(message) {
+            callback: async function ScaleImage(message) {
                 let image = this.args.url?.value || message.attachments.first()?.attachment || await get_last_image(message.channel);
 
                 let scalex = this.args.scalex?.value || this.args.scale?.value || 4;
@@ -143,7 +143,7 @@ export default new BotModule({
 
                 if (image) {
                     try {
-                        await this.reply("info", "Enlarging image..");
+                        await this.reply("info", "Scaling image..");
 
                         const img = await apply_effects(image, (meta, img) => {
                             img.resize(Math.round(meta.width * scalex), Math.round(meta.height * scaley), {
@@ -162,7 +162,80 @@ export default new BotModule({
                                     }]
                                 });
 
-                                await this.edit("success", "Successfully enlarged image.");
+                                await this.delete();
+                            } else {
+                                return await this.edit("error", "Resulting image was too large.");
+                            }
+                        } catch (e) {
+                            return await this.edit("error", "Could not upload image.");
+                        }
+                    } catch (e) {
+                        console.log(e);
+
+                        return await this.edit("error", "Could not load image.");
+                    }
+                } else {
+                    return await this.edit("error", "No image provided.");
+                }
+            }
+        }),
+        new ModuleCommand({
+            name: "Resize",
+            description: "Resize the last image, an attached image or a linked image.",
+            emoji: "🖼",
+            versions: [
+                new CommandVersion(["resize"], [
+                    new CommandArgument({
+                        name: "url",
+                        description: "The URL of the image to resize.",
+                        emoji: "⛓",
+                        types: [ArgumentType.ImageURL],
+                        optional: true
+                    }),
+                    new CommandArgument({
+                        name: "width",
+                        description: "The width to resize of the image to.",
+                        emoji: "⏫",
+                        types: [ArgumentType.UnsignedInteger]
+                    }),
+                    new CommandArgument({
+                        name: "height",
+                        description: "The height to resize the image to.",
+                        emoji: "⏫",
+                        types: [ArgumentType.UnsignedInteger],
+                        optional: true
+                    })
+                ])
+            ],
+            example: "https://i.imgur.com/Sf6kXlB.gif",
+            callback: async function ResizeImage(message) {
+                let image = this.args.url?.value || message.attachments.first()?.attachment || await get_last_image(message.channel);
+
+                let width = this.args.width.value;
+                let height = this.args.height?.value || this.args.width.value;
+
+                if (image) {
+                    try {
+                        await this.reply("info", "Resizing image..");
+
+                        const img = await apply_effects(image, (meta, img) => {
+                            img.resize(width, height, {
+                                fit: "fill"
+                            });
+                        });
+                        
+                        try {
+                            if (Buffer.byteLength(img.buffer) < 8388608) { // 8 MB
+                                await this.edit("success", "Uploading image..");
+
+                                await message.channel.send("", {
+                                    files: [{
+                                        attachment: img.buffer,
+                                        name: "image." + img.meta.ext
+                                    }]
+                                });
+
+                                await this.delete();
                             } else {
                                 return await this.edit("error", "Resulting image was too large.");
                             }
@@ -234,7 +307,7 @@ export default new BotModule({
                                     }]
                                 });
 
-                                await this.edit("success", "Successfully flipped image.");
+                                await this.delete();
                             } else {
                                 return await this.edit("error", "Resulting image was too large.");
                             }
@@ -288,7 +361,7 @@ export default new BotModule({
                                     }]
                                 });
 
-                                await this.edit("success", "Successfully inverted image.");
+                                await this.delete();
                             } else {
                                 return await this.edit("error", "Resulting image was too large.");
                             }
@@ -350,7 +423,7 @@ export default new BotModule({
                                     }]
                                 });
 
-                                await this.edit("success", "Successfully rotated image.");
+                                await this.delete();
                             } else {
                                 return await this.edit("error", "Resulting image was too large.");
                             }
@@ -406,7 +479,7 @@ export default new BotModule({
                                     }]
                                 });
 
-                                await this.edit("success", "Successfully greyscaled image.");
+                                await this.delete();
                             } else {
                                 return await this.edit("error", "Resulting image was too large.");
                             }
@@ -490,7 +563,7 @@ export default new BotModule({
                                     }]
                                 });
 
-                                await this.edit("success", "Successfully cropped image.");
+                                await this.delete();
                             } else {
                                 return await this.edit("error", "Resulting image was too large.");
                             }
@@ -554,7 +627,7 @@ export default new BotModule({
                                     }]
                                 });
 
-                                await this.edit("success", "Successfully created fisheye effect on image.");
+                                await this.delete();
                             } else {
                                 return await this.edit("error", "Resulting image was too large.");
                             }

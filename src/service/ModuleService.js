@@ -1560,7 +1560,7 @@ export class ArgumentType {
         name: "Float",
         description: "A floating point number.",
         examples: ["95.32", "5.92"], 
-        validate: /^-?\d+\.\d+$/,
+        validate: /^-?\d+(\.\d+)?$/,
         parse: async function (message, text) {
             return parseFloat(text);
         }
