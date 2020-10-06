@@ -18,7 +18,7 @@ async function get_last_image(channel) {
             return embed.image?.url || embed.thumbnail?.url;
         });
 
-        return found_embed.image?.url || found_embed.thumbnail?.url;
+        return found_embed?.image?.url || found_embed?.thumbnail?.url;
     }
 
     // Sort all messages in channel by when they were created, probably slow.
