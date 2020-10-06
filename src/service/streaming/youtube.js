@@ -21,8 +21,6 @@ export default new StreamingProvider({
     async resolve(search_term) {
         const match = YOUTUBE_REGEX.exec(search_term);
 
-        console.log(match);
-
         const options = match ? {
             part: "snippet",
             type: "video",

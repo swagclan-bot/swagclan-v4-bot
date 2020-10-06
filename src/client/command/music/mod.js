@@ -138,17 +138,18 @@ export default new BotModule({
                         return await this.reply("error", "Song not found.");
                     }
 
-                    if (index < 1 || index > player.queue.length) {
+                    if (index < 0 || index > player.queue.length) {
                         return await this.reply("error", "Song out of range.");
                     }
 
-                    player.queue.splice(index, 1);
-
                     if (player.current === index) {
                         player.skip();
-
+                        
+                        player.queue.splice(index, 1);
                         player.current--;
                     } else if (this.current > index) {
+                        player.queue.splice(index, 1);
+
                         player.current--;
                     }
 
@@ -156,35 +157,36 @@ export default new BotModule({
                         fields: [song.displaySnippet()]
                     });
                 } else if (this.args.songs) {
-                    const song = this.args.songs.value.min;
-                    const songs = this.args.songs.value.max - this.args.songs.value.min;
-                }
+                    const song = this.args.songs.value.min - 1;
+                    const songs = (this.args.songs.value.max - this.args.songs.value.min) + 1;
 
-                const song = this.args.songs ? this.args.songs.value.min : this.args.song.value;
-                const songs = this.args.songs ? this.args.songs.value.max - this.args.songs.value.min : 1;
-
-                if (song < 1 || song + songs > player.queue.length + 1) {
-                    if (this.args.songs) {
-                        return await this.reply("error", "Songs out of range.");
-                    } else {
-                        return await this.reply("error", "Song out of range.");
+                    if (song < 0 || song + songs > player.queue.length + 1) {
+                        if (this.args.songs) {
+                            return await this.reply("error", "Songs out of range.");
+                        } else {
+                            return await this.reply("error", "Song out of range.");
+                        }
                     }
-                }
 
-                player.queue.splice(song - 1, songs);
-
-                let doSkip = player.current >= song && player.current < song + songs;
-
-                if (this.current >= song) {
-                    if (this.current < song + songs) {
-                        this.current -= (this.current - (song + 1));
-                    } else {
-                        this.current -= songs;
+                    if (player.current >= song && player.current < song + songs) {
+                        
                     }
-                }
 
-                if (doSkip) {
-                    player.skip();
+                    player.queue.splice(song - 1, songs);
+
+                    let doSkip = player.current >= song && player.current < song + songs;
+
+                    if (this.current >= song) {
+                        if (this.current < song + songs) {
+                            this.current -= (this.current - (song + 1));
+                        } else {
+                            this.current -= songs;
+                        }
+                    }
+
+                    if (doSkip) {
+                        player.skip();
+                    }
                 }
             }
         })
