@@ -14,7 +14,11 @@ configure({
 async function get_last_image(channel) {
     function get_message_embed_image(message) {
         // Reverse embed list to get the last embed with the image instead of the first.
-        return message.embeds.reverse().find(embed => embed.image?.url)?.image?.url;
+        const found_embed = message.embeds.reverse().find(embed => {
+            return embed.image?.url || embed.thumbnail?.url;
+        });
+
+        return found_embed.image?.url || found_embed.thumbnail?.url;
     }
 
     // Sort all messages in channel by when they were created, probably slow.
