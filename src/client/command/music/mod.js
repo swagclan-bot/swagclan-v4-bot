@@ -32,7 +32,7 @@ export default new BotModule({
                     return await this.reply("error", "You must be in a voice channel to use this command.");
                 }
                 
-                if (message.member.voice.channel === player.channel) {
+                if (message.member.voice.channel !== player.channel) {
                     return await this.reply("error", "You must be in the voice channel to use this command.");
                 }
 
@@ -68,7 +68,7 @@ export default new BotModule({
                     return await this.reply("error", "You must be in a voice channel to use this command.");
                 }
                 
-                if (message.member.voice.channel === player.channel) {
+                if (message.member.voice.channel !== player.channel) {
                     return await this.reply("error", "You must be in the voice channel to use this command.");
                 }
 
@@ -110,7 +110,7 @@ export default new BotModule({
                     return await this.reply("error", "You must be in a voice channel to use this command.");
                 }
                 
-                if (message.member.voice.channel === player.channel) {
+                if (message.member.voice.channel !== player.channel) {
                     return await this.reply("error", "You must be in the voice channel to use this command.");
                 }
 
@@ -153,7 +153,7 @@ export default new BotModule({
                     return await this.reply("error", "You must be in a voice channel to use this command.");
                 }
                 
-                if (message.member.voice.channel === player.channel) {
+                if (message.member.voice.channel !== player.channel) {
                     return await this.reply("error", "You must be in the voice channel to use this command.");
                 }
 
@@ -226,7 +226,7 @@ export default new BotModule({
                     return await this.reply("error", "You must be in a voice channel to use this command.");
                 }
                 
-                if (message.member.voice.channel === player.channel) {
+                if (message.member.voice.channel !== player.channel) {
                     return await this.reply("error", "You must be in the voice channel to use this command.");
                 }
 
