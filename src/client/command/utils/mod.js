@@ -1762,7 +1762,7 @@ ${format_compare_stat("fusions_per_match", "Fusions per match", true, true)}
                     fields: [
                         {
                             title: pagejson.titles.normalized,
-                            body: extract || "No summary found."
+                            body: extract || "No summary found." + "\n[View on Wikipedia](" + pagejson.content_urls.desktop.page + ")"
                         }
                     ],
                     ...(image ? { thumbnail: {

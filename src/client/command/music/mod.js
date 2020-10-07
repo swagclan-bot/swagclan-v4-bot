@@ -9,6 +9,7 @@ export default new BotModule({
     name: "Music",
     description: "Commands for moderation and the server.",
     emoji: "🎶",
+    beta: true,
     commands: [
         new ModuleCommand({
             name: "Play",
@@ -27,25 +28,29 @@ export default new BotModule({
             callback: async function PlayMusic(message) {
                 const player = client.MusicService.getPlayer(message.guild);
 
-                if (message.member.voice?.channelID) {
-                    await player.connectTo(message.member.voice.channel);
-
-                    try {
-                        const song = await client.MusicService.findSong(this.args.track.value);
-
-                        player.queue.push(song);
-
-                        return await this.reply("success", "Added song to queue. (" + p(player.queue.length, "song") + ")", {
-                            fields: [song.display()],
-                            thumbnail: {
-                                url: song.data.albumCover
-                            }
-                        });
-                    } catch (e) {
-                        return await this.reply("success", "Could not add song to queue. " + e.toString());
-                    }
-                } else {
+                if (!message.member.voice?.channel) {
                     return await this.reply("error", "You must be in a voice channel to use this command.");
+                }
+                
+                if (message.member.voice.channel === player.channel) {
+                    return await this.reply("error", "You must be in the voice channel to use this command.");
+                }
+
+                await player.connectTo(message.member.voice.channel);
+
+                try {
+                    const song = await client.MusicService.findSong(this.args.track.value);
+
+                    player.queue.push(song);
+
+                    return await this.reply("success", "Added song to queue. (" + p(player.queue.length, "song") + ")", {
+                        fields: [song.display()],
+                        thumbnail: {
+                            url: song.data.albumCover
+                        }
+                    });
+                } catch (e) {
+                    return await this.reply("success", "Could not add song to queue. " + e.toString());
                 }
             }
         }),
@@ -58,6 +63,15 @@ export default new BotModule({
             ],
             callback: async function MusicQueue(message) {
                 const player = client.MusicService.getPlayer(message.guild);
+
+                if (!message.member.voice?.channel) {
+                    return await this.reply("error", "You must be in a voice channel to use this command.");
+                }
+                
+                if (message.member.voice.channel === player.channel) {
+                    return await this.reply("error", "You must be in the voice channel to use this command.");
+                }
+
                 const ql = player.queue.length;
 
                 if (ql) {
@@ -91,6 +105,14 @@ export default new BotModule({
             ],
             callback: async function SkipSong(message) {
                 const player = client.MusicService.getPlayer(message.guild);
+                
+                if (!message.member.voice?.channel) {
+                    return await this.reply("error", "You must be in a voice channel to use this command.");
+                }
+                
+                if (message.member.voice.channel === player.channel) {
+                    return await this.reply("error", "You must be in the voice channel to use this command.");
+                }
 
                 if (player.queue[player.current]) {
                     player.skip(this.args.amount.value);
@@ -126,6 +148,14 @@ export default new BotModule({
             ],
             callback: async function RemoveSongs(message) {
                 const player = client.MusicService.getPlayer(message.guild);
+                
+                if (!message.member.voice?.channel) {
+                    return await this.reply("error", "You must be in a voice channel to use this command.");
+                }
+                
+                if (message.member.voice.channel === player.channel) {
+                    return await this.reply("error", "You must be in the voice channel to use this command.");
+                }
 
                 if (this.args.song) {
                     const index = this.args.song.type === ArgumentType.UnsignedInteger ?
@@ -147,46 +177,71 @@ export default new BotModule({
                         
                         player.queue.splice(index, 1);
                         player.current--;
-                    } else if (this.current > index) {
+                    } else if (player.current > index) {
                         player.queue.splice(index, 1);
 
                         player.current--;
+                    } else { // if (player.current < index) {
+                        player.queue.splice(index, 1);
                     }
 
                     return await this.reply("success", "Removed song from queue.", {
                         fields: [song.displaySnippet()]
                     });
                 } else if (this.args.songs) {
-                    const song = this.args.songs.value.min - 1;
-                    const songs = (this.args.songs.value.max - this.args.songs.value.min) + 1;
+                    const index = this.args.songs.value.min - 1;
+                    const length = (this.args.songs.value.max - this.args.songs.value.min) + 1;
 
-                    if (song < 0 || song + songs > player.queue.length + 1) {
-                        if (this.args.songs) {
-                            return await this.reply("error", "Songs out of range.");
-                        } else {
-                            return await this.reply("error", "Song out of range.");
-                        }
+                    if (index < 0 || index + length > player.queue.length) {
+                        return await this.reply("error", "Songs out of range.");
                     }
 
-                    if (player.current >= song && player.current < song + songs) {
-                        
-                    }
-
-                    player.queue.splice(song - 1, songs);
-
-                    let doSkip = player.current >= song && player.current < song + songs;
-
-                    if (this.current >= song) {
-                        if (this.current < song + songs) {
-                            this.current -= (this.current - (song + 1));
-                        } else {
-                            this.current -= songs;
-                        }
-                    }
-
-                    if (doSkip) {
+                    if (player.current >= index && player.current < index + length) {
                         player.skip();
+
+                        player.queue.splice(index - 1, length);
+                        player.current = index;
+                    } else if (player.current >= index + length) {
+                        player.queue.splice(index -1, length);
+                        player.current -= length;
+                    } else { // if (player.current < index)
+                        player.queue.splice(index - 1, length);
                     }
+
+                    return await this.reply("success", "Removed " + p(length, "song") + " from the queue.");
+                }
+            }
+        }),
+        new ModuleCommand({
+            name: "Loop",
+            description: "Loop the current song that is playing.",
+            emoji: "🔁",
+            versions: [
+                new CommandVersion(["loop", "l"], [])
+            ],
+            callback: async function LoopSong(message) {
+                const player = client.MusicService.getPlayer(message.guild);
+
+                if (!message.member.voice?.channel) {
+                    return await this.reply("error", "You must be in a voice channel to use this command.");
+                }
+                
+                if (message.member.voice.channel === player.channel) {
+                    return await this.reply("error", "You must be in the voice channel to use this command.");
+                }
+
+                const current = player.queue[player.current];
+
+                if (current) {
+                    current.loop = !current.loop;
+
+                    if (current.loop) {
+                        await this.reply("Now looping current song! 🔁");
+                    } else {
+                        await this.reply("Stopped looping current song. ↪");
+                    }
+                } else {
+                    return await this.reply("There is no song playing.");
                 }
             }
         })

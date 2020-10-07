@@ -96,6 +96,7 @@ ${this.data.description || "No description."}
             body: `
 *Released ${this.data.release_date}
 By ${this.data.authors.map((author, i) => "[" + author + "](" + this.data.authorURLs[i] + ")").join(", ")}*
+[View on ${this.provider.name}](${this.data.url})
             `.trim()
         }
     }
@@ -312,8 +313,10 @@ class MusicPlayer {
     pause() {
         const current = this.queue[this.current];
 
-        if (current) {
+        if (!current.dispatcher.paused) {
             current.dispatcher.pause();
+        } else {
+            throw new Error("Song is already paused.");
         }
     }
     
@@ -323,8 +326,30 @@ class MusicPlayer {
     resume() {
         const current = this.queue[this.current];
 
-        if (current) {
+        if (current.dispatcher.paused) {
             current.dispatcher.resume();
+        } else {
+            throw new Error("Song is not paused.");
+        }
+    }
+
+    /**
+     * Change the volume of the player.
+     * @param {Number} vol The volume to set from 0-1.
+     */
+    setVolume(vol) {
+        if (vol > 1) {
+            throw new Error("Volume cannot exceed 1");
+        }
+
+        if (vol < 0) {
+            throw new Error("Volume cannot subceed 0");
+        }
+
+        const current = this.queue[this.current];
+
+        if (current) {
+            current.dispatcher.setVolume(vol);
         }
     }
 
