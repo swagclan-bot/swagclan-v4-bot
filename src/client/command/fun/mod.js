@@ -209,7 +209,7 @@ export default new BotModule({
                 }
                 
                 const webhook = await message.channel.createWebhook(member_user.nickname || member_user.user.username, {
-                    avatar: member_user.user.avatarURL({ format: "png" }),
+                    avatar: member_user.user.displayAvatarURL({ format: "png", dynamic: true }),
                     reason: "Spoof a message."
                 });
 
