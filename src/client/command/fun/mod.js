@@ -175,7 +175,7 @@ export default new BotModule({
                     name: "who",
                     description: "The user to fake.",
                     emoji: "👨",
-                    types: [ArgumentType.Mention]
+                    types: [ArgumentType.Mention, ArgumentType.Snowflake]
                 })
             ]),
             new CommandVersion(["sayas"], [
@@ -183,7 +183,7 @@ export default new BotModule({
                     name: "who",
                     description: "The user to fake.",
                     emoji: "👨",
-                    types: [ArgumentType.Mention]
+                    types: [ArgumentType.Mention, ArgumentType.Snowflake]
                 }),
                 new CommandArgument({
                     name: "text",
@@ -197,21 +197,31 @@ export default new BotModule({
         callback: async function SpoofMessage(message) {
             message.delete();
 
-            const webhooks = await message.guild.fetchWebhooks();
+            try {
+                const webhooks = await message.guild.fetchWebhooks();
 
-            if (webhooks.size >= 10) {
-                return await this.reply("error", "Maximum number of webhooks reached.");
+                const member_user = this.args.who.type === ArgumentType.Snowflake ?
+                    { user: await client.users.fetch(this.args.who.value) } :
+                    await this.args.who.value;
+
+                if (webhooks.size >= 10) {
+                    return await this.reply("error", "Maximum number of webhooks reached.");
+                }
+                
+                const webhook = await message.channel.createWebhook(member_user.nickname || member_user.user.username, {
+                    avatar: member_user.user.avatarURL({ format: "png" }),
+                    reason: "Spoof a message."
+                });
+
+                const webhookClient = new discord.WebhookClient(webhook.id, webhook.token);
+
+                await webhookClient.send(this.args.text.value);
+                webhookClient.delete();
+            } catch (e) {
+                console.log(e);
+
+                return await this.reply("error", "Could not create webhook, ensure that the user exists and that the bot has webhook permissions.");
             }
-            
-            const webhook = await message.channel.createWebhook(this.args.who.value.nickname || this.args.who.value.user.username, {
-                avatar: this.args.who.value.user.avatarURL({ format: "png" }),
-                reason: "Spoof a message."
-            });
-
-            const webhookClient = new discord.WebhookClient(webhook.id, webhook.token);
-
-            await webhookClient.send(this.args.text.value);
-            webhookClient.delete();
         }
     }),
     new ModuleCommand({
