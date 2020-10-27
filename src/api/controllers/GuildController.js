@@ -232,7 +232,7 @@ export async function UpdateCommand(req, res) {
             Errors.Not_Found(req, res);
         }
     } else { 
-        Errors.Bad_request(req, res);
+        Errors.Bad_Request(req, res);
     }
 }
 
