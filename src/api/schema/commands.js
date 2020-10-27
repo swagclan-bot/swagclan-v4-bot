@@ -1,6 +1,6 @@
 import joi from "joi"
 
-const MIN_NAME = 3;
+const MIN_NAME = 1;
 const MAX_NAME = 20;
 const MAX_DESCRIPTION = 200;
 
