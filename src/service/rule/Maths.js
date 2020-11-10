@@ -26,7 +26,7 @@ export default new CustomCommandRuleGroup({
                 const precision = Math.max((min.toString().split(".")[1] || "").length, (max.toString().split(".")[1] || "").length);
                 const range = max - min;
 
-                return Number((Math.floor(Math.random() * (range + 1)) + min).toFixed(precision));
+                return Number((Math.random() * range + min).toFixed(precision));
             },
             fallback: 0,
             returns: "number"
