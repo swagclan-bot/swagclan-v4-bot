@@ -744,42 +744,54 @@ export default new BotModule({
                                     const reset_reactions = () => this.replies?.[this.replies.length - 1]?.reactions?.removeAll();
                                     
                                     challenge.any({
-                                        "started": async () => {
-                                            const { [challenge.challenger.name]: status } = await challenger.getStatus([challenge.challenger.name]);
+                                        "started": async ({ id }) => {
+                                            if (id === challenge.id) {
+                                                let { [challenge.challenger.name]: status } = await challenger.getStatus([challenge.challenger.name]);
 
-                                            if (!status.online) {
-                                                await this.delete();
+                                                if (!status.online) {
+                                                    await this.delete();
 
-                                                if (challenge.destUser) {
-                                                    await this.reply("success", "Match started between " + masked(challenge.challenger) + " and " + masked(challenge.destUser) + ", spectate at " + challenge.url, {
-                                                        text: "<@" + message.author.id + ">"
-                                                    });
+                                                    if (challenge.destUser) {
+                                                        await this.reply("success", "Match started between " + masked(challenge.challenger) + " and " + masked(challenge.destUser) + ", spectate at " + challenge.url, {
+                                                            text: "<@" + message.author.id + ">"
+                                                        });
+                                                    } else {
+                                                        await this.reply("success", "Match started with " + masked(challenge.challenger) + ", spectate at " + challenge.url, {
+                                                            text: "<@" + message.author.id + ">"
+                                                        });
+                                                    }
                                                 } else {
-                                                    await this.reply("success", "Match started with " + masked(challenge.challenger) + ", spectate at " + challenge.url, {
-                                                        text: "<@" + message.author.id + ">"
-                                                    });
+                                                    if (challenge.destUser) {
+                                                        await this.edit("success", "Match started between " + masked(challenge.challenger) + " and " + masked(challenge.destUser) + ", spectate at " + challenge.url);
+                                                    } else {
+                                                        await this.edit("success", "Match started with " + masked(challenge.challenger) + ", spectate at " + challenge.url);
+                                                    }
                                                 }
+
+                                                reset_reactions();
                                             } else {
-                                                if (challenge.destUser) {
-                                                    await this.edit("success", "Match started between " + masked(challenge.challenger) + " and " + masked(challenge.destUser) + ", spectate at " + challenge.url);
-                                                } else {
-                                                    await this.edit("success", "Match started with " + masked(challenge.challenger) + ", spectate at " + challenge.url);
-                                                }
+                                                return false;
                                             }
-
-                                            reset_reactions();
                                         },
-                                        "declined": async () => {
-                                            await this.edit("success", masked(challenge.destUser) + " declined challenge against " + masked(challenge.challenger));
+                                        "declined": async ({ id }) => {
+                                            if (id === challenge.id) {
+                                                await this.edit("success", masked(challenge.destUser) + " declined challenge against " + masked(challenge.challenger));
 
-                                            reset_reactions();
+                                                reset_reactions();
+                                            } else {
+                                                return false;
+                                            }
                                         },
                                         "cancelled": async () => {
-                                            await this.edit("success", "Challenge between " + masked(challenge.challenger) + " and " + masked(challenge.destUser) + " was cancelled.");
-                                            
-                                            reset_reactions();
+                                            if (id === challenge.id) {
+                                                await this.edit("success", "Challenge between " + masked(challenge.challenger) + " and " + masked(challenge.destUser) + " was cancelled.");
+                                                
+                                                reset_reactions();
+                                            } else {
+                                                return false;
+                                            }
                                         }
-                                    }, { timeout: 5400000 });
+                                    }, { timeout: 95400000 });
                                     
                                     challenge.once("ended", async () => {
                                         await this.edit("success", "Match between " + masked(challenge.challenger) + " and " + masked(challenge.destUser) + " ended, post-match analysis at " + challenge.url, {
