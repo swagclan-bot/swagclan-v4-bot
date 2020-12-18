@@ -1824,7 +1824,7 @@ ${format_compare_stat("fusions_per_match", "Fusions per match", true, true)}
 ${json.fork && json.parent ? "_Forked from [" + json.parent.full_name + "](" + json.parent.html_url + ")_\n" : ""}
 ${json.description ? json.description : ""}
 **Language:** ${json.language || "None"}
-**License:** ${json.license ? "[" + json.license.name + "](" + json.license.url + ")" + (json.license.spdx_id !== "NOASSERTION" ? " (" + json.license.spdx_id + ")" : "") : "None"}
+**License:** ${json.license ? "[" + json.license.name + "](http://choosealicense.com/licenses/" + json.license.key + ")" + (json.license.spdx_id !== "NOASSERTION" ? " (" + json.license.spdx_id + ")" : "") : "None"}
 ${json.homepage ? "**Homepage:** " + json.homepage : ""}
 [View on GitHub](${json.html_url})
                             `.split("\n").filter(_=>_).join("\n").trim()

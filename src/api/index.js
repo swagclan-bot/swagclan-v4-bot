@@ -14,7 +14,6 @@ import cookieParser from "cookie-parser"
 import oauth2 from "client-oauth2"
 
 import client from "../client/index.js"
-import { SwagClan } from "../class/SwagClan.js"
 
 import config from "../../.config.js"
 
