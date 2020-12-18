@@ -365,10 +365,10 @@ export class AccountService extends Service {
      * @returns {UserAccount}
      */
     createAccount(user_resolvable) {
-        const user = this.client.users.resolve(user_resolvable);
+        const userid = this.client.users.resolveID(user_resolvable);
 
         const account = new UserAccount(this, {
-            id: user.id,
+            id: userid,
             connections: {}
         });
 
