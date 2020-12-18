@@ -1808,7 +1808,8 @@ ${format_compare_stat("fusions_per_match", "Fusions per match", true, true)}
         ],
         callback: async function GitHub(message) {
             if (this.args.repo) {
-                const res = await fetch("https://api.github.com/repos/" + encodeURIComponent(this.args.repo.value));
+                const parts = this.args.repo.value.split("/");
+                const res = await fetch("https://api.github.com/repos/" + parts.map(encodeURIComponent).join("/"));
 
                 const json = res.status === 200 ? await res.json() : null;
     
