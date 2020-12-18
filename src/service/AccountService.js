@@ -129,6 +129,15 @@ const oauthLichess = new oauth2({
     scopes: ["challenge:read", "challenge:write"]
 });
 
+const oauthGithub = new oauth2({
+    clientId: credentials.github_id,
+    clientSecret: credentials.github_secret,
+    accessTokenUri: "https://github.com/login/oauth/access_token",
+    authorizationUri: "https://github.com/login/oauth/authorize",
+    redirectUri: process.env.BASE_API + "/account/connections/github/callback",
+    scopes: ["read:user"]
+});
+
 class UserAccount {
     /**
      * Instantiate a user account.
@@ -183,6 +192,8 @@ class UserAccount {
     getURI(connection) {
         if (connection === "lichess") {
             return oauthLichess.code.getUri();
+        } else if (connection === "github") {
+            return oauthGithub.code.getUri();
         } else {
             return "";
         }
@@ -213,6 +224,26 @@ class UserAccount {
                     name: "lichess",
                     username: json.username,
                     url: json.url,
+                    created_at: Date.now(),
+                    auth
+                });
+            } else if (connection === "github") {
+                const githubtoken = await oauthGithub.code.getToken(url);
+                const auth = githubtoken.data;
+
+                const user = await fetch("https://api.github.com/user", {
+                    headers: {
+                        "Authorization": auth.token_type + " " + auth.access_token
+                    }
+                });
+
+                const json = await user.json();
+
+                this.connections.github = new AccountConnection(this, {
+                    id: json.id,
+                    name: "github",
+                    username: json.login,
+                    url: json.html_url,
                     created_at: Date.now(),
                     auth
                 });
@@ -262,20 +293,20 @@ export class AccountService extends Service {
      * @returns {UserAccount}
      */
     async getAccount(user_resolvable) {
-        const user = this.client.users.resolve(user_resolvable);
+        const user = this.client.users.resolveID(user_resolvable);
 
-        if (user && this.users.get(user.id)) {
-            return this.users.get(user.id);
+        if (this.users.get(user)) {
+            return this.users.get(user);
         } else {
             try {
-                await this.loadAccount(user.id);
+                await this.loadAccount(user);
             } catch (e) {
                 if (e.code === "ENOENT") {
                     const account = await this.createAccount(user_resolvable);
                     
                     await account.save();
 
-                    this.users.set(user.id, account);
+                    this.users.set(user, account);
                 } else {
                     throw e;
                 }

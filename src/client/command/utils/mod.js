@@ -1760,13 +1760,13 @@ ${format_compare_stat("fusions_per_match", "Fusions per match", true, true)}
                     "https:" + mediajson.items?.[0]?.srcset?.[0]?.src
                     : null;
 
-                const extract = pagejson.extract.length > 1024 ? pagejson.extract.substr(0, 1000) + "..." : pagejson.extract;
+                const extract = pagejson.extract.length > 800 ? pagejson.extract.substr(0, 800) + "..." : pagejson.extract;
 
                 return await this.reply("success", "", {
                     fields: [
                         {
                             title: pagejson.titles.normalized,
-                            body: extract || "No summary found." + "\n[View on Wikipedia](" + pagejson.content_urls.desktop.page + ")"
+                            body: extract ? (extract + "\n[View on Wikipedia](" + pagejson.content_urls.desktop.page + ")") : "No summary found."
                         }
                     ],
                     ...(image ? { thumbnail: {
@@ -1775,6 +1775,125 @@ ${format_compare_stat("fusions_per_match", "Fusions per match", true, true)}
                 });
             } else {
                 return await this.reply("error", "Could not wikipedia article.");
+            }
+        }
+    }), 
+    new ModuleCommand({
+        name: "GitHub",
+        description: "Get information about a user or repository on GitHub.",
+        emoji: "<:github:" + config.emoji.github + ">",
+        versions: [
+            new CommandVersion(["github", "gh"], [
+                new CommandArgument({
+                    name: "repo",
+                    description: "The repository to get information about.",
+                    emoji: "🗃",
+                    types: [new ArgumentType({
+                        name: "Repository",
+                        description: "A repository identifer on GitHub.",
+                        examples: ["swagclan-bot/swagclan-v4-bot"],
+                        validate: /^.+?\/.+$/
+                    })]
+                })
+            ]),
+            new CommandVersion(["github", "gh"], [
+                new CommandArgument({
+                    name: "user",
+                    description: "The user to get information about.",
+                    emoji: "🏷",
+                    types: [ArgumentType.Any],
+                    optional: true
+                }),
+            ]),
+        ],
+        callback: async function GitHub(message) {
+            if (this.args.repo) {
+                const res = await fetch("https://api.github.com/repos/" + encodeURIComponent(this.args.repo.value));
+
+                const json = res.status === 200 ? await res.json() : null;
+    
+                if (json) {
+                    const image = json.owner.avatar_url;    
+    
+                    return await this.reply("success", "", {
+                        fields: [
+                            {
+                                title: json.full_name,
+                                body: `
+${json.fork && json.parent ? "_Forked from [" + json.parent.full_name + "](" + json.parent.html_url + ")_\n" : ""}
+${json.description ? json.description : ""}
+**Language:** ${json.language || "None"}
+**License:** ${json.license ? "[" + json.license.name + "](" + json.license.url + ")" + (json.license.spdx_id !== "NOASSERTION" ? " (" + json.license.spdx_id + ")" : "") : "None"}
+${json.homepage ? "**Homepage:** " + json.homepage : ""}
+[View on GitHub](${json.html_url})
+                            `.split("\n").filter(_=>_).join("\n").trim()
+                            },
+                            {
+                                title: "Stats",
+                                body: `
+**Created:** ${json.created_at}
+**Stargazers:** \`${fmt(json.stargazers_count)}\`
+**Watchers:** \`${fmt(json.subscribers_count)}\`
+**Forks:** \`${fmt(json.forks_count)}\`
+                                `.split("\n").filter(_=>_).join("\n").trim()
+                            }
+                        ],
+                        ...(image ? { thumbnail: {
+                            url: image
+                        } } : {})
+                    });
+                } else {
+                    return await this.reply("error", "Couldn't get GitHub repo (" + res.status + ")");
+                }
+            } else {
+                const account = await client.AccountService.getAccount(message.author);
+
+                console.log(account.connections);
+
+                const username = this.args.user ?
+                    this.args.user.value :
+                    account.connections.github?.username;
+
+                if (!username) {
+                    return await this.reply("error", "You haven't linked your account with GitHub, [Click here to link your account](" + process.env.BASE_API + "/account/connections/github)");
+                }
+
+                const res = await fetch("https://api.github.com/users/" + encodeURIComponent(username));
+
+                const json = res.status === 200 ? await res.json() : null;
+
+                if (json) {
+                    const image = json.avatar_url;    
+    
+                    return await this.reply("success", "", {
+                        fields: [
+                            {
+                                title: (json.name  ? json.name + " (" + json.login + ")" : json.login) + (json.site_admin ? " 🛡" : ""),
+                                body: `
+${json.bio ? json.bio : ""}
+${json.twitter_username ? "**Twitter:** [@" + json.twitter_username + "](https://twitter.com/" + json.twitter_username + ")" : ""}
+${json.location ? "**Location**: " + json.location : ""}
+${json.blog ? "**Blog**: " + json.blog : ""}
+[View on GitHub](${json.html_url})
+                                `.split("\n").filter(_=>_).join("\n").trim()
+                            },
+                            {
+                                title: "Stats",
+                                body: `
+**Created:** ${json.created_at}
+**Repositories:** \`${fmt(json.public_repos)}\`
+**Followers:** \`${fmt(json.followers)}\`
+**Following:** \`${fmt(json.following)}\`
+                                `.split("\n").filter(_=>_).join("\n").trim()
+                            }
+                        ],
+                        ...(image ? { thumbnail: {
+                            url: image
+                        } } : {})
+                    });
+                } else {
+                    return await this.reply("error", "Couldn't get GitHub user (" + res.status + ")");
+                }
             }
         }
     })],
