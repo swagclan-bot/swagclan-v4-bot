@@ -1,16 +1,17 @@
 // Imports
 import discord from "discord.js"
-import { BotModule, ModuleCommand, MessageMatcher, CommandVersion, CommandArgument, CommandSyntax, ArgumentType } from "../../../service/ModuleService.js"
-
+import fs from "fs/promises"
 import fetch from "node-fetch"
 import FormData from "form-data"
+import Fuse from "fuse.js"
+
+import { BotModule, ModuleCommand, MessageMatcher, CommandVersion, CommandArgument, CommandSyntax, ArgumentType } from "../../../service/ModuleService.js"
 
 import lichess from "../../../../lib/lichess/index.js"
 
 import { camelCaseToWords } from "../../../util/camelcase.js"
 
 import config from "../../../../.config.js"
-
 import client from "../../index.js"
 
 function pad_left(pad, len, str) {
@@ -624,6 +625,55 @@ export default new BotModule({
                     emoji: "🏷",
                     types: [ArgumentType.Mention, ArgumentType.Any]
                 }),
+                new CommandSyntax("position"),
+                new CommandArgument({
+                    name: "from",
+                    description: "The position to play from",
+                    emoji: "▶",
+                    types: [new ArgumentType({
+                        name: "FEN",
+                        description: "A fen code.",
+                        examples: ["r1bqkb1r/pppp1ppp/2n2n2/4N3/4P3/8/PPPP1PPP/RNBQKB1R w KQkq - 1 4"],
+                        validate: /\s*^(((?:[rnbqkpRNBQKP1-8]+\/){7})[rnbqkpRNBQKP1-8]+)\s([b|w])\s([K|Q|k|q]{1,4})\s(-|[a-h][1-8])\s(\d+\s\d+)$/
+                    }), ArgumentType.Text],
+                    default: "standard"
+                }),
+                new CommandArgument({
+                    name: "control",
+                    description: "The custom time control to play.",
+                    emoji: "⏰",
+                    types: [
+                        new ArgumentType({
+                            name: "Time Control",
+                            description: "A chess time control setting.",
+                            examples: ["5+3", "10+0", "2d", "bullet", "blitz", "classical"],
+                            validate: /^(((1\/2)|(1\/4)|\d+)(\+\d+)|(\d+d)|(blitz)|(rapid)|(bullet)|(classical)(unlimited))$/
+                        })
+                    ],
+                    optional: true,
+                    default: "unlimited"
+                }),
+                new CommandArgument({
+                    name: "colour",
+                    description: "The colour to play.",
+                    emoji: "⚪",
+                    types: [new ArgumentType({
+                        name: "black/white/random",
+                        description: "A chess colour.",
+                        examples: ["black", "white"],
+                        validate: /^(black)|(white)|(any)$/i
+                    })],
+                    optional: true,
+                    default: "random"
+                })
+            ]),
+            new CommandVersion(["lichess", "challenge", "chess"], [
+                new CommandArgument({
+                    name: "user",
+                    description: "The user to challenge on lichess.",
+                    emoji: "🏷",
+                    types: [ArgumentType.Mention, ArgumentType.Any]
+                }),
                 new CommandArgument({
                     name: "variant",
                     description: "The variant of chess to play",
@@ -668,8 +718,41 @@ export default new BotModule({
                 })
             ])
         ],
-		example: "https://i.imgur.com/DUQJIAN.gif",
+        example: "https://i.imgur.com/DUQJIAN.gif",
         callback: async function LichessChallenge(message) {
+            const getOpeningFEN = async name => {
+                const openings = JSON.parse(await fs.readFile("lib/openings.json"));
+
+                if (name === "random") {
+                    return openings[Math.floor(Math.random() * openings.length - 1)].fen + " 0 1";
+                } else {
+                    const search_term = name;
+
+                    const fuse = new Fuse(openings, {
+                        keys: ["eco", "name"],
+                        threshold: 0.4
+                    });
+
+                    const items = fuse.search(search_term);
+
+                    if (items.length) {
+                        const { item } = items[0];
+
+                        if (item) {
+                            return await item.fen + " 0 1";
+                        }
+                    } else {
+                        return await this.reply("error", "Could not find an opening by that name.");
+                    }
+                }
+            }
+
+            const from = this.args.from ? this.args.from.type.name === "Text" ? (await getOpeningFEN(this.args.from.value) || undefined) : this.args.from.value : undefined;
+
+            if (this.args.from && !from) {
+                return await this.reply("error", "Couldn't find that position to start from.");
+            }
+            
 			if (this.args.variants) {
                 return await this.reply("success", "Possible variants: `" + Object.values(lichess.variants).map(v => v.toLowerCase()).join(", ") + "`");
             } else {
@@ -738,7 +821,8 @@ export default new BotModule({
                                                 }
                                             })()
                                         ) : {}),
-                                        variant: lichess.variants[this.args.variant.value.toLowerCase()] || "standard"
+                                        variant: lichess.variants[this.args.variant?.value?.toLowerCase()] || "standard",
+                                        fen: from
                                     });
 
                                     const reset_reactions = () => this.replies?.[this.replies.length - 1]?.reactions?.removeAll();
@@ -804,8 +888,8 @@ export default new BotModule({
                                     });
 
                                     if (challenge.destUser) {
-                                        const variant = camelCaseToWords(challenge.variant.key);
-                                        const speed = camelCaseToWords(challenge.speed);
+                                        const variant = camelCaseToWords(challenge.variant.key, true);
+                                        const speed = camelCaseToWords(challenge.speed, true);
                                         await this.edit("success", "Created " + variant + " " + speed + (challenge.timeControl.show ? " (" + challenge.timeControl.show + ")" : "") + " challenge at " + challenge.url + " against " + masked(challenge.destUser));
                                         
                                         const msg = this.replies[this.replies.length - 1];
@@ -854,6 +938,7 @@ export default new BotModule({
                                     } else if (e.status === 404) {
                                         return await this.edit("error", "Could not find user.");
                                     } else {
+                                        console.log(e, from);
                                         return await this.edit("error", "Could not challenge user, please try again later");
                                     }
                                 }

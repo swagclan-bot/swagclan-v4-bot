@@ -330,7 +330,7 @@ export class AccountService extends Service {
     /**
      * Load custom commands for a guild.
      * @param {String} id The ID of the guild to load.
-     * @returns {UserAccount]
+     * @returns {UserAccount}
      */
     async loadAccount(id) {
         try {

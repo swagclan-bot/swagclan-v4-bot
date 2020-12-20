@@ -3,9 +3,15 @@ import uppercase from "./uppercase.js"
 /**
  * Convert a camel case word into individual words.
  * @param {String} camel
+ * @param {Boolean} capitalise
  */
-export function camelCaseToWords(camel) {
-    return camel.replace(/([A-Z])/g, " $1");
+export function camelCaseToWords(camel, capitalise = false) {
+    if (capitalise) {
+        const normal = camel.replace(/([A-Z])/g, " $1");
+        return normal[0].toUpperCase() + normal.substr(1).toLowerCase();
+    }
+
+    return camel.replace(/([A-Z])/g, " $1").toLowerCase();
 }
 
 /**
