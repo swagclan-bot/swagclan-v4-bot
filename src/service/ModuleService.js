@@ -839,7 +839,7 @@ export class ModuleCommand {
         };
 
         for (let i = 0; i < this.versions.length; i++) {
-            let parts = message.content.match(/".*?"|[^\s]+/g).map(s => s.replace(/^"(.*)"$/, "$1"))
+            let parts = (message.content.match(/".*?"|[^\s]+/g) || []).map(s => s.replace(/^"(.*)"$/, "$1"))
 
             parsed.version_id = i;
             parsed.parsed_args = await this.versions[i].validate(message, parts);
@@ -1155,7 +1155,7 @@ export class CommandVersion {
             return false;
         }
 
-        const parts = msg.match(/".*?"|[^\s]+/g).map(s => s.replace(/^"(.*)"$/, "$1")).filter(_ => _);
+        const parts = (msg.match(/".*?"|[^\s]+/g) || []).map(s => s.replace(/^"(.*)"$/, "$1")).filter(_ => _);
 
         let arg_i = 0;
         let just_found = false;
