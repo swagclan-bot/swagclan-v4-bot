@@ -66,10 +66,10 @@ export default new BotModule({
 
             return await this.reply(colour, "User " + user.tag + " (" + user.id + ")", {
                 fields: [
-                    {
+                    ...(message.user.createdAt ? [{
                         title: "Created At",
                         body: user.createdAt.toISOString()
-                    },
+                    }] : []),
                     ...(message.guild.members.resolve(user) ? [{
                         title: "Join Date",
                         body: user.joinedAt.toISOString()
