@@ -72,7 +72,7 @@ export default new BotModule({
                     }] : []),
                     ...(message.guild.members.resolve(user) ? [{
                         title: "Join Date",
-                        body: user.joinedAt.toISOString()
+                        body: member.joinedAt.toISOString()
                     }] : [])
                 ],
                 image: {
