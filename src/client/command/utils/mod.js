@@ -133,7 +133,7 @@ export default new BotModule({
                     name: "user",
                     description: "The user of whom to get the avatar.",
                     emoji: "👥",
-                    types: [ArgumentType.Mention, ArgumentType.Snowflake],
+                    types: [ArgumentType.User],
                     optional: true
                 }),
                 new CommandArgument({
@@ -147,25 +147,14 @@ export default new BotModule({
         ],
         example: "https://i.imgur.com/0NTIIuu.gif",
         callback: async function GetUserAvatar(message) {
-            const user = (this.args.user ?
-                (this.args.user?.type === ArgumentType.Snowflake ?
-                    await client.users.fetch(this.args.user?.value) :
-                    this.args.user?.value?.user)
-            : "") || message.author;
-
             try {
-                const avatarURL = this.args.format ? user.displayAvatarURL({
-                    format: this.args.format.value,
-                    dynamic: false,
-                    size: 512
-                }) : user.displayAvatarURL({
-                    dynamic: true,
-                    size: 512
-                })
-
-                return await this.reply("success", "User avatar for <@" + user.id + ">.", {
+                return await this.reply("success", "User avatar for <@" + this.args.user.value.id + ">.", {
                     image: {
-                        url: avatarURL
+                        url: this.args.user.value.displayAvatarURL({
+                            format: this.args.format?.value || undefined,
+                            dynamic: !this.args.format,
+                            size: 1024
+                        })
                     }
                 });
             } catch (e) {

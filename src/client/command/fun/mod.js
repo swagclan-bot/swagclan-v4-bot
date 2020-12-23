@@ -184,7 +184,7 @@ export default new BotModule({
                     name: "who",
                     description: "The user to fake.",
                     emoji: "👨",
-                    types: [ArgumentType.Mention, ArgumentType.Snowflake]
+                    types: [ArgumentType.User]
                 }),
                 new CommandArgument({
                     name: "text",
@@ -198,18 +198,10 @@ export default new BotModule({
         callback: async function SpoofMessage(message) {
             message.delete();
 
+            const member = message.guild.members.resolve(this.args.user.value.id);
+
             try {
-                const webhooks = await message.guild.fetchWebhooks();
-
-                const member_user = this.args.who.type === ArgumentType.Snowflake ?
-                    { user: await client.users.fetch(this.args.who.value) } :
-                    await this.args.who.value;
-
-                if (webhooks.size >= 10) {
-                    return await this.reply("error", "Maximum number of webhooks reached.");
-                }
-                
-                const webhook = await message.channel.createWebhook(member_user.nickname || member_user.user.username, {
+                const webhook = await message.channel.createWebhook(member?.nickname || this.args.user.value.username, {
                     avatar: member_user.user.displayAvatarURL({ format: "png", dynamic: true }),
                     reason: "Spoof a message."
                 });
@@ -217,10 +209,8 @@ export default new BotModule({
                 const webhookClient = new discord.WebhookClient(webhook.id, webhook.token);
 
                 await webhookClient.send(this.args.text.value);
-                webhookClient.delete();
+                await webhookClient.delete();
             } catch (e) {
-                console.log(e);
-
                 return await this.reply("error", "Could not create webhook, ensure that the user exists and that the bot has webhook permissions.");
             }
         }
