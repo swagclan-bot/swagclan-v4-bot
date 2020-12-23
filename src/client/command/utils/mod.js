@@ -66,7 +66,7 @@ export default new BotModule({
 
             return await this.reply(colour, "User " + user.tag + " (" + user.id + ")", {
                 fields: [
-                    ...(message.user.createdAt ? [{
+                    ...(user.createdAt ? [{
                         title: "Created At",
                         body: user.createdAt.toISOString()
                     }] : []),
