@@ -9,6 +9,8 @@ import { Service } from "./Service.js"
 import { SwagClan } from "../class/SwagClan.js"
 import ChunkArr from "../util/chunk.js"
 
+import client from "../client/index.js"
+
 import config from "../../.config.js"
 
 const reply_modes = {
@@ -1515,6 +1517,35 @@ export class ArgumentType {
             const id = text.match(/\d{17,19}/)[0];
 
             return message.mentions.members.get(id);
+        }
+    });
+    
+    /**
+     * A snowflake or member on a server.
+     * @type {ArgumentType}
+     */
+    static User = new ArgumentType({
+        name: "User",
+        description: "A user or member on a server.",
+        examples: ["@weakeyes#1111"],
+        validate: async function (message, text) {
+            const matches = /^(<@!?)?\d{17,19}>?$/.test(text);
+            const id = (text.match(/\d{17,19}/) || [])[0];
+
+            try {
+                return matches && (client.users.resolve(id) || await client.users.fetch(id));
+            } catch (e) {
+                return false;
+            }
+        },
+        parse: async function (message, text) {
+            const id = text.match(/\d{17,19}/)[0];
+
+            try {
+                return client.users.resolve(id) || await client.users.fetch(id);
+            } catch (e) {
+                return false;
+            }
         }
     });
 

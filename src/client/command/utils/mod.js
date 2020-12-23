@@ -47,34 +47,36 @@ export default new BotModule({
                     name: "user",
                     description: "The user to get information about.",
                     emoji: "👥",
-                    types: [ArgumentType.Mention],
+                    types: [ArgumentType.User],
                     optional: true
                 })
             ])
         ],
         example: "https://i.imgur.com/iEB12aR.gif",
         callback: async function GetUserInformation(message) {
-            let member = this.args.user?.value || message.member;
+            /** @type {discord.User} */
+            const user = this.args.user?.value || message.author;
+            const member = message.guild.members.resolve(user.id);
 
-            let colour = 
-                member.presence?.status === "online" ? "0x43b581" :
-                member.presence?.status === "idle" ? "0xfaa61a" : 
-                member.presence?.status === "offline" ? "0x747f8d" :
-                member.presence?.status === "dnd" ? "0xf04747" : "success";
+            const colour = 
+                user.presence?.status === "online" ? "0x43b581" :
+                user.presence?.status === "idle" ? "0xfaa61a" : 
+                user.presence?.status === "offline" ? "0x747f8d" :
+                user.presence?.status === "dnd" ? "0xf04747" : "success";
 
-            return await this.reply(colour, "User " + member.user.tag + " (" + member.user.id + ")", {
+            return await this.reply(colour, "User " + user.tag + " (" + user.id + ")", {
                 fields: [
                     {
                         title: "Created At",
-                        body: member.user.createdAt.toISOString()
+                        body: user.createdAt.toISOString()
                     },
-                    {
+                    ...(message.guild.members.resolve(user) ? [{
                         title: "Join Date",
-                        body: member.joinedAt.toISOString()
-                    }
+                        body: user.joinedAt.toISOString()
+                    }] : [])
                 ],
                 image: {
-                    url: member.user.avatarURL({ format: "png", dynamic: true })
+                    url: user.avatarURL({ format: "png", dynamic: true })
                 }
             }); 
         }
