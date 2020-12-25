@@ -198,10 +198,10 @@ export default new BotModule({
         callback: async function SpoofMessage(message) {
             message.delete();
 
-            const member = message.guild.members.resolve(this.args.user.value.id);
+            const member = message.guild.members.resolve(this.args.who.value.id);
 
             try {
-                const webhook = await message.channel.createWebhook(member?.nickname || this.args.user.value.username, {
+                const webhook = await message.channel.createWebhook(member?.nickname || this.args.who.value.username, {
                     avatar: member_user.user.displayAvatarURL({ format: "png", dynamic: true }),
                     reason: "Spoof a message."
                 });
