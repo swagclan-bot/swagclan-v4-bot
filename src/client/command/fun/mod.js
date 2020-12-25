@@ -202,7 +202,7 @@ export default new BotModule({
 
             try {
                 const webhook = await message.channel.createWebhook(member?.nickname || this.args.who.value.username, {
-                    avatar: member_user.user.displayAvatarURL({ format: "png", dynamic: true }),
+                    avatar: this.args.who.value.displayAvatarURL({ format: "png", dynamic: true }),
                     reason: "Spoof a message."
                 });
 
@@ -211,6 +211,7 @@ export default new BotModule({
                 await webhookClient.send(this.args.text.value);
                 await webhookClient.delete();
             } catch (e) {
+                console.log(e);
                 return await this.reply("error", "Could not create webhook, ensure that the user exists and that the bot has webhook permissions.");
             }
         }
