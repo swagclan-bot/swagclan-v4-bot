@@ -372,7 +372,7 @@ export class AccountService extends Service {
             connections: {}
         });
 
-        this.users.set(user.id, account);
+        this.users.set(userid, account);
 
         return account;
     }
