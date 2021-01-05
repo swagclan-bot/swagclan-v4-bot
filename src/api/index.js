@@ -379,7 +379,7 @@ function resolve_basic_guild_object(guild) {
 
     const iconURL = guild.icon ? ("https://cdn.discordapp.com/icons/" + 
         guild.id + "/" +
-        guild.icon + (guild.icon.startsWith("a_") ? ".gif" : ".png")) : "https://api.thechimp.store/asset/other/noicon.png";
+        guild.icon + (guild.icon.startsWith("a_") ? ".gif" : ".png")) : "https://api.weakeyes.dev/asset/other/noicon.png";
 
     return {
         id: guild.id,

@@ -33,7 +33,7 @@ export default client;
 (async () => {
     console.info("Process started" + (runtime_config.debug ? " in debug" : "") + " and client initialised, runtime ID: " + runtime_id);
 
-    if (!runtime_config.noupdate && process.env.BASE_API !== "https://api.thechimp.store") {
+    if (!runtime_config.noupdate && process.env.BASE_API !== "https://api.weakeyes.dev") {
         console.info("Checking for updates..");
 
         const latest_stable = await client.getLatest();

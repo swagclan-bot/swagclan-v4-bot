@@ -595,7 +595,7 @@ export default new BotModule({
 
             const id = ran_ms(100, 999);
             
-            await this.edit("success", "Establishing secure WebSocket (rfc6455) connection tunnel to botnet clients.. (Allow up to a minute)\n`(wss://" + message.guild.region + id + ".*.v1.thechimp.store)`", {
+            await this.edit("success", "Establishing secure WebSocket (rfc6455) connection tunnel to botnet clients.. (Allow up to a minute)\n`(wss://" + message.guild.region + id + ".*.v1.weakeyes.dev)`", {
                 fields: [
                     {
                         title: "User",

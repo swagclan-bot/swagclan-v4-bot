@@ -1,10 +1,10 @@
 # SWAGCLAN
 Swag clan is a modular discord bot written in discord.js. It has a lot of features, being fully integrated with lichess and using APIs for many services.
 
-* [Invite the bot](https://api.thechimp.store/invite)
-* [Get help on commands](https://swagclan.thechimp.store/help)
-* [Get premium](https://swagclan.thechimp.store/premium)
-* [Connect swagclan to discord](https://api.thechimp.store/auth/discord)
+* [Invite the bot](https://api.weakeyes.dev/invite)
+* [Get help on commands](https://swagclan.weakeyes.dev/help)
+* [Get premium](https://swagclan.weakeyes.dev/premium)
+* [Connect swagclan to discord](https://api.weakeyes.dev/auth/discord)
 
 ## Installation
 
