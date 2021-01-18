@@ -107,6 +107,7 @@ export default new BotModule({
                         title: "Stats",
                         body: `
 **Members**: \`${fmt(message.guild.memberCount)}/${fmt(message.guild.maximumMembers)}\`
+**Bots**: \`${fmt(message.guild.members.cache.filter(member => member.user.bot).size)}\`
 **Roles**: \`${fmt(message.guild.roles.cache.size - 1)}\`
 **Categories**: \`${fmt(message.guild.channels.cache.filter(channel => channel.type === "category").size)}\`
 **Channels**: \`${fmt(message.guild.channels.cache.filter(channel => channel.type !== "category").size)}\`
