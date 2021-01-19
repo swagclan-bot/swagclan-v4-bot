@@ -91,8 +91,6 @@ export default new BotModule({
         callback: async function GetServerInformation(message) {
             await message.guild.fetch();
 
-            const num_bots = message.guild.members.cache.filter(member => member.user.bot).size;
-
             return await this.reply("success", "Server information for `" + message.guild.name + "`", {
                 fields: [
                     {
@@ -108,8 +106,7 @@ export default new BotModule({
                     {
                         title: "Stats",
                         body: `
-**Members**: \`${fmt(message.guild.memberCount - num_bots)}\`
-**Bots**: \`${fmt(num_bots)}\`
+**Members**: \`${fmt(message.guild.memberCount)}\`
 **Roles**: \`${fmt(message.guild.roles.cache.size - 1)}\`
 **Categories**: \`${fmt(message.guild.channels.cache.filter(channel => channel.type === "category").size)}\`
 **Channels**: \`${fmt(message.guild.channels.cache.filter(channel => channel.type !== "category").size)}\`
